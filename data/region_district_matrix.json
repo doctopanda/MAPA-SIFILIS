@@ -1,0 +1,132 @@
+{
+  "schema": "MAPA-SIFILIS-REGION-DISTRICT-MATRIX-0.1",
+  "state": "Sonora",
+  "regions": [
+    {
+      "region_id": "IB01",
+      "region_label": "Región San Luis Río Colorado",
+      "municipality_count": 3,
+      "district_overlap": [
+        {
+          "district_id": "DS06",
+          "municipality_count": 3
+        }
+      ]
+    },
+    {
+      "region_id": "IB02",
+      "region_label": "Región Caborca",
+      "municipality_count": 8,
+      "district_overlap": [
+        {
+          "district_id": "DS02",
+          "municipality_count": 7
+        },
+        {
+          "district_id": "DS03",
+          "municipality_count": 1
+        }
+      ]
+    },
+    {
+      "region_id": "IB03",
+      "region_label": "Región Nogales (Norte)",
+      "municipality_count": 11,
+      "district_overlap": [
+        {
+          "district_id": "DS03",
+          "municipality_count": 11
+        }
+      ]
+    },
+    {
+      "region_id": "IB04",
+      "region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "municipality_count": 14,
+      "district_overlap": [
+        {
+          "district_id": "DS01",
+          "municipality_count": 10
+        },
+        {
+          "district_id": "DS03",
+          "municipality_count": 4
+        }
+      ]
+    },
+    {
+      "region_id": "IB05",
+      "region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "municipality_count": 16,
+      "district_overlap": [
+        {
+          "district_id": "DS01",
+          "municipality_count": 15
+        },
+        {
+          "district_id": "DS03",
+          "municipality_count": 1
+        }
+      ]
+    },
+    {
+      "region_id": "IB06",
+      "region_label": "Región Hermosillo (Centro)",
+      "municipality_count": 4,
+      "district_overlap": [
+        {
+          "district_id": "DS01",
+          "municipality_count": 4
+        }
+      ]
+    },
+    {
+      "region_id": "IB07",
+      "region_label": "Región Guaymas",
+      "municipality_count": 5,
+      "district_overlap": [
+        {
+          "district_id": "DS01",
+          "municipality_count": 3
+        },
+        {
+          "district_id": "DS04",
+          "municipality_count": 2
+        }
+      ]
+    },
+    {
+      "region_id": "IB08",
+      "region_label": "Región Cajeme",
+      "municipality_count": 6,
+      "district_overlap": [
+        {
+          "district_id": "DS04",
+          "municipality_count": 6
+        }
+      ]
+    },
+    {
+      "region_id": "IB09",
+      "region_label": "Región Navojoa (Sur)",
+      "municipality_count": 2,
+      "district_overlap": [
+        {
+          "district_id": "DS05",
+          "municipality_count": 2
+        }
+      ]
+    },
+    {
+      "region_id": "IB10",
+      "region_label": "Región Huatabampo",
+      "municipality_count": 3,
+      "district_overlap": [
+        {
+          "district_id": "DS05",
+          "municipality_count": 3
+        }
+      ]
+    }
+  ]
+}

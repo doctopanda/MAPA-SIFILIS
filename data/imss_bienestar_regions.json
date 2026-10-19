@@ -1,19 +1,382 @@
 {
-  "schema": "MAPA-SIFILIS-IMSSB-REGIONS-0.1",
+  "schema": "MAPA-SIFILIS-IMSSB-REGIONS-0.2",
   "state": "Sonora",
-  "status": "region_names_verified_crosswalk_pending",
-  "warning": "Do not infer municipality membership from the regional head name. Populate municipalities only after documentary validation.",
+  "status": "operational_crosswalk_supplied_by_project_owner",
+  "updated": "2026-10-19",
+  "notes": [
+    "Los nombres de las 10 regiones operativas habían sido documentados previamente.",
+    "La asignación municipio→región de esta versión corresponde al crosswalk operativo proporcionado por el responsable del proyecto.",
+    "Los códigos municipales usan el catálogo de 72 municipios de Sonora empleado por la cartografía del proyecto."
+  ],
   "regions": [
-    {"id":"IB01","name":"San Luis Río Colorado","municipalities":[]},
-    {"id":"IB02","name":"Caborca","municipalities":[]},
-    {"id":"IB03","name":"Nogales","municipalities":[]},
-    {"id":"IB04","name":"Moctezuma","municipalities":[]},
-    {"id":"IB05","name":"Ures","municipalities":[]},
-    {"id":"IB06","name":"Hermosillo","municipalities":[]},
-    {"id":"IB07","name":"Guaymas","municipalities":[]},
-    {"id":"IB08","name":"Cajeme","municipalities":[]},
-    {"id":"IB09","name":"Navojoa","municipalities":[]},
-    {"id":"IB10","name":"Huatabampo","municipalities":[]}
+    {
+      "id": "IB01",
+      "name": "San Luis Río Colorado",
+      "label": "Región San Luis Río Colorado",
+      "municipality_count": 3,
+      "municipalities": [
+        {
+          "code": "055",
+          "name": "San Luis Río Colorado"
+        },
+        {
+          "code": "048",
+          "name": "Puerto Peñasco"
+        },
+        {
+          "code": "070",
+          "name": "General Plutarco Elías Calles"
+        }
+      ]
+    },
+    {
+      "id": "IB02",
+      "name": "Caborca",
+      "label": "Región Caborca",
+      "municipality_count": 8,
+      "municipalities": [
+        {
+          "code": "017",
+          "name": "Caborca"
+        },
+        {
+          "code": "004",
+          "name": "Altar"
+        },
+        {
+          "code": "007",
+          "name": "Átil"
+        },
+        {
+          "code": "046",
+          "name": "Oquitoa"
+        },
+        {
+          "code": "047",
+          "name": "Pitiquito"
+        },
+        {
+          "code": "060",
+          "name": "Sáric"
+        },
+        {
+          "code": "064",
+          "name": "Trincheras"
+        },
+        {
+          "code": "065",
+          "name": "Tubutama"
+        }
+      ]
+    },
+    {
+      "id": "IB03",
+      "name": "Nogales",
+      "label": "Región Nogales (Norte)",
+      "municipality_count": 11,
+      "municipalities": [
+        {
+          "code": "043",
+          "name": "Nogales"
+        },
+        {
+          "code": "002",
+          "name": "Agua Prieta"
+        },
+        {
+          "code": "016",
+          "name": "Benjamín Hill"
+        },
+        {
+          "code": "019",
+          "name": "Cananea"
+        },
+        {
+          "code": "022",
+          "name": "Cucurpe"
+        },
+        {
+          "code": "027",
+          "name": "Fronteras"
+        },
+        {
+          "code": "035",
+          "name": "Ímuris"
+        },
+        {
+          "code": "036",
+          "name": "Magdalena"
+        },
+        {
+          "code": "039",
+          "name": "Naco"
+        },
+        {
+          "code": "058",
+          "name": "Santa Ana"
+        },
+        {
+          "code": "059",
+          "name": "Santa Cruz"
+        }
+      ]
+    },
+    {
+      "id": "IB04",
+      "name": "Moctezuma",
+      "label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "municipality_count": 14,
+      "municipalities": [
+        {
+          "code": "038",
+          "name": "Moctezuma"
+        },
+        {
+          "code": "008",
+          "name": "Bacadéhuachi"
+        },
+        {
+          "code": "010",
+          "name": "Bacerac"
+        },
+        {
+          "code": "011",
+          "name": "Bacoachi"
+        },
+        {
+          "code": "015",
+          "name": "Bavispe"
+        },
+        {
+          "code": "023",
+          "name": "Cumpas"
+        },
+        {
+          "code": "024",
+          "name": "Divisaderos"
+        },
+        {
+          "code": "028",
+          "name": "Granados"
+        },
+        {
+          "code": "031",
+          "name": "Huachinera"
+        },
+        {
+          "code": "032",
+          "name": "Huásabas"
+        },
+        {
+          "code": "040",
+          "name": "Nácori Chico"
+        },
+        {
+          "code": "041",
+          "name": "Nacozari de García"
+        },
+        {
+          "code": "063",
+          "name": "Tepache"
+        },
+        {
+          "code": "067",
+          "name": "Villa Hidalgo"
+        }
+      ]
+    },
+    {
+      "id": "IB05",
+      "name": "Ures",
+      "label": "Región Ures (Río Sonora y Sierra Centro)",
+      "municipality_count": 16,
+      "municipalities": [
+        {
+          "code": "066",
+          "name": "Ures"
+        },
+        {
+          "code": "001",
+          "name": "Aconchi"
+        },
+        {
+          "code": "005",
+          "name": "Arivechi"
+        },
+        {
+          "code": "006",
+          "name": "Arizpe"
+        },
+        {
+          "code": "009",
+          "name": "Bacanora"
+        },
+        {
+          "code": "013",
+          "name": "Banámichi"
+        },
+        {
+          "code": "014",
+          "name": "Baviácora"
+        },
+        {
+          "code": "034",
+          "name": "Huépac"
+        },
+        {
+          "code": "037",
+          "name": "Mazatán"
+        },
+        {
+          "code": "045",
+          "name": "Opodepe"
+        },
+        {
+          "code": "050",
+          "name": "Rayón"
+        },
+        {
+          "code": "052",
+          "name": "Sahuaripa"
+        },
+        {
+          "code": "053",
+          "name": "San Felipe de Jesús"
+        },
+        {
+          "code": "057",
+          "name": "San Pedro de la Cueva"
+        },
+        {
+          "code": "061",
+          "name": "Soyopa"
+        },
+        {
+          "code": "068",
+          "name": "Villa Pesqueira"
+        }
+      ]
+    },
+    {
+      "id": "IB06",
+      "name": "Hermosillo",
+      "label": "Región Hermosillo (Centro)",
+      "municipality_count": 4,
+      "municipalities": [
+        {
+          "code": "030",
+          "name": "Hermosillo"
+        },
+        {
+          "code": "020",
+          "name": "Carbó"
+        },
+        {
+          "code": "021",
+          "name": "La Colorada"
+        },
+        {
+          "code": "056",
+          "name": "San Miguel de Horcasitas"
+        }
+      ]
+    },
+    {
+      "id": "IB07",
+      "name": "Guaymas",
+      "label": "Región Guaymas",
+      "municipality_count": 5,
+      "municipalities": [
+        {
+          "code": "029",
+          "name": "Guaymas"
+        },
+        {
+          "code": "025",
+          "name": "Empalme"
+        },
+        {
+          "code": "044",
+          "name": "Ónavas"
+        },
+        {
+          "code": "054",
+          "name": "San Javier"
+        },
+        {
+          "code": "062",
+          "name": "Suaqui Grande"
+        }
+      ]
+    },
+    {
+      "id": "IB08",
+      "name": "Cajeme",
+      "label": "Región Cajeme",
+      "municipality_count": 6,
+      "municipalities": [
+        {
+          "code": "018",
+          "name": "Cajeme"
+        },
+        {
+          "code": "012",
+          "name": "Bácum"
+        },
+        {
+          "code": "049",
+          "name": "Quiriego"
+        },
+        {
+          "code": "051",
+          "name": "Rosario"
+        },
+        {
+          "code": "072",
+          "name": "San Ignacio Río Muerto"
+        },
+        {
+          "code": "069",
+          "name": "Yécora"
+        }
+      ]
+    },
+    {
+      "id": "IB09",
+      "name": "Navojoa",
+      "label": "Región Navojoa (Sur)",
+      "municipality_count": 2,
+      "municipalities": [
+        {
+          "code": "042",
+          "name": "Navojoa"
+        },
+        {
+          "code": "003",
+          "name": "Álamos"
+        }
+      ]
+    },
+    {
+      "id": "IB10",
+      "name": "Huatabampo",
+      "label": "Región Huatabampo",
+      "municipality_count": 3,
+      "municipalities": [
+        {
+          "code": "033",
+          "name": "Huatabampo"
+        },
+        {
+          "code": "071",
+          "name": "Benito Juárez"
+        },
+        {
+          "code": "026",
+          "name": "Etchojoa"
+        }
+      ]
+    }
   ],
   "official_evidence": [
     {

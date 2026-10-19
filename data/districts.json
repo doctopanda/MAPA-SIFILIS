@@ -1,0 +1,13 @@
+{
+  "schema": "MAPA-SIFILIS-DISTRICTS-0.1",
+  "derived_from": "BALAM-DISTRICTS-0.3",
+  "status": "validated_for_project_use",
+  "districts": [
+    {"id":"DS01","name":"Distrito de Salud 01","head":"Hermosillo","municipalities":["001","005","008","009","013","014","020","021","023","024","028","030","032","034","037","038","040","041","044","045","050","052","053","054","056","057","061","062","063","066","067","068"]},
+    {"id":"DS02","name":"Distrito de Salud 02","head":"Caborca","municipalities":["004","007","017","046","047","060","065"]},
+    {"id":"DS03","name":"Distrito de Salud 03","head":"Santa Ana","municipalities":["002","006","010","011","015","016","019","022","027","031","035","036","039","043","058","059","064"]},
+    {"id":"DS04","name":"Distrito de Salud 04","head":"Cajeme","municipalities":["012","018","025","029","049","051","069","072"]},
+    {"id":"DS05","name":"Distrito de Salud 05","head":"Navojoa","municipalities":["003","026","033","042","071"]},
+    {"id":"DS06","name":"Distrito de Salud 06","head":"San Luis Río Colorado","municipalities":["048","055","070"]}
+  ]
+}

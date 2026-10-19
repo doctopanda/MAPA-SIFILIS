@@ -94,8 +94,10 @@ Todo valor visible en el mapa deberá poder explicar:
 
 La apertura de registros nominales deberá ocurrir dentro de EDITH según permisos, nunca desde GitHub Pages.
 
-## 8. Pendiente crítico
+## 8. Crosswalk territorial operativo
 
-Validar documentalmente el crosswalk de los 72 municipios de Sonora hacia las 10 Regiones Operativas IMSS-Bienestar.
+El crosswalk de los 72 municipios hacia las 10 Regiones Operativas IMSS-Bienestar ya está cargado en `data/municipality_region_crosswalk.json` con la distribución proporcionada por el responsable del proyecto.
 
-Hasta entonces, el archivo de regiones contiene únicamente nombres oficiales y no asigna municipios.
+Cada municipio conserva dos llaves simultáneas: Distrito de Salud y Región IMSS-Bienestar. No se fusionan ambas regionalizaciones; el visor debe permitir alternarlas y comparar resultados.
+
+La matriz de traslape se encuentra en `data/region_district_matrix.json`.

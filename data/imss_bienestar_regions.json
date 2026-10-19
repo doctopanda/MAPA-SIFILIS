@@ -1,0 +1,30 @@
+{
+  "schema": "MAPA-SIFILIS-IMSSB-REGIONS-0.1",
+  "state": "Sonora",
+  "status": "region_names_verified_crosswalk_pending",
+  "warning": "Do not infer municipality membership from the regional head name. Populate municipalities only after documentary validation.",
+  "regions": [
+    {"id":"IB01","name":"San Luis Río Colorado","municipalities":[]},
+    {"id":"IB02","name":"Caborca","municipalities":[]},
+    {"id":"IB03","name":"Nogales","municipalities":[]},
+    {"id":"IB04","name":"Moctezuma","municipalities":[]},
+    {"id":"IB05","name":"Ures","municipalities":[]},
+    {"id":"IB06","name":"Hermosillo","municipalities":[]},
+    {"id":"IB07","name":"Guaymas","municipalities":[]},
+    {"id":"IB08","name":"Cajeme","municipalities":[]},
+    {"id":"IB09","name":"Navojoa","municipalities":[]},
+    {"id":"IB10","name":"Huatabampo","municipalities":[]}
+  ],
+  "official_evidence": [
+    {
+      "publisher": "IMSS-Bienestar",
+      "description": "Nota institucional que reporta 10 regiones operativas de conducción médica en Sonora.",
+      "url": "https://cdn.imssbienestar.gob.mx/ssib/assets/docs/notas_informativas/sala_prensa/148/20250712_imssbienestarinaugurahospitalcomunitarioviicamswitchquetraeraijusticiasocialensaludalpuebloyaqui.pdf"
+    },
+    {
+      "publisher": "Secretaría de Salud de Sonora",
+      "description": "Comunicado estatal que enumera las 10 regiones operativas.",
+      "url": "https://salud.sonora.gob.mx/index.php/acerca-de/acciones/salud/gobernador-durazo-fortalece-atencion-medica-en-todo-el-estado-con-entrega-de-231-vehiculos-y-ambulancias-de-imss-bienestar"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "MAPA-SIFILIS-LAYERS-0.1",
+  "default_view": {
+    "program": "SC",
+    "territory": "health_district",
+    "layer": "maternal_residence",
+    "metric": "cases"
+  },
+  "programs": [
+    {
+      "id": "SA",
+      "label": "Sífilis adquirida",
+      "layers": [
+        {"id":"case_residence","label":"Residencia del caso","geography":"residence","allowed_scopes":["municipality","health_district","imss_bienestar_region"]},
+        {"id":"rightsholder","label":"Derechohabiencia","geography":"aggregate","allowed_scopes":["municipality","health_district","imss_bienestar_region"]}
+      ]
+    },
+    {
+      "id": "SC",
+      "label": "Sífilis congénita",
+      "layers": [
+        {"id":"maternal_residence","label":"Residencia de la madre","geography":"maternal_residence","primary":true,"allowed_scopes":["municipality","health_district","imss_bienestar_region"]},
+        {"id":"birth_place","label":"Lugar de nacimiento","geography":"birth_facility_or_birth_municipality","primary":false,"allowed_scopes":["municipality","health_district","imss_bienestar_region"]},
+        {"id":"rightsholder","label":"Derechohabiencia","geography":"aggregate","primary":false,"allowed_scopes":["municipality","health_district","imss_bienestar_region"]},
+        {"id":"maternal_to_birth_flow","label":"Residencia materna → lugar de nacimiento","geography":"origin_destination","primary":false,"allowed_scopes":["municipality","health_district","imss_bienestar_region"]}
+      ]
+    }
+  ],
+  "metrics": [
+    {"id":"cases","label":"Casos","type":"count","numerator":"case_count","denominator":null},
+    {"id":"rate","label":"Tasa","type":"rate","numerator":"case_count","denominator":"validated_population_denominator"},
+    {"id":"share","label":"Proporción","type":"percentage","numerator":"selected_category_count","denominator":"eligible_case_count"}
+  ],
+  "rightsholder_categories": [
+    "IMSS",
+    "ISSSTE",
+    "ISSSTESON",
+    "IMSS-Bienestar / sin seguridad social",
+    "PEMEX / SEDENA / SEMAR",
+    "Privado",
+    "Otra",
+    "No especificada"
+  ],
+  "privacy": {
+    "public_nominal_data": false,
+    "public_exact_coordinates": false,
+    "small_cell_suppression_threshold": null,
+    "small_cell_policy_status": "must_be_defined_before_real_publication"
+  }
+}

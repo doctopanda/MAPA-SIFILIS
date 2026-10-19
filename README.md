@@ -74,9 +74,13 @@ Fase 0: arquitectura territorial y contrato de capas.
 
 - Distritos de Salud: heredados del esquema territorial usado en MAPA-BALAM.
 - Regiones IMSS-Bienestar: se reconocen las 10 regiones operativas oficialmente reportadas para Sonora.
-- Crosswalk municipio → Región IMSS-Bienestar: pendiente de validación documental; no se inferirá por nombre de cabecera.
+- Crosswalk municipio → Región IMSS-Bienestar: completo para los 72 municipios con la distribución operativa proporcionada por el responsable del proyecto. Se conserva además el cruce con Distrito de Salud.
 
 ## Fuentes de referencia
 
 - Secretaría de Salud de Sonora / IMSS-Bienestar: 10 regiones operativas de conducción médica.
 - MAPA-BALAM: lógica de distritos y separación entre cartografía pública y bases nominales.
+
+## Crosswalk territorial
+
+El repositorio contiene `data/municipality_region_crosswalk.json`, que permite representar cada municipio simultáneamente por Distrito de Salud y Región IMSS-Bienestar, y `data/region_district_matrix.json`, que documenta los traslapes entre ambas regionalizaciones.

@@ -1,0 +1,55 @@
+{
+  "schema": "MAPA-SIFILIS-SNAPSHOT-0.3",
+  "generated": "2026-10-20T16:55:01.295Z",
+  "source_system": "EDITH SC · Supabase Auth + RLS",
+  "source_cut_date": "2026-10-20",
+  "calculation_version": "EDITH-SC-1.2.5-MAPA-SIFILIS",
+  "status": "public_aggregated_cut",
+  "filters": {
+    "year": 2026,
+    "selected_period": {
+      "epidemiological_week_from": 1,
+      "epidemiological_week_to": 41
+    },
+    "available_cohorts": [
+      "year_total",
+      "selected_period"
+    ],
+    "available_metrics": [
+      "cases",
+      "confirmed_cases"
+    ],
+    "scope": "Sonora estatal",
+    "municipality_filter_ignored_for_map": true
+  },
+  "privacy": {
+    "nominal_data": false,
+    "exact_coordinates": false,
+    "small_cell_suppression_applied": true,
+    "small_cell_suppression_threshold": 5,
+    "rule": "Conteos 1–4 se publican como <5; flujos <5 se omiten."
+  },
+  "summary": {
+    "year_records": 168,
+    "year_confirmed_cases": 19,
+    "period_records": 168,
+    "period_confirmed_cases": 19,
+    "excluded_from_selected_period": 0,
+    "year_residence_mapped": 168,
+    "year_residence_unmapped": 0,
+    "year_birth_place_mapped": 164,
+    "year_birth_place_unmapped": 4,
+    "period_residence_mapped": 168,
+    "period_birth_place_mapped": 164,
+    "year_flow_records_with_origin_destination": 164,
+    "period_flow_records_with_origin_destination": 164
+  },
+  "notes": [
+    "“Casos registrados” reproduce el universo de registros del Panorama; “Confirmados” es una métrica separada.",
+    "La residencia materna se cuenta por caso de sífilis congénita, no por madre única; embarazos gemelares pueden aportar más de un caso a una misma madre.",
+    "Los registros sin semana válida o fuera del rango seleccionado permanecen en Todo 2026 y se reportan como excluidos del periodo."
+  ],
+  "unavailable_dimensions": {
+    "rightsholder": "Sin variable inequívoca de derechohabiencia validada en el canónico actual. INSTITUCION_NOT es institución notificante y no se usa como sustituto."
+  }
+}

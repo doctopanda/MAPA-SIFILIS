@@ -113,6 +113,7 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
     <div class="row" style="margin-top:8px">
       <button class="btn primary" id="fit">Ver Sonora</button>
       <button class="btn" id="structure">Estructura territorial</button>
+      <button class="btn" id="refreshCut">↻ Actualizar corte</button>
       <button class="btn" id="clear">Limpiar selección</button>
     </div>
   </section>
@@ -383,7 +384,28 @@ function searchMunicipality(){
   if(found){showDetail(codeOf(found.feature));map.fitBounds(found.getBounds(),{padding:[30,30],maxZoom:9})}
 }
 
-async function loadJson(url){var r=await fetch(url);if(!r.ok)throw new Error(url+' '+r.status);return r.json()}
+async function loadJson(url,fresh){
+  var u=url;
+  if(fresh)u+=(url.indexOf('?')>=0?'&':'?')+'_edith_cut='+Date.now();
+  var r=await fetch(u,fresh?{cache:'no-store'}:undefined);
+  if(!r.ok)throw new Error(url+' '+r.status);
+  return r.json();
+}
+
+async function refreshSnapshot(){
+  statusEl.innerHTML='<span class="data-dot"></span><b>Actualizando corte epidemiológico…</b>';
+  try{
+    snapshot=await loadJson('data/epidemiology_snapshot.json',true);
+    structureMode=false;
+    selectedCode=null;
+    update();
+    detailTitle.textContent='Corte epidemiológico actualizado';
+    detailEl.innerHTML='<b>'+esc(snapshot.source_system||'EDITH')+'</b><br>Corte: '+esc(snapshot.source_cut_date||'—')+
+      ' · '+((snapshot.rows||[]).length)+' filas agregadas · '+((snapshot.flows||[]).length)+' flujos.';
+  }catch(e){
+    statusEl.innerHTML='<b>No se pudo actualizar el corte:</b> '+esc(e.message);
+  }
+}
 
 async function init(){
   try{
@@ -392,7 +414,7 @@ async function init(){
       loadJson('data/imss_bienestar_regions.json'),
       loadJson('data/municipality_region_crosswalk.json'),
       loadJson('data/layers_catalog.json'),
-      loadJson('data/epidemiology_snapshot.json')
+      loadJson('data/epidemiology_snapshot.json',true)
     ]);
     districtCfg=cfg[0];regionCfg=cfg[1];crosswalk=cfg[2];layerCfg=cfg[3];snapshot=cfg[4];
     fillCrosswalk();layerOptions();
@@ -414,6 +436,7 @@ metricEl.addEventListener('change',function(){structureMode=false;update()});
 searchEl.addEventListener('keydown',function(e){if(e.key==='Enter')searchMunicipality()});
 document.getElementById('fit').addEventListener('click',function(){if(stateBounds)map.fitBounds(stateBounds,{padding:[18,18]})});
 document.getElementById('structure').addEventListener('click',function(){structureMode=true;update()});
+document.getElementById('refreshCut').addEventListener('click',refreshSnapshot);
 document.getElementById('clear').addEventListener('click',function(){selectedCode=null;detailTitle.textContent='Selecciona un polígono';detailEl.textContent='Al pulsar un municipio verás simultáneamente su Distrito de Salud, Región IMSS-Bienestar y el valor epidemiológico del corte activo.';update()});
 document.getElementById('zoomData').addEventListener('click',function(){
   if(!stateLayer)return;

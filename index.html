@@ -425,10 +425,25 @@ async function loadJson(url,fresh){
   return r.json();
 }
 
+async function loadSnapshot(){
+  try{
+    var manifest=await loadJson('data/snapshot_manifest.json',true);
+    if(manifest&&manifest.transport==='sharded_json'&&Array.isArray(manifest.row_shards)){
+      var rowDocs=await Promise.all(manifest.row_shards.map(function(p){return loadJson(p,true)}));
+      var flowDocs=await Promise.all((manifest.flow_shards||[]).map(function(p){return loadJson(p,true)}));
+      var rows=[],flows=[];
+      rowDocs.forEach(function(d){if(d&&Array.isArray(d.rows))rows=rows.concat(d.rows)});
+      flowDocs.forEach(function(d){if(d&&Array.isArray(d.flows))flows=flows.concat(d.flows)});
+      return Object.assign({},manifest,{rows:rows,flows:flows});
+    }
+  }catch(e){}
+  return loadJson('data/epidemiology_snapshot.json',true);
+}
+
 async function refreshSnapshot(){
   statusEl.innerHTML='<span class="data-dot"></span><b>Actualizando corte epidemiológico…</b>';
   try{
-    snapshot=await loadJson('data/epidemiology_snapshot.json',true);
+    snapshot=await loadSnapshot();
     configureDataSelectors();
     structureMode=false;
     selectedCode=null;
@@ -448,7 +463,7 @@ async function init(){
       loadJson('data/imss_bienestar_regions.json'),
       loadJson('data/municipality_region_crosswalk.json'),
       loadJson('data/layers_catalog.json'),
-      loadJson('data/epidemiology_snapshot.json',true)
+      loadSnapshot()
     ]);
     districtCfg=cfg[0];regionCfg=cfg[1];crosswalk=cfg[2];layerCfg=cfg[3];snapshot=cfg[4];
     fillCrosswalk();layerOptions();configureDataSelectors();

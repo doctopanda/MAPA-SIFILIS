@@ -1,5 +1,5 @@
 {
-  "schema": "MAPA-SIFILIS-LAYERS-0.1",
+  "schema": "MAPA-SIFILIS-LAYERS-0.2",
   "default_view": {
     "program": "SC",
     "territory": "health_district",
@@ -11,25 +11,154 @@
       "id": "SA",
       "label": "Sífilis adquirida",
       "layers": [
-        {"id":"case_residence","label":"Residencia del caso","geography":"residence","allowed_scopes":["municipality","health_district","imss_bienestar_region"]},
-        {"id":"rightsholder","label":"Derechohabiencia","geography":"aggregate","allowed_scopes":["municipality","health_district","imss_bienestar_region"]}
+        {
+          "id": "case_residence",
+          "label": "Residencia del caso",
+          "geography": "residence",
+          "allowed_scopes": [
+            "municipality",
+            "health_district",
+            "imss_bienestar_region"
+          ]
+        },
+        {
+          "id": "rightsholder",
+          "label": "Derechohabiencia",
+          "geography": "aggregate",
+          "allowed_scopes": [
+            "municipality",
+            "health_district",
+            "imss_bienestar_region"
+          ]
+        }
       ]
     },
     {
       "id": "SC",
       "label": "Sífilis congénita",
       "layers": [
-        {"id":"maternal_residence","label":"Residencia de la madre","geography":"maternal_residence","primary":true,"allowed_scopes":["municipality","health_district","imss_bienestar_region"]},
-        {"id":"birth_place","label":"Lugar de nacimiento","geography":"birth_facility_or_birth_municipality","primary":false,"allowed_scopes":["municipality","health_district","imss_bienestar_region"]},
-        {"id":"rightsholder","label":"Derechohabiencia","geography":"aggregate","primary":false,"allowed_scopes":["municipality","health_district","imss_bienestar_region"]},
-        {"id":"maternal_to_birth_flow","label":"Residencia materna → lugar de nacimiento","geography":"origin_destination","primary":false,"allowed_scopes":["municipality","health_district","imss_bienestar_region"]}
+        {
+          "id": "maternal_residence",
+          "label": "Residencia de la madre",
+          "geography": "maternal_residence",
+          "primary": true,
+          "allowed_scopes": [
+            "municipality",
+            "health_district",
+            "imss_bienestar_region"
+          ]
+        },
+        {
+          "id": "sc_incidence_residence",
+          "label": "Incidencia SC / 1,000 nacidos vivos",
+          "geography": "maternal_residence",
+          "primary": false,
+          "allowed_scopes": [
+            "municipality",
+            "health_district",
+            "imss_bienestar_region"
+          ],
+          "denominator_source": "SINBA births by maternal residence"
+        },
+        {
+          "id": "birth_place",
+          "label": "Lugar de nacimiento",
+          "geography": "birth_facility_or_birth_municipality",
+          "primary": false,
+          "allowed_scopes": [
+            "municipality",
+            "health_district",
+            "imss_bienestar_region"
+          ]
+        },
+        {
+          "id": "rightsholder",
+          "label": "Derechohabiencia",
+          "geography": "aggregate",
+          "primary": false,
+          "allowed_scopes": [
+            "municipality",
+            "health_district",
+            "imss_bienestar_region"
+          ]
+        },
+        {
+          "id": "maternal_to_birth_flow",
+          "label": "Residencia materna → lugar de nacimiento",
+          "geography": "origin_destination",
+          "primary": false,
+          "allowed_scopes": [
+            "municipality",
+            "health_district",
+            "imss_bienestar_region"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BIRTHS",
+      "label": "Nacimientos 2026",
+      "layers": [
+        {
+          "id": "maternal_residence_births",
+          "label": "Nacimientos por residencia materna",
+          "geography": "maternal_residence",
+          "allowed_scopes": [
+            "municipality",
+            "health_district",
+            "imss_bienestar_region"
+          ]
+        },
+        {
+          "id": "birth_occurrence",
+          "label": "Nacimientos por lugar de parto",
+          "geography": "birth_occurrence",
+          "allowed_scopes": [
+            "municipality",
+            "health_district",
+            "imss_bienestar_region"
+          ]
+        },
+        {
+          "id": "obstetric_flow",
+          "label": "Flujo obstétrico residencia → parto",
+          "geography": "origin_destination",
+          "allowed_scopes": [
+            "municipality"
+          ]
+        }
       ]
     }
   ],
   "metrics": [
-    {"id":"cases","label":"Casos","type":"count","numerator":"case_count","denominator":null},
-    {"id":"rate","label":"Tasa","type":"rate","numerator":"case_count","denominator":"validated_population_denominator"},
-    {"id":"share","label":"Proporción","type":"percentage","numerator":"selected_category_count","denominator":"eligible_case_count"}
+    {
+      "id": "cases",
+      "label": "Casos registrados",
+      "type": "count",
+      "numerator": "case_count",
+      "denominator": null
+    },
+    {
+      "id": "confirmed_cases",
+      "label": "Confirmados",
+      "type": "count",
+      "numerator": "confirmed_case_count",
+      "denominator": null
+    },
+    {
+      "id": "live_births",
+      "label": "Nacidos vivos",
+      "type": "count",
+      "numerator": "live_birth_count",
+      "denominator": null
+    },
+    {
+      "id": "incidence_per_1000",
+      "label": "Incidencia por 1,000 nacidos vivos",
+      "type": "rate",
+      "numerator": "aligned_sc_case_count",
+      "denominator": "live_births_same_residence_same_period"
+    }
   ],
   "rightsholder_categories": [
     "IMSS",
@@ -46,5 +175,12 @@
     "public_exact_coordinates": false,
     "small_cell_suppression_threshold": null,
     "small_cell_policy_status": "must_be_defined_before_real_publication"
+  },
+  "birth_denominator": {
+    "source": "SINBA · Certificado de Nacimiento 2026",
+    "cut": "2026-09-24",
+    "residence_field": "MUNICIPIORESIDENCIAD",
+    "occurrence_field": "MUNICIPIOPARTOD",
+    "incidence_unit": "por 1,000 nacidos vivos"
   }
 }

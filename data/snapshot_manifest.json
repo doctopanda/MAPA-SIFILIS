@@ -51,5 +51,29 @@
   ],
   "unavailable_dimensions": {
     "rightsholder": "Sin variable inequívoca de derechohabiencia validada en el canónico actual. INSTITUCION_NOT es institución notificante y no se usa como sustituto."
-  }
+  },
+  "transport": "sharded_json",
+  "row_shards": [
+    "data/snapshot/rows-01.json",
+    "data/snapshot/rows-02.json",
+    "data/snapshot/rows-03.json",
+    "data/snapshot/rows-04.json",
+    "data/snapshot/rows-05.json",
+    "data/snapshot/rows-06.json",
+    "data/snapshot/rows-07.json",
+    "data/snapshot/rows-08.json",
+    "data/snapshot/rows-09.json",
+    "data/snapshot/rows-10.json",
+    "data/snapshot/rows-11.json",
+    "data/snapshot/rows-12.json",
+    "data/snapshot/rows-13.json",
+    "data/snapshot/rows-14.json",
+    "data/snapshot/rows-15.json",
+    "data/snapshot/rows-16.json"
+  ],
+  "flow_shards": [
+    "data/snapshot/flows.json"
+  ],
+  "row_count": 704,
+  "flow_count": 18
 }

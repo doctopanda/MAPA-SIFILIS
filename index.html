@@ -81,7 +81,8 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
       <label class="field">Programa
         <select id="program">
           <option value="SC">Sífilis congénita</option>
-          <option value="SA">Sífilis adquirida</option>\n          <option value="BIRTHS">Nacimientos 2026</option>
+          <option value="SA">Sífilis adquirida</option>
+          <option value="BIRTHS">Nacimientos 2026</option>
         </select>
       </label>
       <label class="field">Territorio
@@ -159,7 +160,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,att
 
 var stateLayer=null,stateBounds=null;
 var districtCfg=null,regionCfg=null,crosswalk=null,layerCfg=null,snapshot=null,birthsData=null,birthFlows=null;
-var byCode={}, birthByCode={}, selectedLayer=null, selectedCode=null, structureMode=true;\nvar flowLayer=L.layerGroup().addTo(map);
+var byCode={},birthByCode={},selectedLayer=null,selectedCode=null,structureMode=true;
+var flowLayer=L.layerGroup().addTo(map);
 
 var paletteRegions=['#6b3d7d','#9a4f78','#3d7c79','#b37855','#4f6586','#826345','#8a6d9c','#a84364','#507267','#755b8e'];
 var paletteDistricts=['#6b3d7d','#a84364','#507267','#4f6586','#b37855','#755b8e'];
@@ -198,46 +200,39 @@ function programLabel(){
   if(programEl.value==='SA')return 'Sífilis adquirida';
   return 'Nacimientos 2026';
 }
-function geoType(){
+function activeGeoType(){
   return territoryEl.value==='municipality'?'municipality':(territoryEl.value==='health_district'?'health_district':'imss_bienestar_region');
 }
-function birthValueForCode(code,layer){
+function birthValue(code,layer){
   var r=birthByCode[String(code).padStart(3,'0')];
   if(!r)return 0;
   return layer==='birth_occurrence'?Number(r.o||0):Number(r.r||0);
 }
-function aggregateBirths(layer){
+function birthAggregate(layer){
   var out={};
   Object.keys(birthByCode).forEach(function(code){
-    var key=groupKeyForMunicipality(code);
-    if(!key)return;
-    out[key]=(out[key]||0)+birthValueForCode(code,layer);
+    var x=rowFor(code); if(!x)return;
+    var key=territoryEl.value==='municipality'?code:(territoryEl.value==='health_district'?x.health_district_id:x.imss_bienestar_region_id);
+    out[key]=(out[key]||0)+birthValue(code,layer);
   });
   return out;
 }
-function birthRowsForCurrent(){
+function birthRows(){
   var layer=layerEl.value==='birth_occurrence'?'birth_occurrence':'maternal_residence_births';
-  var ag=aggregateBirths(layer), gt=geoType(), rows=[];
-  if(gt==='municipality'){
-    Object.keys(birthByCode).forEach(function(code){
-      rows.push({program:'BIRTHS',layer_id:layer,metric_id:'live_births',cohort_id:'birth_cut_2026',geography_type:'municipality',geography_id:code,numerator:birthValueForCode(code,layer),denominator:null,suppressed:false});
-    });
-  }else{
-    Object.keys(ag).forEach(function(k){rows.push({program:'BIRTHS',layer_id:layer,metric_id:'live_births',cohort_id:'birth_cut_2026',geography_type:gt,geography_id:k,numerator:ag[k],denominator:null,suppressed:false})});
-  }
+  var gt=activeGeoType(),ag=birthAggregate(layer),rows=[];
+  Object.keys(ag).forEach(function(k){
+    rows.push({program:'BIRTHS',layer_id:layer,metric_id:'live_births',cohort_id:'birth_cut_2026',geography_type:gt,geography_id:k,numerator:ag[k],denominator:null,value:ag[k],suppressed:false});
+  });
   return rows;
 }
-function incidenceRowsForCurrent(){
-  var gt=geoType();
-  var cases=((snapshot&&snapshot.rows)||[]).filter(function(r){
+function incidenceRows(){
+  var gt=activeGeoType();
+  var source=((snapshot&&snapshot.rows)||[]).filter(function(r){
     return r.program==='SC'&&r.layer_id==='maternal_residence'&&r.metric_id==='cases'&&r.cohort_id==='birth_cut_2026'&&r.geography_type===gt;
   });
-  if(!cases.length)return [];
-  var den=aggregateBirths('maternal_residence_births');
-  if(gt==='municipality'){
-    den={};Object.keys(birthByCode).forEach(function(code){den[code]=birthValueForCode(code,'maternal_residence_births')});
-  }
-  return cases.map(function(r){
+  if(!source.length)return [];
+  var den=birthAggregate('maternal_residence_births');
+  return source.map(function(r){
     var d=Number(den[r.geography_id]||0),supp=!!r.suppressed,n=supp?null:Number(r.numerator||0);
     return Object.assign({},r,{layer_id:'sc_incidence_residence',metric_id:'incidence_per_1000',denominator:d,value:(!supp&&d>0)?(n/d*1000):null});
   });
@@ -253,77 +248,184 @@ function layerOptions(){
 }
 
 function configureDataSelectors(){
-  cohortEl.innerHTML='';
-  metricEl.innerHTML='';
+  cohortEl.innerHTML=''; metricEl.innerHTML='';
   if(programEl.value==='BIRTHS'){
-    var oc=document.createElement('option');oc.value='birth_cut_2026';oc.textContent='01 ene–24 sep 2026';cohortEl.appendChild(oc);
-    var om=document.createElement('option');om.value='live_births';om.textContent='Nacidos vivos';metricEl.appendChild(om);
+    cohortEl.innerHTML='<option value="birth_cut_2026">01 ene–24 sep 2026</option>';
+    metricEl.innerHTML='<option value="live_births">Nacidos vivos</option>';
     return;
   }
   if(programEl.value==='SC'&&layerEl.value==='sc_incidence_residence'){
-    var oi=document.createElement('option');oi.value='birth_cut_2026';oi.textContent='Alineado a nacimientos · hasta 24 sep 2026';cohortEl.appendChild(oi);
-    var mi=document.createElement('option');mi.value='incidence_per_1000';mi.textContent='Incidencia por 1,000 nacidos vivos';metricEl.appendChild(mi);
+    cohortEl.innerHTML='<option value="birth_cut_2026">Alineado a nacimientos · hasta 24 sep 2026</option>';
+    metricEl.innerHTML='<option value="incidence_per_1000">Incidencia por 1,000 nacidos vivos</option>';
     return;
   }
   var rows=(snapshot&&snapshot.rows)||[];
   var modern=String(snapshot&&snapshot.schema||'').indexOf('0.3')>=0 || rows.some(function(r){return !!r.cohort_id});
   if(modern){
-    [{id:'year_total',label:'Todo 2026 canónico'},{id:'selected_period',label:'Periodo seleccionado'}].forEach(function(x){
-      var o=document.createElement('option');o.value=x.id;o.textContent=x.label;cohortEl.appendChild(o);
-    });
-    cohortEl.value='year_total';
-    [{id:'cases',label:'Casos registrados'},{id:'confirmed_cases',label:'Confirmados'}].forEach(function(x){
-      var o=document.createElement('option');o.value=x.id;o.textContent=x.label;metricEl.appendChild(o)
-    });
-    metricEl.value='cases';
+    cohortEl.innerHTML='<option value="year_total">Todo 2026 canónico</option><option value="selected_period">Periodo seleccionado</option>';
+    metricEl.innerHTML='<option value="cases">Casos registrados</option><option value="confirmed_cases">Confirmados</option>';
   }else{
-    var o=document.createElement('option');o.value='selected_period';o.textContent='Corte legado';cohortEl.appendChild(o);
+    cohortEl.innerHTML='<option value="selected_period">Corte legado</option>';
     metricEl.innerHTML='<option value="cases">Confirmados · corte legado</option>';
   }
-}function snapshotRows(){
-  if(programEl.value==='BIRTHS')return birthRowsForCurrent();
-  if(programEl.value==='SC'&&layerEl.value==='sc_incidence_residence')return incidenceRowsForCurrent();
+}
+function snapshotRows(){
+  if(programEl.value==='BIRTHS')return birthRows();
+  if(programEl.value==='SC'&&layerEl.value==='sc_incidence_residence')return incidenceRows();
   var rows=(snapshot&&snapshot.rows)||[];
-  var gt=geoType();
+  var gt=activeGeoType();
   return rows.filter(function(r){
     var cohort=r.cohort_id||'selected_period';
-    return r.program===programEl.value &&
-      r.layer_id===layerEl.value &&
-      r.metric_id===metricEl.value &&
-      cohort===cohortEl.value &&
-      r.geography_type===gt;
+    return r.program===programEl.value&&r.layer_id===layerEl.value&&r.metric_id===metricEl.value&&cohort===cohortEl.value&&r.geography_type===gt;
   });
-}function authoritativeTotal(){
+}
+
+function groupKeyForMunicipality(code){
+  var x=rowFor(code);
+  if(territoryEl.value==='municipality') return code;
+  if(!x) return null;
+  if(territoryEl.value==='health_district') return x.health_district_id;
+  return x.imss_bienestar_region_id;
+}
+
+function groupLabel(key){
+  if(!key)return 'Sin asignación';
+  if(territoryEl.value==='municipality'){
+    var x=rowFor(key);return x?x.municipality_name:key;
+  }
+  if(territoryEl.value==='health_district'){
+    var d=(districtCfg.districts||[]).find(function(x){return x.id===key});
+    return d?d.name+' · '+d.head:key;
+  }
+  var rg=(regionCfg.regions||[]).find(function(x){return x.id===key});
+  return rg?(rg.label||rg.name):key;
+}
+
+function aggregates(){
+  var out={};
+  snapshotRows().forEach(function(r){
+    var baseCode=String(r.geography_id||'').replace(/^26/,'').padStart(3,'0');
+    var key=r.geography_type==='municipality'?baseCode:r.geography_id;
+    if(!key)return;
+    if(!out[key])out[key]={numerator:0,denominator:0,denominatorSeen:false,rows:0,suppressed:false};
+    var a=out[key];
+    if(r.suppressed===true){a.suppressed=true;a.rows++;return;}
+    if(r.numerator!=null&&isFinite(Number(r.numerator)))a.numerator+=Number(r.numerator);
+    if(r.denominator!=null&&isFinite(Number(r.denominator))){a.denominator+=Number(r.denominator);a.denominatorSeen=true}
+    a.rows++;
+  });
+  Object.keys(out).forEach(function(k){
+    var a=out[k];
+    if(a.suppressed){a.value=null;return;}
+    if(metricEl.value==='cases'||metricEl.value==='confirmed_cases'||metricEl.value==='live_births')a.value=a.numerator;
+    else if(metricEl.value==='incidence_per_1000'&&a.denominatorSeen&&a.denominator>0)a.value=a.numerator/a.denominator*1000;
+    else a.value=null;
+  });
+  return out;
+}
+
+function currentValues(){
+  var ag=aggregates(),vals=[];
+  Object.keys(ag).forEach(function(k){if(ag[k].value!=null)vals.push(ag[k].value)});
+  return {ag:ag,vals:vals};
+}
+
+function colorScale(v,min,max){
+  if(v==null)return '#ebe6ed';
+  if(max<=min)return '#762a52';
+  var t=(v-min)/(max-min);
+  if(t<.2)return '#ead9e3';
+  if(t<.4)return '#d6a8bd';
+  if(t<.6)return '#b65c78';
+  if(t<.8)return '#8e3f65';
+  return '#5a244d';
+}
+
+function structuralColor(code){
+  var x=rowFor(code);
+  if(!x)return '#ebe6ed';
+  if(territoryEl.value==='municipality')return '#ddd3e1';
+  if(territoryEl.value==='health_district'){
+    var di=parseInt((x.health_district_id||'DS01').slice(2),10)-1;
+    return paletteDistricts[Math.max(0,di)%paletteDistricts.length];
+  }
+  var ri=parseInt((x.imss_bienestar_region_id||'IB01').slice(2),10)-1;
+  return paletteRegions[Math.max(0,ri)%paletteRegions.length];
+}
+
+function styleFeature(f){
+  var code=codeOf(f),key=groupKeyForMunicipality(code),cur=currentValues(),a=cur.ag[key],has=a&&a.value!=null;
+  var min=cur.vals.length?Math.min.apply(null,cur.vals):0,max=cur.vals.length?Math.max.apply(null,cur.vals):0;
+  var suppressed=!!(a&&a.suppressed);
+  var fill=structureMode?structuralColor(code):(suppressed?'#c8bdcc':colorScale(has?a.value:null,min,max));
+  var selected=selectedCode===code;
+  return {color:selected?'#24182b':'#ffffff',weight:selected?3.2:1.15,fillColor:fill,fillOpacity:structureMode ? .56 : (suppressed ? .55 : (has ? .72 : .35))};
+}
+
+function tooltip(f){
+  var code=codeOf(f),x=rowFor(code),key=groupKeyForMunicipality(code),a=aggregates()[key];
+  var v=a?a.value:null;
+  return '<b>'+esc(nameOf(f))+'</b><br>'+esc(groupLabel(key))+'<br>'+
+    (structureMode?'Estructura territorial':(a&&a.suppressed?'Casos: <5 · celda suprimida':(metricEl.options[metricEl.selectedIndex].text+': '+nfmt(v))));
+}
+
+function renderLegend(){
+  var html=[];
+  if(structureMode){
+    var seen={};
+    if(territoryEl.value==='municipality')html.push('<span class="badge"><i class="sw" style="background:#ddd3e1"></i>Municipios</span>');
+    else (crosswalk.rows||[]).forEach(function(r){
+      var key=territoryEl.value==='health_district'?r.health_district_id:r.imss_bienestar_region_id;
+      if(seen[key])return;seen[key]=true;
+      var c=structuralColor(r.municipality_code);
+      html.push('<span class="badge"><i class="sw" style="background:'+c+'"></i>'+esc(groupLabel(key))+'</span>');
+    });
+  }else{
+    var cur=currentValues();
+    if(!cur.vals.length)html.push('<span class="badge"><i class="sw" style="background:#ebe6ed"></i>Sin corte epidemiológico</span>');
+    else{
+      html.push('<span class="badge"><i class="sw" style="background:#ead9e3"></i>menor</span>');
+      html.push('<span class="badge"><i class="sw" style="background:#b65c78"></i>media</span>');
+      html.push('<span class="badge"><i class="sw" style="background:#5a244d"></i>mayor</span>');
+      html.push('<span class="badge"><i class="sw" style="background:#c8bdcc"></i>1–4 · suprimido</span>');
+    }
+  }
+  legendEl.innerHTML=html.join('');
+}
+
+function authoritativeTotal(){
   if(programEl.value==='BIRTHS'&&birthsData&&birthsData.summary){
     return layerEl.value==='birth_occurrence'?birthsData.summary.sonora_birth_occurrences_mapped:birthsData.summary.sonora_resident_births_mapped;
   }
   if(programEl.value==='SC'&&layerEl.value==='sc_incidence_residence'){
-    var rows=incidenceRowsForCurrent(),n=0,d=0,has=false;
-    rows.forEach(function(r){if(!r.suppressed&&r.numerator!=null&&r.denominator>0){n+=Number(r.numerator);d+=Number(r.denominator);has=true}});
-    return has&&d>0?(n/d*1000):null;
+    var rows=incidenceRows(),n=0,d=0,usable=false;
+    rows.forEach(function(r){if(!r.suppressed&&r.numerator!=null&&Number(r.denominator)>0){n+=Number(r.numerator);d+=Number(r.denominator);usable=true}});
+    return usable&&d>0?n/d*1000:null;
   }
   if(!snapshot||!snapshot.summary)return null;
   var s=snapshot.summary,cohort=cohortEl.value,metric=metricEl.value;
-  if(String(snapshot.schema||'').indexOf('0.3')<0)return metric==='cases'?(s.confirmed_cases!=null?s.confirmed_cases:null):null;
   if(cohort==='year_total')return metric==='confirmed_cases'?s.year_confirmed_cases:s.year_records;
-  if(cohort==='birth_cut_2026')return s.birth_cut_records!=null?s.birth_cut_records:null;
   return metric==='confirmed_cases'?s.period_confirmed_cases:s.period_records;
-}function renderStatus(){
-  var rows=snapshotRows(),isLive=rows.length>0;
-  var cur=currentValues(),sumN=0,sumD=0,seenD=false;
-  Object.keys(cur.ag).forEach(function(k){var a=cur.ag[k];if(!a.suppressed)sumN+=Number(a.numerator||0);if(a.denominatorSeen){sumD+=a.denominator;seenD=true}});
+}
+function renderStatus(){
+  var rows=snapshotRows(),isLive=rows.length>0,cur=currentValues(),sumN=0,sumD=0,seenD=false;
+  Object.keys(cur.ag).forEach(function(k){var x=cur.ag[k];if(!x.suppressed)sumN+=Number(x.numerator||0);if(x.denominatorSeen){sumD+=Number(x.denominator||0);seenD=true}});
   if(programEl.value==='BIRTHS'){
-    statusEl.innerHTML='<span class="data-dot live"></span><b>Denominador SINBA conectado.</b> Nacimientos con fecha válida hasta 24-sep-2026.';
+    statusEl.innerHTML='<span class="data-dot live"></span><b>Denominador SINBA conectado.</b> Corte de nacimientos: 24-sep-2026.';
     document.getElementById('kCases').textContent=nfmt(authoritativeTotal());
     document.getElementById('kDen').textContent='—';
     document.getElementById('kValue').textContent=nfmt(authoritativeTotal());
   }else if(programEl.value==='SC'&&layerEl.value==='sc_incidence_residence'){
     if(!isLive){
-      statusEl.innerHTML='<span class="data-dot"></span><b>Denominador listo.</b> Falta generar en EDITH el corte de casos alineado al 24-sep-2026.';
-      document.getElementById('kCases').textContent='—';document.getElementById('kDen').textContent=nfmt((birthsData&&birthsData.summary&&birthsData.summary.sonora_resident_births_mapped)||null);document.getElementById('kValue').textContent='—';
+      statusEl.innerHTML='<span class="data-dot"></span><b>Denominador SINBA listo.</b> Falta el nuevo JSON EDITH con cohorte birth_cut_2026.';
+      document.getElementById('kCases').textContent='—';
+      document.getElementById('kDen').textContent=nfmt(birthsData&&birthsData.summary?birthsData.summary.sonora_resident_births_mapped:null);
+      document.getElementById('kValue').textContent='—';
     }else{
-      statusEl.innerHTML='<span class="data-dot live"></span><b>Incidencia temporalmente alineada.</b> Casos SC / nacidos vivos de madres residentes × 1,000.';
-      document.getElementById('kCases').textContent=nfmt(sumN);document.getElementById('kDen').textContent=nfmt(sumD);document.getElementById('kValue').textContent=nfmt(authoritativeTotal());
+      statusEl.innerHTML='<span class="data-dot live"></span><b>Incidencia temporalmente alineada.</b> SC / nacidos vivos de madres residentes × 1,000.';
+      document.getElementById('kCases').textContent=nfmt(sumN);
+      document.getElementById('kDen').textContent=nfmt(sumD);
+      document.getElementById('kValue').textContent=nfmt(authoritativeTotal());
     }
   }else{
     var cut=(snapshot&&snapshot.source_cut_date)||'sin corte';
@@ -334,6 +436,148 @@ function configureDataSelectors(){
     document.getElementById('kValue').textContent=total!=null?nfmt(total):'—';
   }
   floatTitle.textContent=programLabel()+' · '+territoryEl.options[territoryEl.selectedIndex].text;
-  if(programEl.value==='SC'&&layerEl.value==='sc_incidence_residence'&&!isLive)floatText.textContent='SINBA listo · esperando numerador EDITH alineado al 24-sep-2026.';
-  else floatText.textContent=structureMode?'Mostrando estructura territorial.':(isLive?'Mostrando '+metricEl.options[metricEl.selectedIndex].text.toLowerCase()+'.':'Sin datos disponibles para esta combinación.');
-}>
+  floatText.textContent=structureMode?'Mostrando estructura territorial.':(isLive?'Mostrando '+metricEl.options[metricEl.selectedIndex].text.toLowerCase()+'.':'Sin datos disponibles para esta combinación.');
+}
+
+function renderFlows(){
+  flowLayer.clearLayers();
+  if(!(programEl.value==='BIRTHS'&&layerEl.value==='obstetric_flow'&&territoryEl.value==='municipality'&&birthFlows&&stateLayer))return;
+  var centers={}; stateLayer.eachLayer(function(l){centers[codeOf(l.feature)]=l.getBounds().getCenter()});
+  var vals=(birthFlows.flows||[]).filter(function(x){return x.o!==x.d&&centers[x.o]&&centers[x.d]});
+  var max=vals.reduce(function(m,x){return Math.max(m,Number(x.n||0))},1);
+  vals.forEach(function(x){
+    var w=1+4*Math.sqrt(Number(x.n||0)/max);
+    L.polyline([centers[x.o],centers[x.d]],{weight:w,opacity:.45,color:'#6b3d7d'})
+      .bindTooltip((rowFor(x.o)?rowFor(x.o).municipality_name:x.o)+' → '+(rowFor(x.d)?rowFor(x.d).municipality_name:x.d)+': '+nfmt(x.n))
+      .addTo(flowLayer);
+  });
+}
+
+function update(){
+  if(stateLayer)stateLayer.setStyle(styleFeature);
+  if(stateLayer)stateLayer.eachLayer(function(l){if(l.getTooltip())l.setTooltipContent(tooltip(l.feature))});
+  renderLegend();renderStatus();renderFlows();
+
+}
+
+function showDetail(code){
+  selectedCode=code;var x=rowFor(code);
+  if(!x)return;
+  var key=groupKeyForMunicipality(code),a=aggregates()[key]||null;
+  detailTitle.textContent=x.municipality_name;
+  var region=groupLabel(x.imss_bienestar_region_id);
+  var district=groupLabel(x.health_district_id);
+  var val=a?a.value:null;
+  detailEl.innerHTML='<table class="detail-table">'+
+    '<tr><td>Municipio</td><td><b>'+esc(x.municipality_name)+'</b> ('+esc(code)+')</td></tr>'+
+    '<tr><td>Distrito de Salud</td><td>'+esc(x.health_district_id)+'</td></tr>'+
+    '<tr><td>Región IMSS-Bienestar</td><td>'+esc(x.imss_bienestar_region_label)+'</td></tr>'+
+    '<tr><td>Agrupación activa</td><td>'+esc(groupLabel(key))+'</td></tr>'+
+    '<tr><td>Programa / capa</td><td>'+esc(programEl.value)+' · '+esc(layerEl.options[layerEl.selectedIndex]?layerEl.options[layerEl.selectedIndex].text:'')+'</td></tr>'+
+    '<tr><td>Numerador</td><td>'+(a&&a.suppressed?'&lt;5 · suprimido':nfmt(a&&a.numerator))+'</td></tr>'+
+    '<tr><td>Denominador</td><td>'+nfmt(a&&a.denominatorSeen?a.denominator:null)+'</td></tr>'+
+    '<tr><td>Resultado</td><td>'+(a&&a.suppressed?'No mostrado por privacidad':nfmt(val))+'</td></tr>'+
+    '</table>'+
+    '<p class="tiny"><b>Trazabilidad:</b> el mapa sólo muestra agregados. La apertura de registros nominales y su edición corresponde a EDITH según permisos.</p>';
+  if(stateLayer)stateLayer.setStyle(styleFeature);
+  renderLegend();renderStatus();
+}
+
+function onEach(f,l){
+  l.bindTooltip(tooltip(f),{sticky:true});
+  l.on('click',function(){showDetail(codeOf(f));map.fitBounds(l.getBounds(),{padding:[30,30],maxZoom:9})});
+}
+
+function searchMunicipality(){
+  var q=norm(searchEl.value);if(!q||!stateLayer)return;
+  var found=null;
+  stateLayer.eachLayer(function(l){if(!found&&norm(nameOf(l.feature)).indexOf(q)>=0)found=l});
+  if(found){showDetail(codeOf(found.feature));map.fitBounds(found.getBounds(),{padding:[30,30],maxZoom:9})}
+}
+
+async function loadJson(url,fresh){
+  var u=url;
+  if(fresh)u+=(url.indexOf('?')>=0?'&':'?')+'_edith_cut='+Date.now();
+  var r=await fetch(u,fresh?{cache:'no-store'}:undefined);
+  if(!r.ok)throw new Error(url+' '+r.status);
+  return r.json();
+}
+
+async function loadSnapshot(){
+  try{
+    var manifest=await loadJson('data/snapshot_manifest.json',true);
+    if(manifest&&manifest.transport==='sharded_json'&&Array.isArray(manifest.row_shards)){
+      var rowDocs=await Promise.all(manifest.row_shards.map(function(p){return loadJson(p,true)}));
+      var flowDocs=await Promise.all((manifest.flow_shards||[]).map(function(p){return loadJson(p,true)}));
+      var rows=[],flows=[];
+      rowDocs.forEach(function(d){if(d&&Array.isArray(d.rows))rows=rows.concat(d.rows)});
+      flowDocs.forEach(function(d){if(d&&Array.isArray(d.flows))flows=flows.concat(d.flows)});
+      return Object.assign({},manifest,{rows:rows,flows:flows});
+    }
+  }catch(e){}
+  return loadJson('data/epidemiology_snapshot.json',true);
+}
+
+async function refreshSnapshot(){
+  statusEl.innerHTML='<span class="data-dot"></span><b>Actualizando corte epidemiológico…</b>';
+  try{
+    snapshot=await loadSnapshot();
+    configureDataSelectors();
+    structureMode=false;
+    selectedCode=null;
+    update();
+    detailTitle.textContent='Corte epidemiológico actualizado';
+    detailEl.innerHTML='<b>'+esc(snapshot.source_system||'EDITH')+'</b><br>Corte: '+esc(snapshot.source_cut_date||'—')+
+      ' · '+((snapshot.rows||[]).length)+' filas agregadas · '+((snapshot.flows||[]).length)+' flujos.';
+  }catch(e){
+    statusEl.innerHTML='<b>No se pudo actualizar el corte:</b> '+esc(e.message);
+  }
+}
+
+async function init(){
+  try{
+    var cfg=await Promise.all([
+      loadJson('data/districts.json'),
+      loadJson('data/imss_bienestar_regions.json'),
+      loadJson('data/municipality_region_crosswalk.json'),
+      loadJson('data/layers_catalog.json'),
+      loadSnapshot(),
+      loadJson('data/births_municipal_2026.json',true),
+      loadJson('data/births_flows_2026.json',true)
+    ]);
+    districtCfg=cfg[0];regionCfg=cfg[1];crosswalk=cfg[2];layerCfg=cfg[3];snapshot=cfg[4];birthsData=cfg[5];birthFlows=cfg[6];
+    fillCrosswalk();fillBirths();layerOptions();configureDataSelectors();
+    structureMode=!((snapshot.rows||[]).length);
+
+    var gj=await loadJson(MUN_URL);
+    stateLayer=L.geoJSON(gj,{style:styleFeature,onEachFeature:onEach}).addTo(map);
+    stateBounds=stateLayer.getBounds();map.fitBounds(stateBounds,{padding:[18,18]});
+    renderLegend();renderStatus();
+    document.getElementById('detail').innerHTML='Cartografía cargada: '+gj.features.length+' municipios. Selecciona un polígono para revisar su doble pertenencia territorial.';
+  }catch(e){
+    statusEl.innerHTML='<b>Error de inicialización:</b> '+esc(e.message);
+  }
+}
+
+programEl.addEventListener('change',function(){layerOptions();configureDataSelectors();structureMode=false;selectedCode=null;update()});
+territoryEl.addEventListener('change',function(){structureMode=false;selectedCode=null;update()});
+layerEl.addEventListener('change',function(){configureDataSelectors();structureMode=false;selectedCode=null;update()});
+cohortEl.addEventListener('change',function(){structureMode=false;selectedCode=null;update()});
+metricEl.addEventListener('change',function(){structureMode=false;selectedCode=null;update()});
+searchEl.addEventListener('keydown',function(e){if(e.key==='Enter')searchMunicipality()});
+document.getElementById('fit').addEventListener('click',function(){if(stateBounds)map.fitBounds(stateBounds,{padding:[18,18]})});
+document.getElementById('structure').addEventListener('click',function(){structureMode=true;update()});
+document.getElementById('refreshCut').addEventListener('click',refreshSnapshot);
+document.getElementById('clear').addEventListener('click',function(){selectedCode=null;detailTitle.textContent='Selecciona un polígono';detailEl.textContent='Al pulsar un municipio verás simultáneamente su Distrito de Salud, Región IMSS-Bienestar y el valor epidemiológico del corte activo.';update()});
+document.getElementById('zoomData').addEventListener('click',function(){
+  if(!stateLayer)return;
+  var cur=currentValues(),b=null;
+  stateLayer.eachLayer(function(l){var k=groupKeyForMunicipality(codeOf(l.feature));if(cur.ag[k]&&cur.ag[k].value!=null){b=b?b.extend(l.getBounds()):l.getBounds()}});
+  if(b)map.fitBounds(b,{padding:[25,25]});else if(stateBounds)map.fitBounds(stateBounds,{padding:[18,18]});
+});
+
+init();
+})();
+</script>
+</body>
+</html>

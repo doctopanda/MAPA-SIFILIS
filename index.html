@@ -198,10 +198,12 @@ function layerOptions(){
 
 function snapshotRows(){
   var rows=(snapshot&&snapshot.rows)||[];
+  var gt=territoryEl.value==='municipality'?'municipality':(territoryEl.value==='health_district'?'health_district':'imss_bienestar_region');
   return rows.filter(function(r){
     return r.program===programEl.value &&
       r.layer_id===layerEl.value &&
-      r.metric_id===metricEl.value;
+      r.metric_id===metricEl.value &&
+      r.geography_type===gt;
   });
 }
 
@@ -230,16 +232,18 @@ function aggregates(){
   var out={};
   snapshotRows().forEach(function(r){
     var baseCode=String(r.geography_id||'').replace(/^26/,'').padStart(3,'0');
-    var key=r.geography_type==='municipality'?groupKeyForMunicipality(baseCode):r.geography_id;
+    var key=r.geography_type==='municipality'?baseCode:r.geography_id;
     if(!key)return;
-    if(!out[key])out[key]={numerator:0,denominator:0,denominatorSeen:false,rows:0};
+    if(!out[key])out[key]={numerator:0,denominator:0,denominatorSeen:false,rows:0,suppressed:false};
     var a=out[key];
+    if(r.suppressed===true){a.suppressed=true;a.rows++;return;}
     if(r.numerator!=null&&isFinite(Number(r.numerator)))a.numerator+=Number(r.numerator);
     if(r.denominator!=null&&isFinite(Number(r.denominator))){a.denominator+=Number(r.denominator);a.denominatorSeen=true}
     a.rows++;
   });
   Object.keys(out).forEach(function(k){
     var a=out[k];
+    if(a.suppressed){a.value=null;return;}
     if(metricEl.value==='cases')a.value=a.numerator;
     else if(a.denominatorSeen&&a.denominator>0){
       a.value=metricEl.value==='share'?(a.numerator/a.denominator*100):(a.numerator/a.denominator*100000);
@@ -280,16 +284,17 @@ function structuralColor(code){
 function styleFeature(f){
   var code=codeOf(f),key=groupKeyForMunicipality(code),cur=currentValues(),a=cur.ag[key],has=a&&a.value!=null;
   var min=cur.vals.length?Math.min.apply(null,cur.vals):0,max=cur.vals.length?Math.max.apply(null,cur.vals):0;
-  var fill=structureMode?structuralColor(code):colorScale(has?a.value:null,min,max);
+  var suppressed=!!(a&&a.suppressed);
+  var fill=structureMode?structuralColor(code):(suppressed?'#c8bdcc':colorScale(has?a.value:null,min,max));
   var selected=selectedCode===code;
-  return {color:selected?'#24182b':'#ffffff',weight:selected?3.2:1.15,fillColor:fill,fillOpacity:structureMode ? .56 : (has ? .72 : .35)};
+  return {color:selected?'#24182b':'#ffffff',weight:selected?3.2:1.15,fillColor:fill,fillOpacity:structureMode ? .56 : (suppressed?.55:(has?.72:.35))};
 }
 
 function tooltip(f){
   var code=codeOf(f),x=rowFor(code),key=groupKeyForMunicipality(code),a=aggregates()[key];
   var v=a?a.value:null;
   return '<b>'+esc(nameOf(f))+'</b><br>'+esc(groupLabel(key))+'<br>'+
-    (structureMode?'Estructura territorial':(metricEl.options[metricEl.selectedIndex].text+': '+nfmt(v)));
+    (structureMode?'Estructura territorial':(a&&a.suppressed?'Casos: <5 · celda suprimida':(metricEl.options[metricEl.selectedIndex].text+': '+nfmt(v))));
 }
 
 function renderLegend(){
@@ -310,6 +315,7 @@ function renderLegend(){
       html.push('<span class="badge"><i class="sw" style="background:#ead9e3"></i>menor</span>');
       html.push('<span class="badge"><i class="sw" style="background:#b65c78"></i>media</span>');
       html.push('<span class="badge"><i class="sw" style="background:#5a244d"></i>mayor</span>');
+      html.push('<span class="badge"><i class="sw" style="background:#c8bdcc"></i>1–4 · suprimido</span>');
     }
   }
   legendEl.innerHTML=html.join('');
@@ -356,9 +362,9 @@ function showDetail(code){
     '<tr><td>Región IMSS-Bienestar</td><td>'+esc(x.imss_bienestar_region_label)+'</td></tr>'+
     '<tr><td>Agrupación activa</td><td>'+esc(groupLabel(key))+'</td></tr>'+
     '<tr><td>Programa / capa</td><td>'+esc(programEl.value)+' · '+esc(layerEl.options[layerEl.selectedIndex]?layerEl.options[layerEl.selectedIndex].text:'')+'</td></tr>'+
-    '<tr><td>Numerador</td><td>'+nfmt(a&&a.numerator)+'</td></tr>'+
+    '<tr><td>Numerador</td><td>'+(a&&a.suppressed?'&lt;5 · suprimido':nfmt(a&&a.numerator))+'</td></tr>'+
     '<tr><td>Denominador</td><td>'+nfmt(a&&a.denominatorSeen?a.denominator:null)+'</td></tr>'+
-    '<tr><td>Resultado</td><td>'+nfmt(val)+'</td></tr>'+
+    '<tr><td>Resultado</td><td>'+(a&&a.suppressed?'No mostrado por privacidad':nfmt(val))+'</td></tr>'+
     '</table>'+
     '<p class="tiny"><b>Trazabilidad:</b> el mapa sólo muestra agregados. La apertura de registros nominales y su edición corresponde a EDITH según permisos.</p>';
   if(stateLayer)stateLayer.setStyle(styleFeature);

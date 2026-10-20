@@ -84,3 +84,18 @@ Fase 0: arquitectura territorial y contrato de capas.
 ## Crosswalk territorial
 
 El repositorio contiene `data/municipality_region_crosswalk.json`, que permite representar cada municipio simultáneamente por Distrito de Salud y Región IMSS-Bienestar, y `data/region_district_matrix.json`, que documenta los traslapes entre ambas regionalizaciones.
+
+
+## Nacimientos SINBA 2026
+
+Se incorpora como denominador territorial la base de Certificados de Nacimiento 2026 con corte al **24 de septiembre de 2026**.
+
+- Nacimientos con fecha válida al corte: **19,984**.
+- Nacimientos de madres residentes en Sonora con municipio mapeable: **19,690**.
+- Nacimientos ocurridos en Sonora con municipio de parto mapeable: **19,984**.
+- La residencia materna es el denominador epidemiológico para incidencia territorial de sífilis congénita.
+- El municipio de parto representa carga asistencial y flujo obstétrico; no sustituye la residencia para medir riesgo.
+- La incidencia se expresará como **casos de sífilis congénita por 1,000 nacidos vivos** y sólo se calcula cuando numerador y denominador tienen el mismo corte temporal.
+- El primer corte alineado es **01-ene-2026 a 24-sep-2026**. EDITH exporta ese universo mediante `FECHA_NAC`.
+
+Referencia metodológica: OPS define la incidencia de sífilis congénita como casos notificados respecto de los nacidos vivos de la misma población y año, expresada por 1,000 nacidos vivos.

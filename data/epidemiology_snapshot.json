@@ -1,0 +1,15 @@
+{
+  "schema": "MAPA-SIFILIS-SNAPSHOT-0.1",
+  "generated": null,
+  "source_system": "EDITH SA / EDITH SC",
+  "source_cut_date": null,
+  "calculation_version": null,
+  "status": "awaiting_real_aggregated_cut",
+  "privacy": {
+    "nominal_data": false,
+    "exact_coordinates": false,
+    "small_cell_suppression_applied": false
+  },
+  "rows": [],
+  "flows": []
+}

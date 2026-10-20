@@ -287,7 +287,7 @@ function styleFeature(f){
   var suppressed=!!(a&&a.suppressed);
   var fill=structureMode?structuralColor(code):(suppressed?'#c8bdcc':colorScale(has?a.value:null,min,max));
   var selected=selectedCode===code;
-  return {color:selected?'#24182b':'#ffffff',weight:selected?3.2:1.15,fillColor:fill,fillOpacity:structureMode ? .56 : (suppressed?.55:(has?.72:.35))};
+  return {color:selected?'#24182b':'#ffffff',weight:selected?3.2:1.15,fillColor:fill,fillOpacity:structureMode ? .56 : (suppressed ? .55 : (has ? .72 : .35))};
 }
 
 function tooltip(f){

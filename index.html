@@ -282,7 +282,7 @@ function styleFeature(f){
   var min=cur.vals.length?Math.min.apply(null,cur.vals):0,max=cur.vals.length?Math.max.apply(null,cur.vals):0;
   var fill=structureMode?structuralColor(code):colorScale(has?a.value:null,min,max);
   var selected=selectedCode===code;
-  return {color:selected?'#24182b':'#ffffff',weight:selected?3.2:1.15,fillColor:fill,fillOpacity:structureMode?.56:(has?.72:.35)};
+  return {color:selected?'#24182b':'#ffffff',weight:selected?3.2:1.15,fillColor:fill,fillOpacity:structureMode ? .56 : (has ? .72 : .35)};
 }
 
 function tooltip(f){
@@ -339,7 +339,7 @@ function update(){
   if(stateLayer)stateLayer.setStyle(styleFeature);
   if(stateLayer)stateLayer.eachLayer(function(l){if(l.getTooltip())l.setTooltipContent(tooltip(l.feature))});
   renderLegend();renderStatus();
-  if(selectedCode)showDetail(selectedCode);
+
 }
 
 function showDetail(code){
@@ -361,7 +361,8 @@ function showDetail(code){
     '<tr><td>Resultado</td><td>'+nfmt(val)+'</td></tr>'+
     '</table>'+
     '<p class="tiny"><b>Trazabilidad:</b> el mapa sólo muestra agregados. La apertura de registros nominales y su edición corresponde a EDITH según permisos.</p>';
-  update();
+  if(stateLayer)stateLayer.setStyle(styleFeature);
+  renderLegend();renderStatus();
 }
 
 function onEach(f,l){

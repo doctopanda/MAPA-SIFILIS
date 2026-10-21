@@ -1,0 +1,193 @@
+{
+  "year": 2025,
+  "flows": [
+    {
+      "year": 2025,
+      "count": 41,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:a9699172-24a1-41e0-b3d0-2ab56db2aa11",
+      "fully_homologated": true,
+      "destination_node_id": "unit:9101cc9c-e91f-4d2b-a1e5-7ba506d2ce78",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 13,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:2bc8fd44-124e-49e2-b236-27f7a9f676c0",
+      "fully_homologated": true,
+      "destination_node_id": "unit:2bc8fd44-124e-49e2-b236-27f7a9f676c0",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 10,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
+      "fully_homologated": true,
+      "destination_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 7,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:54fcd4cf-c3d4-49fe-9d98-f3014816f394",
+      "fully_homologated": true,
+      "destination_node_id": "unit:54fcd4cf-c3d4-49fe-9d98-f3014816f394",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 7,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:185944c6-d4ea-4fed-9f7b-71e564d28502",
+      "fully_homologated": true,
+      "destination_node_id": "unit:185944c6-d4ea-4fed-9f7b-71e564d28502",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 6,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
+      "fully_homologated": true,
+      "destination_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 5,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:185944c6-d4ea-4fed-9f7b-71e564d28502",
+      "fully_homologated": true,
+      "destination_node_id": "unit:185944c6-d4ea-4fed-9f7b-71e564d28502",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 5,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:a4d0b75e-954c-4cd6-bd6c-c42391fb812f",
+      "fully_homologated": true,
+      "destination_node_id": "unit:a4d0b75e-954c-4cd6-bd6c-c42391fb812f",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 7,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "prenatal_to_delivery",
+      "flow_label": "Control prenatal → Parto/Cesárea",
+      "suppressed": false,
+      "origin_node_id": "unit:54fcd4cf-c3d4-49fe-9d98-f3014816f394",
+      "fully_homologated": true,
+      "destination_node_id": "unit:54fcd4cf-c3d4-49fe-9d98-f3014816f394",
+      "suppression_threshold": 5
+    }
+  ],
+  "nodes": [
+    {
+      "name": "HOSPITAL COMUNITARIO DE MAGDALENA",
+      "node_id": "unit:54fcd4cf-c3d4-49fe-9d98-f3014816f394",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "036",
+      "municipality_name": "MAGDALENA"
+    },
+    {
+      "name": "HOSPITAL DE GINECO PEDIATRÍA (HGP)",
+      "node_id": "unit:2bc8fd44-124e-49e2-b236-27f7a9f676c0",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "030",
+      "municipality_name": "HERMOSILLO"
+    },
+    {
+      "name": "HOSPITAL GENERAL DE CABORCA",
+      "node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "017",
+      "municipality_name": "CABORCA"
+    },
+    {
+      "name": "HOSPITAL GENERAL REGIONAL NO.1",
+      "node_id": "unit:185944c6-d4ea-4fed-9f7b-71e564d28502",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "018",
+      "municipality_name": "CAJEME"
+    },
+    {
+      "name": "HOSPITAL IMSS BIENESTAR CD. OBREGON",
+      "node_id": "unit:a4d0b75e-954c-4cd6-bd6c-c42391fb812f",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "018",
+      "municipality_name": "CAJEME"
+    },
+    {
+      "name": "HOSPITAL INFANTIL DEL ESTADO DE SONORA",
+      "node_id": "unit:9101cc9c-e91f-4d2b-a1e5-7ba506d2ce78",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "030",
+      "municipality_name": "HERMOSILLO"
+    },
+    {
+      "name": "HOSPITAL INTEGRAL DE LA MUJER DEL ESTADO DE SONORA (HIMES)",
+      "node_id": "unit:a9699172-24a1-41e0-b3d0-2ab56db2aa11",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "030",
+      "municipality_name": "HERMOSILLO"
+    }
+  ],
+  "schema": "MAPA-SIFILIS-UNIT-NETWORK-0.2",
+  "privacy": {
+    "contains_nominal_data": false,
+    "small_cell_suppression_threshold": 5
+  },
+  "program": "SC",
+  "generated": "2026-10-21T20:13:40.175578+00:00",
+  "location_note": "CANONICAL usa coordenadas verificadas o centroide municipal; PENDING_ALIAS sólo aparece en la red no geográfica."
+}

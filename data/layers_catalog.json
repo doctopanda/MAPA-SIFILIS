@@ -1,5 +1,5 @@
 {
-  "schema": "MAPA-SIFILIS-LAYERS-0.3",
+  "schema": "MAPA-SIFILIS-LAYERS-0.4",
   "default_view": {
     "program": "SC",
     "territory": "health_district",
@@ -15,16 +15,6 @@
           "id": "case_residence",
           "label": "Residencia del caso",
           "geography": "residence",
-          "allowed_scopes": [
-            "municipality",
-            "health_district",
-            "imss_bienestar_region"
-          ]
-        },
-        {
-          "id": "rightsholder",
-          "label": "Derechohabiencia",
-          "geography": "aggregate",
           "allowed_scopes": [
             "municipality",
             "health_district",
@@ -72,17 +62,6 @@
           ]
         },
         {
-          "id": "rightsholder",
-          "label": "Derechohabiencia",
-          "geography": "aggregate",
-          "primary": false,
-          "allowed_scopes": [
-            "municipality",
-            "health_district",
-            "imss_bienestar_region"
-          ]
-        },
-        {
           "id": "maternal_to_birth_flow",
           "label": "Residencia materna → lugar de nacimiento",
           "geography": "origin_destination",
@@ -117,7 +96,7 @@
         },
         {
           "id": "unit_flow_formal_referral",
-          "label": "Red de unidades · Referente → Receptora",
+          "label": "Red de unidades · Referente → Receptora (documentada)",
           "geography": "unit_network",
           "primary": false,
           "allowed_scopes": [
@@ -220,5 +199,9 @@
     "source": "EDITH SC · Catálogo Maestro de Unidades",
     "privacy": "flujos <5 omitidos",
     "location_rule": "coordenada verificada o centroide municipal; alias pendiente sólo en red no geográfica"
-  }
+  },
+  "notes": [
+    "Derechohabiencia retirada del selector hasta disponer de variable explícita y válida.",
+    "Institución notificante no se usa como sustituto de derechohabiencia."
+  ]
 }

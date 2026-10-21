@@ -1,5 +1,5 @@
 {
-  "schema": "MAPA-SIFILIS-LAYERS-0.2",
+  "schema": "MAPA-SIFILIS-LAYERS-0.3",
   "default_view": {
     "program": "SC",
     "territory": "health_district",
@@ -92,6 +92,39 @@
             "health_district",
             "imss_bienestar_region"
           ]
+        },
+        {
+          "id": "unit_flow_prenatal_delivery",
+          "label": "Red de unidades · Control prenatal → Parto/Cesárea",
+          "geography": "unit_network",
+          "primary": false,
+          "allowed_scopes": [
+            "municipality"
+          ],
+          "render_mode": "unit_network",
+          "flow_type": "prenatal_to_delivery"
+        },
+        {
+          "id": "unit_flow_delivery_notification",
+          "label": "Red de unidades · Parto/Cesárea → Notificación",
+          "geography": "unit_network",
+          "primary": false,
+          "allowed_scopes": [
+            "municipality"
+          ],
+          "render_mode": "unit_network",
+          "flow_type": "delivery_to_notification"
+        },
+        {
+          "id": "unit_flow_formal_referral",
+          "label": "Red de unidades · Referente → Receptora",
+          "geography": "unit_network",
+          "primary": false,
+          "allowed_scopes": [
+            "municipality"
+          ],
+          "render_mode": "unit_network",
+          "flow_type": "formal_referral"
         }
       ]
     },
@@ -182,5 +215,10 @@
     "residence_field": "MUNICIPIORESIDENCIAD",
     "occurrence_field": "MUNICIPIOPARTOD",
     "incidence_unit": "por 1,000 nacidos vivos"
+  },
+  "unit_network": {
+    "source": "EDITH SC · Catálogo Maestro de Unidades",
+    "privacy": "flujos <5 omitidos",
+    "location_rule": "coordenada verificada o centroide municipal; alias pendiente sólo en red no geográfica"
   }
 }

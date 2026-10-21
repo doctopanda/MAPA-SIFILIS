@@ -3,7 +3,7 @@
   "flows": [
     {
       "year": 2025,
-      "count": 41,
+      "count": 42,
       "evidence": "INFERRED_TRAJECTORY",
       "flow_type": "delivery_to_notification",
       "flow_label": "Parto/Cesárea → Notificación",
@@ -11,6 +11,30 @@
       "origin_node_id": "unit:a9699172-24a1-41e0-b3d0-2ab56db2aa11",
       "fully_homologated": true,
       "destination_node_id": "unit:9101cc9c-e91f-4d2b-a1e5-7ba506d2ce78",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 20,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:185944c6-d4ea-4fed-9f7b-71e564d28502",
+      "fully_homologated": true,
+      "destination_node_id": "unit:185944c6-d4ea-4fed-9f7b-71e564d28502",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 17,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
+      "fully_homologated": true,
+      "destination_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
       "suppression_threshold": 5
     },
     {
@@ -27,19 +51,7 @@
     },
     {
       "year": 2025,
-      "count": 10,
-      "evidence": "INFERRED_TRAJECTORY",
-      "flow_type": "delivery_to_notification",
-      "flow_label": "Parto/Cesárea → Notificación",
-      "suppressed": false,
-      "origin_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
-      "fully_homologated": true,
-      "destination_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
-      "suppression_threshold": 5
-    },
-    {
-      "year": 2025,
-      "count": 7,
+      "count": 11,
       "evidence": "INFERRED_TRAJECTORY",
       "flow_type": "delivery_to_notification",
       "flow_label": "Parto/Cesárea → Notificación",
@@ -51,43 +63,7 @@
     },
     {
       "year": 2025,
-      "count": 7,
-      "evidence": "INFERRED_TRAJECTORY",
-      "flow_type": "delivery_to_notification",
-      "flow_label": "Parto/Cesárea → Notificación",
-      "suppressed": false,
-      "origin_node_id": "unit:185944c6-d4ea-4fed-9f7b-71e564d28502",
-      "fully_homologated": true,
-      "destination_node_id": "unit:185944c6-d4ea-4fed-9f7b-71e564d28502",
-      "suppression_threshold": 5
-    },
-    {
-      "year": 2025,
-      "count": 6,
-      "evidence": "INFERRED_TRAJECTORY",
-      "flow_type": "delivery_to_notification",
-      "flow_label": "Parto/Cesárea → Notificación",
-      "suppressed": false,
-      "origin_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
-      "fully_homologated": true,
-      "destination_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
-      "suppression_threshold": 5
-    },
-    {
-      "year": 2025,
-      "count": 5,
-      "evidence": "INFERRED_TRAJECTORY",
-      "flow_type": "delivery_to_notification",
-      "flow_label": "Parto/Cesárea → Notificación",
-      "suppressed": false,
-      "origin_node_id": "unit:185944c6-d4ea-4fed-9f7b-71e564d28502",
-      "fully_homologated": true,
-      "destination_node_id": "unit:185944c6-d4ea-4fed-9f7b-71e564d28502",
-      "suppression_threshold": 5
-    },
-    {
-      "year": 2025,
-      "count": 5,
+      "count": 10,
       "evidence": "INFERRED_TRAJECTORY",
       "flow_type": "delivery_to_notification",
       "flow_label": "Parto/Cesárea → Notificación",
@@ -99,7 +75,43 @@
     },
     {
       "year": 2025,
-      "count": 7,
+      "count": 5,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "alias:a860b83402eb39e7075e1ae28aa961a7",
+      "fully_homologated": false,
+      "destination_node_id": "alias:5b75302717f4314bc6608477802b5d04",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 5,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:b7efd5bd-c0d8-4469-ab3d-f59da7292edf",
+      "fully_homologated": true,
+      "destination_node_id": "unit:b7efd5bd-c0d8-4469-ab3d-f59da7292edf",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 5,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "alias:0d9daececdaf0a98c6a804c4e993cea4",
+      "fully_homologated": false,
+      "destination_node_id": "unit:a9e9daf6-d1de-4038-867a-be14e7d4e066",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2025,
+      "count": 11,
       "evidence": "INFERRED_TRAJECTORY",
       "flow_type": "prenatal_to_delivery",
       "flow_label": "Control prenatal → Parto/Cesárea",
@@ -111,6 +123,46 @@
     }
   ],
   "nodes": [
+    {
+      "name": "HGSZ # 12",
+      "node_id": "alias:5b75302717f4314bc6608477802b5d04",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "PENDING_ALIAS",
+      "location_basis": "unlocated_alias",
+      "municipality_code": null,
+      "municipality_name": null
+    },
+    {
+      "name": "HGSZ #12",
+      "node_id": "alias:a860b83402eb39e7075e1ae28aa961a7",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "PENDING_ALIAS",
+      "location_basis": "unlocated_alias",
+      "municipality_code": null,
+      "municipality_name": null
+    },
+    {
+      "name": "HGZ3",
+      "node_id": "unit:b7efd5bd-c0d8-4469-ab3d-f59da7292edf",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "042",
+      "municipality_name": "NAVOJOA"
+    },
+    {
+      "name": "HOSP GRAL NOGALES",
+      "node_id": "unit:a9e9daf6-d1de-4038-867a-be14e7d4e066",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "043",
+      "municipality_name": "NOGALES"
+    },
     {
       "name": "HOSPITAL COMUNITARIO DE MAGDALENA",
       "node_id": "unit:54fcd4cf-c3d4-49fe-9d98-f3014816f394",
@@ -162,6 +214,16 @@
       "municipality_name": "CAJEME"
     },
     {
+      "name": "HOSPITAL IMSS BIENESTAR NOGALES",
+      "node_id": "alias:0d9daececdaf0a98c6a804c4e993cea4",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "PENDING_ALIAS",
+      "location_basis": "unlocated_alias",
+      "municipality_code": null,
+      "municipality_name": null
+    },
+    {
       "name": "HOSPITAL INFANTIL DEL ESTADO DE SONORA",
       "node_id": "unit:9101cc9c-e91f-4d2b-a1e5-7ba506d2ce78",
       "latitude": null,
@@ -182,12 +244,17 @@
       "municipality_name": "HERMOSILLO"
     }
   ],
-  "schema": "MAPA-SIFILIS-UNIT-NETWORK-0.2",
+  "schema": "MAPA-SIFILIS-UNIT-NETWORK-0.3",
   "privacy": {
     "contains_nominal_data": false,
     "small_cell_suppression_threshold": 5
   },
   "program": "SC",
-  "generated": "2026-10-21T20:13:40.175578+00:00",
-  "location_note": "CANONICAL usa coordenadas verificadas o centroide municipal; PENDING_ALIAS sólo aparece en la red no geográfica."
+  "summary": {
+    "formal_referral_public_routes": 0,
+    "prenatal_to_delivery_public_routes": 1,
+    "delivery_to_notification_public_routes": 9
+  },
+  "generated": "2026-10-21T22:06:25.013946+00:00",
+  "aggregation_note": "Aliases se homologan antes de agregar y aplicar supresión <5."
 }

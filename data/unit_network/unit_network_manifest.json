@@ -1,0 +1,14 @@
+{
+  "schema": "MAPA-SIFILIS-UNIT-NETWORK-MANIFEST-0.1",
+  "visible_years": [
+    2024,
+    2025,
+    2026
+  ],
+  "default_year": 2026,
+  "files": {
+    "2024": "data/unit_network/unit_network_2024.json",
+    "2025": "data/unit_network/unit_network_2025.json",
+    "2026": "data/unit_network/unit_network_2026.json"
+  }
+}

@@ -55,6 +55,7 @@ select,input{width:100%;margin-top:4px;min-height:38px;border:1px solid #d9cddd;
 .data-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#c89a52;margin-right:5px}
 .data-dot.live{background:#3d7c79}
 hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+.network-list{display:grid;gap:7px}.network-edge{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fcfafc}.network-edge b{font-size:10px}.network-edge .meta{font-size:9px;color:var(--muted);margin-top:3px}.network-bar{height:5px;border-radius:99px;background:#ead9e3;margin-top:6px;overflow:hidden}.network-bar i{display:block;height:100%;background:var(--wine);border-radius:99px}.tag{display:inline-block;font-size:8px;padding:2px 5px;border-radius:999px;border:1px solid var(--line);margin-left:4px}.tag.pending{background:#fff5dd}.tag.canonical{background:#edf8f5}
 @media(max-width:860px){
   body{display:block}.shell{display:block}aside{border-right:0;border-bottom:1px solid var(--line);max-height:none}.map-float{max-width:220px}
   main{min-height:70vh}.header-meta{display:none}.grid2{grid-template-columns:1fr}
@@ -67,7 +68,7 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
     <div class="brandmark">🧬</div>
     <div><h1>MAPA-SIFILIS</h1><p>EDITH SA + EDITH SC · Inteligencia territorial de sífilis en Sonora</p></div>
   </div>
-  <div class="header-meta">Fase cartográfica v0.3 · histórico 2024–2026<br>Datos nominales: nunca publicados</div>
+  <div class="header-meta">Fase cartográfica v0.4 · histórico + red obstétrica<br>Datos nominales: nunca publicados</div>
 </header>
 
 <div class="shell">
@@ -139,6 +140,14 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
     <div id="legend" class="legend"></div>
   </section>
 
+  <section class="card" id="unitNetworkCard" style="display:none">
+    <div class="eyebrow">Red obstétrica por unidades</div>
+    <h3 id="unitNetworkTitle">Trayectoria asistencial</h3>
+    <div id="unitNetworkSummary" class="tiny">Selecciona una capa de red de unidades.</div>
+    <div id="unitNetworkList" class="network-list" style="margin-top:8px"></div>
+    <p class="tiny" style="margin-bottom:0"><b>Lectura:</b> “trayectoria inferida” usa campos de control prenatal, parto y notificación. “Referencia formal” sólo usa los nuevos campos explícitos de EDITH.</p>
+  </section>
+
   <section class="card">
     <div class="eyebrow">Trazabilidad territorial</div>
     <h3 id="detailTitle">Selecciona un polígono</h3>
@@ -168,7 +177,7 @@ var map=L.map('map',{preferCanvas:true,zoomControl:true}).setView([29.1,-110.5],
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
 
 var stateLayer=null,stateBounds=null;
-var districtCfg=null,regionCfg=null,crosswalk=null,layerCfg=null,snapshot=null,legacySnapshot=null,historyManifest=null,historySnapshots={},birthsData=null,birthFlows=null;
+var districtCfg=null,regionCfg=null,crosswalk=null,layerCfg=null,snapshot=null,legacySnapshot=null,historyManifest=null,historySnapshots={},unitNetworkManifest=null,unitNetworks={},birthsData=null,birthFlows=null;
 var byCode={},birthByCode={},selectedLayer=null,selectedCode=null,structureMode=true;
 var flowLayer=L.layerGroup().addTo(map);
 
@@ -190,6 +199,10 @@ var detailTitle=document.getElementById('detailTitle');
 var legendEl=document.getElementById('legend');
 var floatTitle=document.getElementById('floatTitle');
 var floatText=document.getElementById('floatText');
+var unitNetworkCard=document.getElementById('unitNetworkCard');
+var unitNetworkTitle=document.getElementById('unitNetworkTitle');
+var unitNetworkSummary=document.getElementById('unitNetworkSummary');
+var unitNetworkList=document.getElementById('unitNetworkList');
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function nfmt(n){return n==null||!isFinite(Number(n))?'—':Number(n).toLocaleString('es-MX',{maximumFractionDigits:2})}
@@ -251,6 +264,16 @@ function incidenceRows(){
   });
 }
 
+function isUnitNetworkLayer(){return /^unit_flow_/.test(String(layerEl.value||''))}
+function unitFlowType(){
+  if(layerEl.value==='unit_flow_prenatal_delivery')return 'prenatal_to_delivery';
+  if(layerEl.value==='unit_flow_delivery_notification')return 'delivery_to_notification';
+  if(layerEl.value==='unit_flow_formal_referral')return 'formal_referral';
+  return null;
+}
+function currentUnitNetwork(){return unitNetworks[String(currentYear())]||unitNetworks[currentYear()]||null}
+function unitNetworkFlows(){var n=currentUnitNetwork(),t=unitFlowType();return n&&t?(n.flows||[]).filter(function(x){return x.flow_type===t}):[]}
+function unitNetworkNodes(){var n=currentUnitNetwork(),m={};((n&&n.nodes)||[]).forEach(function(x){m[x.node_id]=x});return m}
 function isDimensionLayer(){return String(layerEl.value||'').indexOf('dim:')===0}
 function dimensionId(){return isDimensionLayer()?String(layerEl.value).slice(4):null}
 function currentYear(){return Number(yearEl&&yearEl.value||snapshot&&snapshot.year||2026)}
@@ -330,6 +353,13 @@ function configureDataSelectors(){
     categoryWrap.style.display='none';
     return;
   }
+  if(programEl.value==='SC'&&isUnitNetworkLayer()){
+    territoryEl.value='municipality';territoryEl.disabled=true;
+    cohortEl.innerHTML='<option value="year_total">Año completo canónico</option>';
+    metricEl.innerHTML='<option value="cases">Casos en rutas públicas</option>';
+    categoryWrap.style.display='none';
+    return;
+  }
   if(programEl.value==='SC'&&layerEl.value==='maternal_to_birth_flow'){
     territoryEl.value='municipality';territoryEl.disabled=true;
     cohortEl.innerHTML='<option value="year_total">Año completo canónico</option>';
@@ -360,6 +390,7 @@ function configureDataSelectors(){
 function snapshotRows(){
   if(programEl.value==='BIRTHS')return birthRows();
   if(programEl.value==='SC'&&layerEl.value==='sc_incidence_residence')return incidenceRows();
+  if(programEl.value==='SC'&&isUnitNetworkLayer())return [];
   if(isDimensionLayer())return dimensionRows();
   if(programEl.value==='SC'&&layerEl.value==='maternal_to_birth_flow')return [];
   var rows=(snapshot&&snapshot.rows)||[];
@@ -462,6 +493,12 @@ function tooltip(f){
 
 function renderLegend(){
   var html=[];
+  if(programEl.value==='SC'&&isUnitNetworkLayer()){
+    html.push('<span class="badge"><i class="sw" style="background:#762a52"></i>Ruta entre municipios</span>');
+    html.push('<span class="badge"><i class="sw" style="background:#b65c78"></i>Flujo dentro del mismo municipio</span>');
+    html.push('<span class="badge">≥5 casos por ruta</span>');
+    legendEl.innerHTML=html.join('');return;
+  }
   if(structureMode){
     var seen={};
     if(territoryEl.value==='municipality')html.push('<span class="badge"><i class="sw" style="background:#ddd3e1"></i>Municipios</span>');
@@ -517,6 +554,12 @@ function renderStatus(){
       statusEl.innerHTML='<span class="data-dot live"></span><b>Incidencia temporalmente alineada.</b> SC / nacidos vivos de madres residentes × 1,000.';
       document.getElementById('kCases').textContent=nfmt(sumN);document.getElementById('kDen').textContent=nfmt(sumD);document.getElementById('kValue').textContent=nfmt(authoritativeTotal());
     }
+  }else if(programEl.value==='SC'&&isUnitNetworkLayer()){
+    var uf=unitNetworkFlows(),nodes=unitNetworkNodes(),totalCases=uf.reduce(function(a,x){return a+Number(x.count||0)},0);
+    statusEl.innerHTML='<span class="data-dot '+(uf.length?'live':'')+'"></span><b>'+esc(currentYear())+' · '+esc(layerEl.options[layerEl.selectedIndex].text)+'</b><br>'+uf.length+' rutas públicas con ≥5 casos. Las líneas geográficas usan coordenada verificada o centroide municipal.';
+    document.getElementById('kCases').textContent=nfmt(totalCases);
+    document.getElementById('kDen').textContent=nfmt(Object.keys(nodes).length);
+    document.getElementById('kValue').textContent=nfmt(uf.length);
   }else if(isDimensionLayer()){
     statusEl.innerHTML='<span class="data-dot '+(isLive?'live':'')+'"></span><b>'+esc(currentYear())+' · '+esc(layerEl.options[layerEl.selectedIndex].text)+'</b><br>'+esc(categoryEl.value)+' · nivel municipal. Las celdas 1–4 permanecen suprimidas.';
     document.getElementById('kCases').textContent='—';document.getElementById('kDen').textContent='—';document.getElementById('kValue').textContent=isLive?nfmt(sumN):'—';
@@ -533,9 +576,24 @@ function renderStatus(){
     document.getElementById('kValue').textContent=total!=null?nfmt(total):'—';
   }
   floatTitle.textContent=programLabel()+' · '+currentYear()+' · '+territoryEl.options[territoryEl.selectedIndex].text;
-  floatText.textContent=structureMode?'Mostrando estructura territorial.':(isLive?'Mostrando '+metricEl.options[metricEl.selectedIndex].text.toLowerCase()+'.':'Sin datos disponibles para esta combinación.');
+  if(programEl.value==='SC'&&isUnitNetworkLayer())floatText.textContent='Red de unidades · líneas geográficas cuando existe ubicación; grafo completo en panel lateral.';
+  else floatText.textContent=structureMode?'Mostrando estructura territorial.':(isLive?'Mostrando '+metricEl.options[metricEl.selectedIndex].text.toLowerCase()+'.':'Sin datos disponibles para esta combinación.');
 }
 
+function renderUnitNetworkPanel(){
+  if(!(programEl.value==='SC'&&isUnitNetworkLayer())){unitNetworkCard.style.display='none';unitNetworkList.innerHTML='';return}
+  unitNetworkCard.style.display='block';
+  var flows=unitNetworkFlows(),nodes=unitNetworkNodes(),max=flows.reduce(function(m,x){return Math.max(m,Number(x.count||0))},1);
+  unitNetworkTitle.textContent=layerEl.options[layerEl.selectedIndex]?layerEl.options[layerEl.selectedIndex].text:'Red de unidades';
+  if(!flows.length){unitNetworkSummary.innerHTML='No hay rutas públicas ≥5 para '+currentYear()+'. En referencia formal esto será normal hasta que los nuevos campos acumulen información.';unitNetworkList.innerHTML='';return}
+  unitNetworkSummary.innerHTML='<b>'+flows.length+'</b> rutas · <b>'+flows.reduce(function(a,x){return a+Number(x.count||0)},0)+'</b> registros en rutas públicas. Los conteos son agregados y no nominales.';
+  unitNetworkList.innerHTML=flows.slice().sort(function(a,b){return Number(b.count)-Number(a.count)}).slice(0,18).map(function(x){
+    var o=nodes[x.origin_node_id]||{},d=nodes[x.destination_node_id]||{},pct=Math.max(8,Math.round(Number(x.count||0)/max*100));
+    var tag=x.evidence==='DOCUMENTED_REFERRAL'?'<span class="tag canonical">referencia formal</span>':'<span class="tag">trayectoria inferida</span>';
+    var pending=(!x.fully_homologated)?'<span class="tag pending">alias pendiente</span>':'';
+    return '<div class="network-edge"><b>'+esc(o.name||x.origin_node_id)+' → '+esc(d.name||x.destination_node_id)+'</b>'+tag+pending+'<div class="meta">'+nfmt(x.count)+' casos · '+esc(o.municipality_name||'sin ubicación precisa')+' → '+esc(d.municipality_name||'sin ubicación precisa')+'</div><div class="network-bar"><i style="width:'+pct+'%"></i></div></div>';
+  }).join('');
+}
 function renderFlows(){
   flowLayer.clearLayers();
   if(!stateLayer)return;
@@ -544,6 +602,24 @@ function renderFlows(){
     var vals=(birthFlows.flows||[]).filter(function(x){return x.o!==x.d&&centers[x.o]&&centers[x.d]});
     var max=vals.reduce(function(m,x){return Math.max(m,Number(x.n||0))},1);
     vals.forEach(function(x){var w=1+4*Math.sqrt(Number(x.n||0)/max);L.polyline([centers[x.o],centers[x.d]],{weight:w,opacity:.45,color:'#6b3d7d'}).bindTooltip((rowFor(x.o)?rowFor(x.o).municipality_name:x.o)+' → '+(rowFor(x.d)?rowFor(x.d).municipality_name:x.d)+': '+nfmt(x.n)).addTo(flowLayer)});
+    return;
+  }
+  if(programEl.value==='SC'&&isUnitNetworkLayer()){
+    var uf=unitNetworkFlows(),nodes=unitNetworkNodes(),umax=uf.reduce(function(m,x){return Math.max(m,Number(x.count||0))},1);
+    uf.forEach(function(x){
+      var o=nodes[x.origin_node_id],d=nodes[x.destination_node_id];if(!o||!d)return;
+      var oc=o.latitude!=null&&o.longitude!=null?L.latLng(Number(o.latitude),Number(o.longitude)):(o.municipality_code&&centers[o.municipality_code]?centers[o.municipality_code]:null);
+      var dc=d.latitude!=null&&d.longitude!=null?L.latLng(Number(d.latitude),Number(d.longitude)):(d.municipality_code&&centers[d.municipality_code]?centers[d.municipality_code]:null);
+      if(!oc||!dc)return;
+      var w=1.5+5*Math.sqrt(Number(x.count||0)/umax),tip=esc(o.name)+' → '+esc(d.name)+': '+nfmt(x.count)+' casos';
+      if(oc.lat===dc.lat&&oc.lng===dc.lng){
+        L.circleMarker(oc,{radius:5+w,weight:2,color:'#762a52',fillColor:'#b65c78',fillOpacity:.48}).bindTooltip(tip).addTo(flowLayer);
+      }else{
+        L.polyline([oc,dc],{weight:w,opacity:.58,color:'#762a52'}).bindTooltip(tip).addTo(flowLayer);
+        L.circleMarker(oc,{radius:3+w/2,weight:1,color:'#55305f',fillColor:'#fff',fillOpacity:.9}).bindTooltip(esc(o.name)).addTo(flowLayer);
+        L.circleMarker(dc,{radius:3+w/2,weight:1,color:'#762a52',fillColor:'#b65c78',fillOpacity:.8}).bindTooltip(esc(d.name)).addTo(flowLayer);
+      }
+    });
     return;
   }
   if(programEl.value==='SC'&&layerEl.value==='maternal_to_birth_flow'&&territoryEl.value==='municipality'){
@@ -556,7 +632,7 @@ function renderFlows(){
 function update(){
   if(stateLayer)stateLayer.setStyle(styleFeature);
   if(stateLayer)stateLayer.eachLayer(function(l){if(l.getTooltip())l.setTooltipContent(tooltip(l.feature))});
-  renderLegend();renderStatus();renderFlows();
+  renderLegend();renderStatus();renderFlows();renderUnitNetworkPanel();
 
 }
 
@@ -620,6 +696,11 @@ async function loadHistory(){
   }));
   return {manifest:manifest,snapshots:out};
 }
+async function loadUnitNetworks(){
+  var manifest=await loadJson('data/unit_network/unit_network_manifest.json',true),out={};
+  await Promise.all((manifest.visible_years||[]).map(async function(y){out[String(y)]=await loadJson(manifest.files[String(y)],true)}));
+  return {manifest:manifest,networks:out};
+}
 
 async function loadSnapshot(){
   try{
@@ -639,8 +720,9 @@ async function loadSnapshot(){
 async function refreshSnapshot(){
   statusEl.innerHTML='<span class="data-dot"></span><b>Actualizando históricos epidemiológicos…</b>';
   try{
-    var h=await loadHistory();
+    var h=await loadHistory(),un=await loadUnitNetworks();
     historyManifest=h.manifest;historySnapshots=h.snapshots;
+    unitNetworkManifest=un.manifest;unitNetworks=un.networks;
     legacySnapshot=await loadSnapshot();
     configureYearSelector();setSnapshotYear(yearEl.value);
     layerOptions();configureDataSelectors();
@@ -658,13 +740,15 @@ async function init(){
       loadJson('data/municipality_region_crosswalk.json'),
       loadJson('data/layers_catalog.json'),
       loadHistory(),
+      loadUnitNetworks(),
       loadSnapshot(),
       loadJson('data/births_municipal_2026.json',true),
       loadJson('data/births_flows_2026.json',true)
     ]);
     districtCfg=cfg[0];regionCfg=cfg[1];crosswalk=cfg[2];layerCfg=cfg[3];
-    historyManifest=cfg[4].manifest;historySnapshots=cfg[4].snapshots;legacySnapshot=cfg[5];
-    birthsData=cfg[6];birthFlows=cfg[7];
+    historyManifest=cfg[4].manifest;historySnapshots=cfg[4].snapshots;
+    unitNetworkManifest=cfg[5].manifest;unitNetworks=cfg[5].networks;legacySnapshot=cfg[6];
+    birthsData=cfg[7];birthFlows=cfg[8];
     fillCrosswalk();fillBirths();configureYearSelector();setSnapshotYear(yearEl.value);layerOptions();configureDataSelectors();
     structureMode=!((snapshot&&snapshot.rows)||[]).length;
 

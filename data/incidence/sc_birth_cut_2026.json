@@ -1,0 +1,264 @@
+{
+  "schema": "MAPA-SIFILIS-ALIGNED-INCIDENCE-NUMERATOR-0.1",
+  "program": "SC",
+  "year": 2026,
+  "cohort_id": "birth_cut_2026",
+  "source_system": "EDITH SC · Supabase Auth + RLS",
+  "birth_date_field": "FECHA_NAC",
+  "period_start": "2026-01-01",
+  "period_end": "2026-09-24",
+  "aligned_case_count": 153,
+  "mapped_case_count": 152,
+  "unmapped_case_count": 1,
+  "privacy": {
+    "contains_nominal_data": false,
+    "small_cell_suppression_threshold": 5
+  },
+  "rows": [
+    {
+      "geography_type": "municipality",
+      "geography_id": "002",
+      "numerator": 8,
+      "suppressed": false,
+      "display_value": "8"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "012",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "016",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "017",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "018",
+      "numerator": 20,
+      "suppressed": false,
+      "display_value": "20"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "019",
+      "numerator": 14,
+      "suppressed": false,
+      "display_value": "14"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "025",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "026",
+      "numerator": 8,
+      "suppressed": false,
+      "display_value": "8"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "029",
+      "numerator": 10,
+      "suppressed": false,
+      "display_value": "10"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "030",
+      "numerator": 35,
+      "suppressed": false,
+      "display_value": "35"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "033",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "035",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "036",
+      "numerator": 7,
+      "suppressed": false,
+      "display_value": "7"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "039",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "042",
+      "numerator": 14,
+      "suppressed": false,
+      "display_value": "14"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "043",
+      "numerator": 17,
+      "suppressed": false,
+      "display_value": "17"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "048",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "051",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "055",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "070",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "municipality",
+      "geography_id": "071",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "health_district",
+      "geography_id": "DS01",
+      "numerator": 35,
+      "suppressed": false,
+      "display_value": "35"
+    },
+    {
+      "geography_type": "health_district",
+      "geography_id": "DS02",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "health_district",
+      "geography_id": "DS03",
+      "numerator": 50,
+      "suppressed": false,
+      "display_value": "50"
+    },
+    {
+      "geography_type": "health_district",
+      "geography_id": "DS04",
+      "numerator": 36,
+      "suppressed": false,
+      "display_value": "36"
+    },
+    {
+      "geography_type": "health_district",
+      "geography_id": "DS05",
+      "numerator": 26,
+      "suppressed": false,
+      "display_value": "26"
+    },
+    {
+      "geography_type": "health_district",
+      "geography_id": "DS06",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "imss_bienestar_region",
+      "geography_id": "IB01",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "imss_bienestar_region",
+      "geography_id": "IB02",
+      "numerator": null,
+      "suppressed": true,
+      "display_value": "<5"
+    },
+    {
+      "geography_type": "imss_bienestar_region",
+      "geography_id": "IB03",
+      "numerator": 50,
+      "suppressed": false,
+      "display_value": "50"
+    },
+    {
+      "geography_type": "imss_bienestar_region",
+      "geography_id": "IB06",
+      "numerator": 35,
+      "suppressed": false,
+      "display_value": "35"
+    },
+    {
+      "geography_type": "imss_bienestar_region",
+      "geography_id": "IB07",
+      "numerator": 13,
+      "suppressed": false,
+      "display_value": "13"
+    },
+    {
+      "geography_type": "imss_bienestar_region",
+      "geography_id": "IB08",
+      "numerator": 23,
+      "suppressed": false,
+      "display_value": "23"
+    },
+    {
+      "geography_type": "imss_bienestar_region",
+      "geography_id": "IB09",
+      "numerator": 14,
+      "suppressed": false,
+      "display_value": "14"
+    },
+    {
+      "geography_type": "imss_bienestar_region",
+      "geography_id": "IB10",
+      "numerator": 12,
+      "suppressed": false,
+      "display_value": "12"
+    }
+  ]
+}

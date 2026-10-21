@@ -528,7 +528,7 @@ function authoritativeTotal(){
     return layerEl.value==='birth_occurrence'?birthsData.summary.sonora_birth_occurrences_mapped:birthsData.summary.sonora_resident_births_mapped;
   }
   if(programEl.value==='SC'&&layerEl.value==='sc_incidence_residence'){
-    var n=Number(incidenceNumerator&&incidenceNumerator.aligned_case_count||0);
+    var n=Number(incidenceNumerator&&incidenceNumerator.mapped_case_count||0);
     var d=Number(birthsData&&birthsData.summary&&birthsData.summary.sonora_resident_births_mapped||0);
     return d>0?n/d*1000:null;
   }
@@ -557,8 +557,10 @@ function renderStatus(){
       statusEl.innerHTML='<span class="data-dot"></span><b>No fue posible cargar el numerador alineado.</b>';
       document.getElementById('kCases').textContent='—';document.getElementById('kDen').textContent=nfmt(birthsData&&birthsData.summary?birthsData.summary.sonora_resident_births_mapped:null);document.getElementById('kValue').textContent='—';
     }else{
-      var incN=Number(incidenceNumerator.aligned_case_count||0),incD=Number(birthsData&&birthsData.summary&&birthsData.summary.sonora_resident_births_mapped||0);
-      statusEl.innerHTML='<span class="data-dot live"></span><b>Incidencia temporalmente alineada.</b> '+nfmt(incN)+' casos SC con nacimiento 01-ene–24-sep-2026 / '+nfmt(incD)+' nacidos vivos de madres residentes × 1,000.';
+      var incN=Number(incidenceNumerator.mapped_case_count||0),incAll=Number(incidenceNumerator.aligned_case_count||0);
+      var incD=Number(birthsData&&birthsData.summary&&birthsData.summary.sonora_resident_births_mapped||0);
+      var incDAll=incD+Number(birthsData&&birthsData.summary&&birthsData.summary.unmapped_sonora_residence||0);
+      statusEl.innerHTML='<span class="data-dot live"></span><b>Incidencia temporalmente alineada.</b> Mapa: '+nfmt(incN)+' casos con municipio / '+nfmt(incD)+' nacidos vivos mapeados × 1,000. Estatal: '+nfmt(incAll)+' / '+nfmt(incDAll)+'.';
       document.getElementById('kCases').textContent=nfmt(incN);document.getElementById('kDen').textContent=nfmt(incD);document.getElementById('kValue').textContent=nfmt(authoritativeTotal());
     }
   }else if(programEl.value==='SC'&&isUnitNetworkLayer()){

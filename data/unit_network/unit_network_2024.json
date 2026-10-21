@@ -3,7 +3,7 @@
   "flows": [
     {
       "year": 2024,
-      "count": 48,
+      "count": 57,
       "evidence": "INFERRED_TRAJECTORY",
       "flow_type": "delivery_to_notification",
       "flow_label": "Parto/Cesárea → Notificación",
@@ -15,7 +15,7 @@
     },
     {
       "year": 2024,
-      "count": 19,
+      "count": 26,
       "evidence": "INFERRED_TRAJECTORY",
       "flow_type": "delivery_to_notification",
       "flow_label": "Parto/Cesárea → Notificación",
@@ -27,19 +27,7 @@
     },
     {
       "year": 2024,
-      "count": 14,
-      "evidence": "INFERRED_TRAJECTORY",
-      "flow_type": "delivery_to_notification",
-      "flow_label": "Parto/Cesárea → Notificación",
-      "suppressed": false,
-      "origin_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
-      "fully_homologated": true,
-      "destination_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
-      "suppression_threshold": 5
-    },
-    {
-      "year": 2024,
-      "count": 8,
+      "count": 17,
       "evidence": "INFERRED_TRAJECTORY",
       "flow_type": "delivery_to_notification",
       "flow_label": "Parto/Cesárea → Notificación",
@@ -51,7 +39,19 @@
     },
     {
       "year": 2024,
-      "count": 7,
+      "count": 15,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
+      "fully_homologated": true,
+      "destination_node_id": "unit:b935d7f5-daef-4a47-aeba-b5daf721e62b",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2024,
+      "count": 11,
       "evidence": "INFERRED_TRAJECTORY",
       "flow_type": "delivery_to_notification",
       "flow_label": "Parto/Cesárea → Notificación",
@@ -63,14 +63,38 @@
     },
     {
       "year": 2024,
-      "count": 5,
+      "count": 7,
       "evidence": "INFERRED_TRAJECTORY",
       "flow_type": "delivery_to_notification",
       "flow_label": "Parto/Cesárea → Notificación",
       "suppressed": false,
-      "origin_node_id": "unit:a9699172-24a1-41e0-b3d0-2ab56db2aa11",
+      "origin_node_id": "unit:54fcd4cf-c3d4-49fe-9d98-f3014816f394",
       "fully_homologated": true,
-      "destination_node_id": "unit:9101cc9c-e91f-4d2b-a1e5-7ba506d2ce78",
+      "destination_node_id": "unit:54fcd4cf-c3d4-49fe-9d98-f3014816f394",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2024,
+      "count": 6,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:a9e9daf6-d1de-4038-867a-be14e7d4e066",
+      "fully_homologated": true,
+      "destination_node_id": "unit:a9e9daf6-d1de-4038-867a-be14e7d4e066",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2024,
+      "count": 6,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:0d7d3ab2-fdbf-402e-941b-a54e3f777c54",
+      "fully_homologated": true,
+      "destination_node_id": "unit:0d7d3ab2-fdbf-402e-941b-a54e3f777c54",
       "suppression_threshold": 5
     },
     {
@@ -80,9 +104,21 @@
       "flow_type": "delivery_to_notification",
       "flow_label": "Parto/Cesárea → Notificación",
       "suppressed": false,
-      "origin_node_id": "unit:0d7d3ab2-fdbf-402e-941b-a54e3f777c54",
+      "origin_node_id": "unit:733f92f0-b6ae-4f23-b240-d703620fe568",
       "fully_homologated": true,
-      "destination_node_id": "unit:0d7d3ab2-fdbf-402e-941b-a54e3f777c54",
+      "destination_node_id": "unit:733f92f0-b6ae-4f23-b240-d703620fe568",
+      "suppression_threshold": 5
+    },
+    {
+      "year": 2024,
+      "count": 5,
+      "evidence": "INFERRED_TRAJECTORY",
+      "flow_type": "delivery_to_notification",
+      "flow_label": "Parto/Cesárea → Notificación",
+      "suppressed": false,
+      "origin_node_id": "unit:0fa8205a-22a9-4efe-b206-cf87025871fa",
+      "fully_homologated": true,
+      "destination_node_id": "unit:0fa8205a-22a9-4efe-b206-cf87025871fa",
       "suppression_threshold": 5
     },
     {
@@ -110,6 +146,26 @@
       "municipality_name": "CABORCA"
     },
     {
+      "name": "HOSP GRAL NOGALES",
+      "node_id": "unit:a9e9daf6-d1de-4038-867a-be14e7d4e066",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "043",
+      "municipality_name": "NOGALES"
+    },
+    {
+      "name": "HOSPITAL COMUNITARIO DE MAGDALENA",
+      "node_id": "unit:54fcd4cf-c3d4-49fe-9d98-f3014816f394",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "036",
+      "municipality_name": "MAGDALENA"
+    },
+    {
       "name": "HOSPITAL DE GINECO PEDIATRÍA (HGP)",
       "node_id": "unit:2bc8fd44-124e-49e2-b236-27f7a9f676c0",
       "latitude": null,
@@ -128,6 +184,16 @@
       "location_basis": "municipality_centroid",
       "municipality_code": "017",
       "municipality_name": "CABORCA"
+    },
+    {
+      "name": "Hospital General de Zona N°14",
+      "node_id": "unit:733f92f0-b6ae-4f23-b240-d703620fe568",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "030",
+      "municipality_name": "Hermosillo"
     },
     {
       "name": "HOSPITAL GENERAL DE ZONA NO. 5",
@@ -160,6 +226,16 @@
       "municipality_name": "CAJEME"
     },
     {
+      "name": "HOSPITAL IMSS BIENESTAR NAVOJOA",
+      "node_id": "unit:0fa8205a-22a9-4efe-b206-cf87025871fa",
+      "latitude": null,
+      "longitude": null,
+      "catalog_status": "CANONICAL",
+      "location_basis": "municipality_centroid",
+      "municipality_code": "042",
+      "municipality_name": "NAVOJOA"
+    },
+    {
       "name": "HOSPITAL INFANTIL DEL ESTADO DE SONORA",
       "node_id": "unit:9101cc9c-e91f-4d2b-a1e5-7ba506d2ce78",
       "latitude": null,
@@ -180,12 +256,17 @@
       "municipality_name": "HERMOSILLO"
     }
   ],
-  "schema": "MAPA-SIFILIS-UNIT-NETWORK-0.2",
+  "schema": "MAPA-SIFILIS-UNIT-NETWORK-0.3",
   "privacy": {
     "contains_nominal_data": false,
     "small_cell_suppression_threshold": 5
   },
   "program": "SC",
-  "generated": "2026-10-21T20:13:32.619459+00:00",
-  "location_note": "CANONICAL usa coordenadas verificadas o centroide municipal; PENDING_ALIAS sólo aparece en la red no geográfica."
+  "summary": {
+    "formal_referral_public_routes": 0,
+    "prenatal_to_delivery_public_routes": 1,
+    "delivery_to_notification_public_routes": 10
+  },
+  "generated": "2026-10-21T22:06:15.920183+00:00",
+  "aggregation_note": "Aliases se homologan antes de agregar y aplicar supresión <5."
 }

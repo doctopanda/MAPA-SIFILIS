@@ -86,3 +86,35 @@ test('Copias cartográficas de Cloudflare coinciden con las fuentes públicas de
   assert.deepEqual(readFileSync(deployed),readFileSync(original),'Copia obsoleta: '+rel);
  }
 });
+
+test('El cruce operativo de 10 regiones y 6 distritos cubre 72 municipios sin duplicados',()=>{
+ // Este test acredita integridad de los archivos del proyecto, NO homologación oficial de adscripción territorial.
+ const regions=parse(mapRoot,'data/imss_bienestar_regions.json');
+ const cross=parse(mapRoot,'data/municipality_region_crosswalk.json');
+ const districts=parse(mapRoot,'data/districts.json');
+ assert.equal(regions.regions.length,10);
+ assert.equal(cross.rows.length,72);
+ assert.equal(districts.districts.length,6);
+ const regionCodes=regions.regions.flatMap(r=>r.municipalities.map(m=>m.code));
+ const districtCodes=districts.districts.flatMap(d=>d.municipalities);
+ assert.equal(new Set(regionCodes).size,72,'No debe haber municipios repetidos entre regiones en este cruce');
+ assert.equal(new Set(districtCodes).size,72,'Los seis distritos deben cubrir el catálogo sin duplicación');
+ assert.equal(new Set(cross.rows.map(r=>r.municipality_code)).size,72);
+ const crossByCode=new Map(cross.rows.map(r=>[r.municipality_code,r]));
+ for(const region of regions.regions){
+  assert.equal(region.municipalities.length,region.municipality_count,region.id);
+  for(const m of region.municipalities){
+   const row=crossByCode.get(m.code);
+   assert.ok(row,'Municipio sin registro cruzado: '+m.code);
+   assert.equal(row.imss_bienestar_region_id,region.id,'Discrepancia región: '+m.code);
+  }
+ }
+ for(const district of districts.districts){
+  for(const code of district.municipalities){
+   const row=crossByCode.get(code);
+   assert.ok(row,'Municipio no registrado en cruce: '+code);
+   assert.equal(row.health_district_id,district.id,'Discrepancia distrito: '+code);
+  }
+ }
+ assert.match(regions.status,/operational_crosswalk_supplied_by_project_owner/,'El cruce no debe anunciarse como oficialmente homologado');
+});

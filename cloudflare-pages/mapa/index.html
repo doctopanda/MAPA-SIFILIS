@@ -70,9 +70,15 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
 .edith-embedded body{height:100%;min-height:0;display:block;overflow:hidden;background:#fff}
 .edith-embedded header{display:none}
 .edith-embedded .shell{display:grid;height:100%;min-height:0;overflow:hidden;grid-template-columns:minmax(270px,315px) minmax(0,1fr);background:#fff}
-.edith-embedded aside{display:block;height:100%;min-height:0;overflow-y:auto;padding:10px;background:#faf8fb;border-right:1px solid #e6dde8}
+.edith-embedded aside{display:block;height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px;background:#faf8fb;border-right:1px solid #e6dde8}
 .edith-embedded main{height:100%;min-height:0;overflow:hidden}
-.edith-embedded .card{box-shadow:none;border-color:#eae3ed;margin-bottom:9px}
+.edith-embedded .card{min-width:0;box-shadow:none;border-color:#eae3ed;margin-bottom:9px}
+.edith-embedded .grid2,.edith-embedded .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+.edith-embedded .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+.edith-embedded .kpi{min-width:0;overflow-wrap:anywhere;padding:8px 5px}
+.edith-embedded .kpi b{font-size:clamp(13px,1.7vw,18px);white-space:normal}
+.edith-embedded .kpi span{font-size:8px;letter-spacing:0}
+.edith-embedded .grid2 select,.edith-embedded .grid2 input{min-width:0;width:100%}
 .edith-embedded .map-float{top:12px;right:12px}
 .edith-embedded.edith-filters-collapsed .shell{grid-template-columns:minmax(0,1fr)}
 .edith-embedded.edith-filters-collapsed aside{display:none}

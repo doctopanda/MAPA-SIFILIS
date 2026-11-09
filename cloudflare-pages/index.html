@@ -507,9 +507,10 @@ L.NAMES.captura='Carátula epidemiológica';
 L.NAMES.biblioteca='Biblioteca de formatos';
 for(let i=L.NAV.length-1;i>=0;i--)if(L.NAV[i].id==='biblioteca'||L.NAV[i].id==='captura')L.NAV.splice(i,1);
 L.NAV.splice(1,0,
- {id:'captura',icon:'✎',text:'Carátula de captura',roles:['ALIMENTADOR_DISTRITAL','ADMINISTRADOR_ESTATAL','ADMINISTRADOR_MAESTRO']},
- {id:'biblioteca',icon:'▤',text:'Biblioteca · Archivos originales',roles:['ALL']}
+ {id:'captura',icon:'✎',text:'Carátula de captura',roles:['ALIMENTADOR_DISTRITAL','ADMINISTRADOR_ESTATAL','ADMINISTRADOR_MAESTRO']}
 );
+// Biblioteca siempre al final de las opciones que corresponden al rol del usuario.
+L.NAV.push({id:'biblioteca',icon:'▤',text:'Biblioteca · Archivos originales',roles:['ALL']});
 state.analytics=null;state.analyticsBusy=false;state.analyticsError='';state.analyticsYear='2026';state.analyticsDistrict='';state.analyticsStamp='';
 state.quality=null;state.qualityError='';
 function fmtNum(n){return typeof n==='number'?new Intl.NumberFormat('es-MX').format(n):'—'}

@@ -158,7 +158,37 @@ body.edith-authenticated .layout{visibility:visible;pointer-events:auto}
       else session=null;
       return result;
    }
+   // Operaciones de Storage usando el token institucional de la sesión en memoria.
+   // No se comparte el access_token con la Biblioteca.
+   async function storageRequest(path,method='GET',body=null,headers={},binary=false,retry=true){
+     const hdr={'apikey':key,'Authorization':'Bearer '+(session?.access_token||key),...headers};
+     let response;
+     try{
+       response=await fetch(base+'/storage/v1/'+path,{method,headers:hdr,body,credentials:'omit',mode:'cors',cache:'no-store'});
+     }catch(e){return {data:null,error:errors('Error de conexión con Storage: '+(e?.message||'red'),'network_error')};}
+     if(response.status===401&&retry&&session?.refresh_token){
+       const renewed=await refresh();
+       if(!renewed.error)return storageRequest(path,method,body,headers,binary,false);
+     }
+     let data=null;
+     try{data=binary&&response.ok?await response.blob():await response.json()}catch(e){}
+     if(!response.ok)return {data:null,error:errors(data?.message||data?.error||data?.msg||'Error Storage HTTP '+response.status,data?.statusCode||String(response.status))};
+     return {data,error:null};
+   }
+   function storageObjectPath(bucket,name,mode){
+     return 'object/'+mode+encodeURIComponent(bucket)+'/'+String(name).split('/').map(encodeURIComponent).join('/');
+   }
+   const storage={
+     from(bucket){
+       return {
+         list(folder,opts={}){return storageRequest('object/list/'+encodeURIComponent(bucket),'POST',JSON.stringify({prefix:folder,limit:opts.limit||100,sortBy:opts.sortBy||{column:'name',order:'asc'}}),{'Content-Type':'application/json'});},
+         download(path){return storageRequest(storageObjectPath(bucket,path,'authenticated/'),'GET',null,{},true);},
+         upload(path,file,opts={}){return storageRequest(storageObjectPath(bucket,path,''),'POST',file,{'Content-Type':opts.contentType||file.type||'application/octet-stream','x-upsert':'false','cache-control':String(opts.cacheControl||'3600')});}
+       };
+     }
+   };
    return {
+     storage,
      from:(table)=>new TableQuery({request:raw},table),
      async rpc(name,args={}){const r=await raw('/rest/v1/rpc/'+encodeURIComponent(name),{method:'POST',headers:{Prefer:'return=representation'},body:args});return {data:r.data,error:r.error};},
      auth:{
@@ -777,7 +807,7 @@ window.addEventListener('message',event=>{
  const h=Number(event.data.height);
  if(Number.isFinite(h)&&h>100&&h<12000&&Math.abs((parseFloat(frame.style.height)||0)-h)>5)frame.style.height=Math.ceil(h)+'px';
 });
-function renderMain(){let html;switch(state.current){case 'biblioteca':html='<div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:12px 16px"><strong>Biblioteca de EDITH-SC · Archivo institucional</strong><a href="/biblioteca/" target="_blank" rel="noopener noreferrer">Abrir en ventana completa ↗</a></div><iframe id="edith-biblioteca-frame" title="Biblioteca documental EDITH-SC" src="/biblioteca/?embed=1" style="display:block;width:100%;height:1150px;border:0;border-radius:12px;background:white" loading="eager"></iframe>';break;case 'captura':html='<div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:12px 16px"><strong>Carátula de captura · Estudio epidemiológico completo</strong><a href="/captura/" target="_blank" rel="noopener noreferrer">Abrir en ventana completa ↗</a></div><iframe id="edith-captura-frame" title="Carátula de captura EDITH-SC" src="/captura/?embed=1" style="display:block;width:100%;height:1600px;border:0;border-radius:12px;background:white" loading="eager"></iframe>';break;case 'analitica':html=renderAnaliticaV19();break;case 'calidad':html=renderCalidad();break;case 'territorio':html=renderTerritorio();break;case 'productos':html=renderProductos();break;case 'importacion':html=renderImport();break;case 'solicitudes':html=renderRequests();break;case 'hospital':case 'prenatal':case 'capasits':html=renderClinical(state.current);break;case 'clues':html=renderClues();break;case 'seguridad':html=renderSecurity();break;case 'maestro':html=renderMaster();break;default:html=renderPanoramaV19()};$('main').innerHTML=html;wireView();}
+function renderMain(){let html;switch(state.current){case 'biblioteca':html='<div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:12px 16px"><strong>Biblioteca de EDITH-SC · Archivo institucional</strong><button type="button" id="edith-biblioteca-fullscreen" class="small-button">Pantalla completa ⛶</button></div><iframe id="edith-biblioteca-frame" title="Biblioteca documental EDITH-SC" src="/biblioteca/?embed=1" style="display:block;width:100%;height:1150px;border:0;border-radius:12px;background:white" loading="eager"></iframe>';break;case 'captura':html='<div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:12px 16px"><strong>Carátula de captura · Estudio epidemiológico completo</strong><a href="/captura/" target="_blank" rel="noopener noreferrer">Abrir en ventana completa ↗</a></div><iframe id="edith-captura-frame" title="Carátula de captura EDITH-SC" src="/captura/?embed=1" style="display:block;width:100%;height:1600px;border:0;border-radius:12px;background:white" loading="eager"></iframe>';break;case 'analitica':html=renderAnaliticaV19();break;case 'calidad':html=renderCalidad();break;case 'territorio':html=renderTerritorio();break;case 'productos':html=renderProductos();break;case 'importacion':html=renderImport();break;case 'solicitudes':html=renderRequests();break;case 'hospital':case 'prenatal':case 'capasits':html=renderClinical(state.current);break;case 'clues':html=renderClues();break;case 'seguridad':html=renderSecurity();break;case 'maestro':html=renderMaster();break;default:html=renderPanoramaV19()};$('main').innerHTML=html;const fs=$('edith-biblioteca-fullscreen');if(fs)fs.onclick=()=>{const frame=$('edith-biblioteca-frame');if(frame?.requestFullscreen){frame.requestFullscreen().catch(()=>toast('No se pudo activar pantalla completa'));}else toast('El navegador no permite pantalla completa aquí')};wireView();}
 
 // EDITH 1.9.3: chart-click model for panels outside Análisis ampliado.
 // Counts are descriptive; provenance never exposes patient-level values.
@@ -922,7 +952,27 @@ async function connectUser(email,password){loginFeedback('');if(!window.supabase
 async function logout(){document.body.classList.remove('edith-authenticated');await writeActivity('LOGOUT','auth');if(state.client){try{await state.client.auth.signOut()}catch{}}state.client=null;state.user=null;state.demo=true;state.role=state.demoRole;state.profile={...DEMO_PROFILE};state.counts=null;state.batches=[];state.requests=[];state.memberships=[];state.reviewItems=[];state.reviewBatchId='';state.analytics=null;state.analyticsError='';state.analyticsDistrict='';state.masterLoaded=false;state.masterEvents=[];state.masterExports=[];state.masterProfiles=[];state.analysis=null;state.file=null;renderHeader();showView('panorama');toast('Sesión cerrada')}
 function wireCore(){$('configure-btn').onclick=()=>$('login-dialog').showModal();$('close-dialog').onclick=()=>$('login-dialog').close();$('demo-from-dialog').onclick=()=>$('login-dialog').close();$('logout-btn').onclick=logout;$('mobile-menu').onclick=()=>$('sidebar').classList.toggle('open');$('login-form').onsubmit=async event=>{event.preventDefault();if(state.busy)return;state.busy=true;const b=$('login-submit');b.disabled=true;try{await connectUser($('auth-email').value,$('auth-password').value)}catch(err){loginFeedback(safeError(err));toast('No se pudo iniciar sesión: revisa el mensaje del formulario');if(state.client){try{await state.client.auth.signOut()}catch{}}state.client=null;state.user=null;state.demo=true;state.role=state.demoRole;state.profile={...DEMO_PROFILE};document.body.classList.remove('edith-authenticated');renderHeader();}finally{state.busy=false;b.disabled=false}};}
 wireCore();renderHeader();renderMain();try{$('login-dialog').showModal()}catch(err){console.error('Error al abrir acceso institucional',err)}
-window.EDITH_UNICA={version:'1.9.4.1',pilot:true,getMode:()=>state.demo?'demo':'authenticated',getModule:()=>state.current};
+window.EDITH_UNICA={
+ version:'1.9.4.2',pilot:true,getMode:()=>state.demo?'demo':'authenticated',
+ getModule:()=>state.current,
+ // Biblioteca del mismo origen: sesión compartida por referencia, sin contraseña,
+ // sin token en URL, localStorage ni mensajes postMessage.
+ getLibraryBridge:()=>{
+   if(state.demo||!state.client||!state.user||
+     !['ALIMENTADOR_DISTRITAL','ADMINISTRADOR_ESTATAL','ADMINISTRADOR_MAESTRO'].includes(state.role))return null;
+   const bucket='edith-sc-biblioteca';
+   return Object.freeze({
+     role:state.role,
+     list:(folder,options)=>state.demo?Promise.resolve({data:null,error:{message:'Sesión cerrada'}}):state.client.storage.from(bucket).list(folder,options),
+     download:path=>state.demo?Promise.resolve({data:null,error:{message:'Sesión cerrada'}}):state.client.storage.from(bucket).download(path),
+     upload:(path,file,options)=>{
+       if(state.demo||state.role!=='ADMINISTRADOR_MAESTRO')
+         return Promise.resolve({data:null,error:{message:'Solo Administración Maestra puede publicar formatos'}});
+       return state.client.storage.from(bucket).upload(path,file,options);
+     }
+   });
+ }
+};
 })();
 
 </script>

@@ -1,32 +1,38 @@
-# Piloto de migración a Cloudflare Pages (EDITH NEXT / Red Epidemiológica)
+# EDITH NEXT · Cloudflare Workers Static Assets
 
-**ESTADO: Preparado en GitHub, todavía NO desplegado en Cloudflare.**
+**Estado de la migración (9 de noviembre de 2026)**
 
-Objetivo: validar Cloudflare Pages Free como alojamiento de interfaz pública, usando EDITH NEXT como primera prueba sin ningún expediente clínico. Esta carpeta es un *output estático* aislado y deliberadamente no incluye la aplicación clínica original `edith-unica-piloto`.
+- Cloudflare creó un Worker llamado `edith` y entregó la URL `https://edith.ibrahimharos.workers.dev`. El primer despliegue terminó con éxito, pero **su salida era `.`**, es decir, la raíz del repositorio, y publicó más archivos de los previstos.
+- Se añadió **`/wrangler.jsonc` en la rama `main`** para restringir los archivos servidos al directorio `./cloudflare-pages`. Este archivo es la configuración canónica para `npx wrangler deploy`.
+- El nuevo despliegue aún debe confirmarse en el panel Cloudflare. **No interpretar un commit GitHub como confirmación del nuevo despliegue**.
 
-## Conectar Cloudflare Pages
+## Configuración canónica
 
-1. Abrir https://dash.cloudflare.com/ y entrar en **Workers & Pages**.
-2. Seleccionar **Create application > Pages > Connect to Git**, autorizando GitHub si lo solicita.
-3. Elegir el repositorio **doctopanda/MAPA-SIFILIS**.
-4. Completar la configuración:
-   - Project name: `edith-next-piloto` (si está disponible; será la dirección `edith-next-piloto.pages.dev`, verificable solamente al desplegar).
-   - Production branch: `main`.
-   - Framework preset: **None**.
-   - Root directory: **/** (raíz del repositorio).
-   - Build command: `exit 0` (o vacío si la UI lo permite).
-   - Build output directory: `cloudflare-pages` (relativa a la raíz; NO usar `.` para evitar publicar todo el repositorio).
-   - Environment variables: ninguna.
-5. Ejecutar **Save and Deploy**. Abrir la URL `*.pages.dev` que entregue Cloudflare y verificar el portal.
-6. Después de probar el despliegue, evaluar redireccionamiento/retirada de Vercel; NO hacerlo antes.
+```json
+{
+  "name": "edith",
+  "compatibility_date": "2026-11-09",
+  "assets": {
+    "directory": "./cloudflare-pages"
+  }
+}
+```
 
-La carpeta `cloudflare-pages/` incluye únicamente `index.html` y `_headers`, sin claves ni registros sanitarios. Por ahora conserva un vínculo al mapa original (GitHub Pages) para no modificar otros despliegues.
+La carpeta incluye únicamente el piloto público `index.html` y el archivo `_headers`. **No deben añadirse bases, snapshots, registros nominales ni claves privadas allí**.
 
-## Fuera de alcance / advertencias
-- Este piloto **no** migra `edith-unica-piloto` desde Vercel, ni su backend, ni los datos de pacientes, ni añade Realtime. Es una primera prueba segura de publicación.
-- EDITH SC clínica y EDITH SA deben validarse antes de desplegar: **nunca subir HTML con snapshots nominales incrustados**, ni service_role, ni tokens. Para aplicaciones con datos sensibles, coordinar protección de datos, autorización institucional, autenticación y RLS.
-- Mantener Vercel intacto hasta pasar pruebas de funcionalidad y seguridad en Cloudflare.
-- La migración a Cloudflare **no cambia la base Supabase** ni resuelve por sí sola condiciones contractuales de operación institucional o tratamiento de datos sensibles.
-- El nombre `edith-next-piloto` es propuesto y no está reservado; no asumir la URL final.
+## Validación obligatoria del despliegue
 
-Docs: https://developers.cloudflare.com/pages/get-started/git-integration/
+1. En el panel Cloudflare seleccionar **Cómputo → Workers y Pages → edith → Implementaciones**.
+2. Abrir la ejecución posterior al commit de configuración. Si no aparece, pulsar **Reintentar compilación** para obligar a ejecutar el `main` más reciente.
+3. Revisar los logs: `Assets directory`, `Output directory` o el archivo de configuración deben indicar `./cloudflare-pages`, no `.`.
+4. Abrir `https://edith.ibrahimharos.workers.dev/`; debe mostrar el portal **EDITH NEXT**, no el mapa raíz.
+5. Probar `https://edith.ibrahimharos.workers.dev/data/snapshot/rows-01.json`; **no debe mostrar el archivo** (debería responder 404). Verificar que `/README.md` tampoco se publique.
+6. Registrar capturas y aprobar el piloto solo tras estas pruebas.
+
+## Datos sensibles
+
+Este piloto **no sustituye** la aplicación clínica EDITH SC alojada en Vercel (`edith-unica-piloto`) y no contiene conexión privada a Supabase. La clínica requiere revisión de HTML incrustado, autenticación RLS, y autorización institucional antes de migrar.
+
+No comprar dominio ni borrar el proyecto en Vercel mientras se verifica el piloto.
+
+Referencia: https://developers.cloudflare.com/workers/static-assets/migration-guides/vercel-to-workers/static-site/

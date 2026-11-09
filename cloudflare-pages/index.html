@@ -70,13 +70,25 @@ body.edith-authenticated .layout{visibility:visible;pointer-events:auto}
 .edith-source-actions button{border:1px solid #c99cae;border-radius:8px;padding:7px 11px;background:#fff;color:#63354a;cursor:pointer}
 </style>
 <style>
-.edith-map-shell{overflow:hidden;padding:0!important}
-.edith-map-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;padding:14px 18px;background:#fff8fb;border-bottom:1px solid #ead9e2}
-.edith-map-toolbar>div:first-child{display:grid;gap:3px}
-.edith-map-toolbar small{color:#6f6070;font-size:12px}
-.edith-map-frame{display:block;width:100%;height:min(82vh,980px);min-height:680px;border:0;background:#fff}
-@media(max-width:760px){.edith-map-toolbar{padding:12px}.edith-map-toolbar .action-group{display:flex;flex-wrap:wrap}.edith-map-frame{min-height:620px;height:84vh}}
-.edith-map-shell:fullscreen{width:100vw;height:100vh;overflow:hidden;background:#fff}.edith-map-shell:fullscreen .edith-map-frame{height:calc(100vh - 90px);min-height:0}
+.edith-map-shell{overflow:hidden;padding:0!important;margin-top:13px;border-radius:16px}
+.edith-map-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:12px 16px;background:#fff;border-bottom:1px solid #eadfe5}
+.edith-map-toolbar>div:first-child{display:grid;gap:2px;min-width:180px}
+.edith-map-toolbar b{color:#63283c;font-size:14px}
+.edith-map-toolbar small{color:#6f6070;font-size:11px}
+.edith-map-toolbar .action-group{margin-top:0;align-items:center;gap:6px}
+.edith-map-toolbar .action-group button,.edith-map-toolbar .action-group a{font-size:11px;padding:8px 10px;text-decoration:none}
+.edith-map-frame{display:block;width:100%;height:clamp(670px,78vh,1020px);min-height:670px;border:0;background:#fff}
+.edith-map-context{font-size:11px;color:#786b78;line-height:1.5;margin:12px 1px 2px}
+#main:has(.edith-map-shell) .page-title{margin-bottom:10px}
+#main:has(.edith-map-shell) .page-title h1{font-size:27px}
+@media(max-width:760px){
+  .edith-map-toolbar{padding:11px 12px}
+  .edith-map-toolbar .action-group{display:flex;flex-wrap:wrap;gap:5px}
+  .edith-map-frame{height:73svh;min-height:520px}
+  .edith-map-toolbar .action-group button,.edith-map-toolbar .action-group a{padding:7px 9px}
+}
+.edith-map-shell:fullscreen{width:100vw;height:100vh;overflow:hidden;background:#fff}
+.edith-map-shell:fullscreen .edith-map-frame{height:calc(100vh - 80px);min-height:0}
 </style>
 </head>
 <body>
@@ -681,10 +693,9 @@ function renderTerritorio(){return title('GEOGRAFÍA EPIDEMIOLÓGICA','Panorama 
  anaPanel('Tabla municipal',anaTable(chosenRows('municipal').sort((a,b)=>b.registros-a.registros),[['municipio','Municipio'],['registros','Registros'],['confirmados','Confirmados']]))+
  anaPanel('Tabla por institución',anaTable(chosenRows('institutions').sort((a,b)=>b.registros-a.registros),[['institucion','Institución'],['registros','Registros'],['confirmados','Confirmados']]))+anaNote()+notice('El mapa interactivo y las tasas por nacidos vivos siguen pendientes de revalidación territorial. Estos conteos NO son mapas de incidencia.','warning'))}
 function renderMapaSifilis(){
- return title('OBSERVATORIO TERRITORIAL','MAPA-SÍFILIS · Sonora','Visor interactivo integrado a EDITH con capas de sífilis congénita, nacimientos, distritos y regiones operativas.')+
- notice('EDITH puede consultar <b>registros activos por municipio y año en Supabase bajo RLS</b>, con celdas 1–4 suprimidas. El mapa también permite regresar a sus cortes históricos públicos. Estos registros no equivalen a casos confirmados ni a incidencia.','teal')+
- '<section class="panel edith-map-shell" id="edith-map-shell"><div class="edith-map-toolbar"><div><b>Visor cartográfico</b><small id="edith-map-status" role="status">Preparando mapa y consulta institucional…</small></div><div class="action-group"><button type="button" class="button-outline" id="edith-map-live-refresh">↻ Datos EDITH</button><button type="button" class="button-outline" id="edith-map-reload">↻ Visor</button><button type="button" class="button-primary" id="edith-map-fullscreen">⤢ Ampliar</button><a class="button-outline" href="/mapa/" target="_blank" rel="noopener noreferrer">Vista pública independiente</a></div></div><iframe id="edith-map-frame" class="edith-map-frame" src="/mapa/" title="Mapa interactivo epidemiológico de sífilis en Sonora" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></section>'+
- '<p class="small muted" style="margin-top:12px">Interpretación: residencia materna y lugar de nacimiento son geografías diferentes. La incidencia sólo aplica cuando casos y nacidos vivos comparten definición, ámbito y periodo. Si el visor no aparece, revisa la publicación de /mapa/ en Cloudflare.</p>';
+ return title('OBSERVATORIO TERRITORIAL','MAPA-SÍFILIS · Sonora','Inteligencia territorial de sífilis congénita, nacimientos, distritos de salud y regiones operativas.')+
+ '<section class="panel edith-map-shell" id="edith-map-shell"><div class="edith-map-toolbar"><div><b>Mapa territorial</b><small id="edith-map-status" role="status">Preparando cartografía y consulta institucional…</small></div><div class="action-group"><button type="button" class="button-outline" id="edith-map-filters" aria-expanded="true" aria-controls="edith-map-frame">◧ Ocultar filtros</button><button type="button" class="button-outline" id="edith-map-live-refresh">↻ Datos EDITH</button><button type="button" class="button-outline" id="edith-map-reload">↻ Recargar</button><button type="button" class="button-primary" id="edith-map-fullscreen">⤢ Ampliar</button><a class="button-outline" href="/mapa/" target="_blank" rel="noopener noreferrer">Vista independiente ↗</a></div></div><iframe id="edith-map-frame" class="edith-map-frame" src="/mapa/?embed=1" title="Mapa interactivo epidemiológico de sífilis en Sonora" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></section>'+
+ '<p class="edith-map-context"><b>Lectura epidemiológica:</b> residencia materna y lugar de nacimiento son geografías diferentes. Los agregados EDITH respetan permisos RLS y ocultan celdas 1–4. Registros activos no equivalen a casos confirmados ni a incidencia; los cortes públicos históricos son una fuente independiente.</p>';
 }
 function qualityRate(n,total){return total>0?`${(100*Number(n||0)/total).toFixed(1)} %`:'Sin denominador';}
 function renderCalidad(){
@@ -912,7 +923,11 @@ function edithWireProvenance(){
 function wireView(){
 v192Wire();edithWireProvenance();
 if($('edith-open-map'))$('edith-open-map').onclick=()=>showView('mapa');
-if($('edith-map-reload'))$('edith-map-reload').onclick=()=>{const frame=$('edith-map-frame');if(frame){mapLiveSeq++;frame.src='/mapa/?actualizado='+Date.now()}};
+if($('edith-map-reload'))$('edith-map-reload').onclick=()=>{const frame=$('edith-map-frame');if(frame){mapLiveSeq++;frame.src='/mapa/?embed=1&actualizado='+Date.now()}};
+if($('edith-map-filters'))$('edith-map-filters').onclick=()=>{
+ const frame=$('edith-map-frame');
+ if(frame?.contentWindow)frame.contentWindow.postMessage({type:'EDITH_MAP_FILTERS_TOGGLE'},location.origin);
+};
 if($('edith-map-live-refresh'))$('edith-map-live-refresh').onclick=()=>loadLiveMap();
 if($('edith-map-fullscreen'))$('edith-map-fullscreen').onclick=()=>{const shell=$('edith-map-shell');if(!shell)return;if(document.fullscreenElement)document.exitFullscreen?.();else shell.requestFullscreen?.().catch(()=>toast('La pantalla completa no está disponible en este navegador'))};
 if($('ana-year'))$('ana-year').onchange=e=>{state.analyticsYear=e.target.value;loadAnalytics(true)};
@@ -998,8 +1013,13 @@ async function loadLiveMap(){
 }
 window.addEventListener('message',event=>{
  const frame=$('edith-map-frame');
- if(event.origin!==location.origin||!frame||event.source!==frame.contentWindow||event.data?.type!=='EDITH_MAP_READY')return;
- loadLiveMap();
+ if(event.origin!==location.origin||!frame||event.source!==frame.contentWindow)return;
+ if(event.data?.type==='EDITH_MAP_FILTERS_STATE'){
+   const btn=$('edith-map-filters');
+   if(btn){btn.textContent=event.data.visible?'◧ Ocultar filtros':'☷ Mostrar filtros';btn.setAttribute('aria-expanded',String(event.data.visible===true))}
+   return;
+ }
+ if(event.data?.type==='EDITH_MAP_READY')loadLiveMap();
 });
 setInterval(()=>{if(state.current==='mapa'&&!state.demo&&document.visibilityState==='visible')loadLiveMap()},120000);
 wireCore();renderHeader();renderMain();try{$('login-dialog').showModal()}catch(err){console.error('Error al abrir acceso institucional',err)}

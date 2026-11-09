@@ -1,0 +1,21 @@
+name: EDITH-SC · seguridad y paridad del mapa
+on:
+  pull_request:
+    paths:
+      - 'cloudflare-pages/**'
+      - 'data/**'
+      - 'tests/edith-map-preflight.test.mjs'
+      - '.github/workflows/edith-map-preflight.yml'
+  workflow_dispatch:
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar sintaxis, rutas, fuente y privacidad del mapa
+        run: node --test tests/edith-map-preflight.test.mjs

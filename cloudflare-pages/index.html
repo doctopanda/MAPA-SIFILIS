@@ -182,8 +182,7 @@ body.edith-authenticated .layout{visibility:visible;pointer-events:auto}
      from(bucket){
        return {
          list(folder,opts={}){return storageRequest('object/list/'+encodeURIComponent(bucket),'POST',JSON.stringify({prefix:folder,limit:opts.limit||100,sortBy:opts.sortBy||{column:'name',order:'asc'}}),{'Content-Type':'application/json'});},
-         download(path){return storageRequest(storageObjectPath(bucket,path,'authenticated/'),'GET',null,{},true);},
-         upload(path,file,opts={}){return storageRequest(storageObjectPath(bucket,path,''),'POST',file,{'Content-Type':opts.contentType||file.type||'application/octet-stream','x-upsert':'false','cache-control':'max-age='+String(opts.cacheControl||'3600')});}
+         download(path){return storageRequest(storageObjectPath(bucket,path,'authenticated/'),'GET',null,{},true);}
        };
      }
    };
@@ -964,12 +963,7 @@ window.EDITH_UNICA={
    return Object.freeze({
      role:state.role,
      list:(folder,options)=>state.demo?Promise.resolve({data:null,error:{message:'Sesión cerrada'}}):state.client.storage.from(bucket).list(folder,options),
-     download:path=>state.demo?Promise.resolve({data:null,error:{message:'Sesión cerrada'}}):state.client.storage.from(bucket).download(path),
-     upload:(path,file,options)=>{
-       if(state.demo||state.role!=='ADMINISTRADOR_MAESTRO')
-         return Promise.resolve({data:null,error:{message:'Solo Administración Maestra puede publicar formatos'}});
-       return state.client.storage.from(bucket).upload(path,file,options);
-     }
+     download:path=>state.demo?Promise.resolve({data:null,error:{message:'Sesión cerrada'}}):state.client.storage.from(bucket).download(path)
    });
  }
 };

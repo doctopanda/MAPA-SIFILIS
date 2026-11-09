@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MAPA-SIFILIS · EDITH SA / SC</title>
+<script>
+if(window.parent!==window && new URLSearchParams(location.search).get('embed')==='1'){
+  document.documentElement.classList.add('edith-embedded');
+}
+</script>
 <link rel="preconnect" href="https://unpkg.com">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
@@ -60,6 +65,27 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
   body{display:block}.shell{display:block}aside{border-right:0;border-bottom:1px solid var(--line);max-height:none}.map-float{max-width:220px}
   main{min-height:70vh}.header-meta{display:none}.grid2{grid-template-columns:1fr}
 }
+/* EDITH-SC: el visor conserva su pagina independiente, pero integrado se
+   comporta como superficie de trabajo sin segunda cabecera ni scroll anidado. */
+.edith-embedded body{height:100%;min-height:0;display:block;overflow:hidden;background:#fff}
+.edith-embedded header{display:none}
+.edith-embedded .shell{display:grid;height:100%;min-height:0;overflow:hidden;grid-template-columns:minmax(270px,315px) minmax(0,1fr);background:#fff}
+.edith-embedded aside{display:block;height:100%;min-height:0;overflow-y:auto;padding:10px;background:#faf8fb;border-right:1px solid #e6dde8}
+.edith-embedded main{height:100%;min-height:0;overflow:hidden}
+.edith-embedded .card{box-shadow:none;border-color:#eae3ed;margin-bottom:9px}
+.edith-embedded .map-float{top:12px;right:12px}
+.edith-embedded.edith-filters-collapsed .shell{grid-template-columns:minmax(0,1fr)}
+.edith-embedded.edith-filters-collapsed aside{display:none}
+@media(max-width:860px){
+  .edith-embedded .shell{display:block;position:relative;height:100%;min-height:0;overflow:hidden}
+  .edith-embedded main{height:100%;min-height:0}
+  .edith-embedded aside{display:block;position:absolute;top:0;bottom:0;left:0;z-index:850;width:min(88%,355px);max-height:none;border-right:1px solid #e6dde8;box-shadow:10px 0 28px #24182b19;transform:translateX(-103%);pointer-events:none;transition:transform .18s ease}
+  .edith-embedded.edith-filters-open aside{transform:translateX(0);pointer-events:auto}
+  .edith-embedded.edith-filters-collapsed aside{display:block}
+  .edith-embedded .grid2{grid-template-columns:1fr 1fr}
+  .edith-embedded .map-float{max-width:min(58vw,220px)}
+}
+@media(prefers-reduced-motion:reduce){.edith-embedded aside{transition:none}}
 </style>
 </head>
 <body>
@@ -807,10 +833,13 @@ async function init(){
 
     var gj=await loadJson(MUN_URL);
     stateLayer=L.geoJSON(gj,{style:styleFeature,onEachFeature:onEach}).addTo(map);
-    stateBounds=stateLayer.getBounds();map.fitBounds(stateBounds,{padding:[18,18]});
+    stateBounds=stateLayer.getBounds();map.invalidateSize();map.fitBounds(stateBounds,{padding:[18,18]});
+    // Ajustar Leaflet cuando el iframe termine de recibir sus dimensiones.
+    requestAnimationFrame(function(){map.invalidateSize();map.fitBounds(stateBounds,{padding:[18,18]})});
     renderLegend();renderStatus();renderFlows();renderUnitNetworkPanel();
     document.getElementById('detail').innerHTML='Cartografía cargada: '+gj.features.length+' municipios. Históricos EDITH disponibles: '+esc((historyManifest.visible_years||[]).join(', '))+'.';
     if(window.parent!==window)window.parent.postMessage({type:'EDITH_MAP_READY'},window.location.origin);
+    if(document.documentElement.classList.contains('edith-embedded'))publishFiltersState();
   }catch(e){statusEl.innerHTML='<b>Error de inicialización:</b> '+esc(e.message)}
 }
 
@@ -868,10 +897,25 @@ function edithToggle(){
   detailEl.textContent=edithLiveMode?'Datos autorizados del año seleccionado. Sin acumulación ni clasificaciones que permitan inferir celdas pequeñas.':'Pulsa un municipio para ver su geografía y corte epidemiológico.';
   edithLiveControls();update();
 }
+function publishFiltersState(){
+  if(!document.documentElement.classList.contains('edith-embedded')||window.parent===window)return;
+  var narrow=window.matchMedia('(max-width:860px)').matches;
+  var visible=narrow?document.documentElement.classList.contains('edith-filters-open'):!document.documentElement.classList.contains('edith-filters-collapsed');
+  window.parent.postMessage({type:'EDITH_MAP_FILTERS_STATE',visible:visible},window.location.origin);
+}
+window.addEventListener('resize',function(){map.invalidateSize();publishFiltersState()});
 window.addEventListener('message',function(event){
   if(window.parent===window||event.source!==window.parent||event.origin!==window.location.origin)return;
   var msg=event.data;
   if(!msg||typeof msg!=='object')return;
+  if(msg.type==='EDITH_MAP_FILTERS_TOGGLE'&&document.documentElement.classList.contains('edith-embedded')){
+    var root=document.documentElement;
+    if(window.matchMedia('(max-width:860px)').matches)root.classList.toggle('edith-filters-open');
+    else root.classList.toggle('edith-filters-collapsed');
+    publishFiltersState();
+    setTimeout(function(){map.invalidateSize()},220);
+    return;
+  }
   if(msg.type==='EDITH_MAP_REVOKE'){
     // Eliminar todo agregado institucional de la memoria del visor al revocar la sesión.
     if(edithLiveMode)edithToggle();

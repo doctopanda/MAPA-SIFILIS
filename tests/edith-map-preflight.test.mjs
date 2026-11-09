@@ -134,7 +134,7 @@ test('Históricos 2024–2026 contienen series municipales publicables sin nomin
   const example=municipal.find(r=>String(r.geography_id).replace(/^26/,'').padStart(3,'0')==='030');
   assert.ok(example,'Hermosillo no presente en histórico '+year);
   for(const row of municipal){
-   assertNoNewFields(row,new Set([...rowAllowed,'study_period','population_year','cut_date']),String(year));
+   assertNoNewFields(row,new Set([...rowAllowed,'study_period','population_year','cut_date','suppression_threshold']),String(year));
    if(row.suppressed){
     assert.equal(row.numerator,null,'Celda pequeña en '+year);
     assert.equal(row.value,null,'Valor pequeño en '+year);

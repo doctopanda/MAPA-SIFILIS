@@ -126,7 +126,7 @@ try {
  log('Mapa público separado y protegido del modo institucional');
 
  // Logout desde EDITH revoca datos en la otra pestaña.
- await page.evaluate(async()=>await logout());
+ await page.evaluate(async()=>await document.getElementById('logout-btn').onclick());
  await popup.waitForFunction(()=>document.getElementById('edithLiveToggle')?.disabled===true,{timeout:10000});
  assert.match(await popup.locator('#edithLiveNotice').innerText(),/desconectada/i);
  log('La sesión revoca la información institucional en la ventana independiente');
@@ -137,8 +137,9 @@ try {
  const mobileWidth=await popup.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
  assert.ok(mobileWidth.scroll<=mobileWidth.width+18,'No debe haber desbordamiento horizontal del mapa móvil');
  log('Mapa móvil en página propia');
+ const returned=popup.waitForEvent('close',{timeout:10000});
  await popup.locator('#edithReturnLink').click();
- await popup.waitForEvent('close',{timeout:10000}).catch(()=>{});
+ await returned;
  assert.equal(await page.locator('#edith-map-frame').count(),0,'EDITH sigue libre de mapas incrustados');
  log('Regreso a EDITH sin mapa embebido ni segundo login');
  await page.close();

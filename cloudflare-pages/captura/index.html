@@ -25,7 +25,7 @@ const E=[
 ];
 const STATES='Aguascalientes|Baja California|Baja California Sur|Campeche|Chiapas|Chihuahua|Ciudad de México|Coahuila|Colima|Durango|Guanajuato|Guerrero|Hidalgo|Jalisco|México|Michoacán|Morelos|Nayarit|Nuevo León|Oaxaca|Puebla|Querétaro|Quintana Roo|San Luis Potosí|Sinaloa|Sonora|Tabasco|Tamaulipas|Tlaxcala|Veracruz|Yucatán|Zacatecas'.split('|');
 document.documentElement.classList.toggle('embedded',new URLSearchParams(location.search).get('embed')==='1');
-function notifyEdithFrameHeight(){if(window.parent!==window&&document.body){window.parent.postMessage({type:'edith-embed-height',module:'captura',height:Math.ceil(document.documentElement.scrollHeight)},window.location.origin)}}
+function notifyEdithFrameHeight(){if(window.parent!==window&&document.body){window.parent.postMessage({type:'edith-embed-height',module:'captura',height:Math.ceil((document.querySelector('.wrap')?.getBoundingClientRect().bottom||document.body.scrollHeight)+window.scrollY+16)},window.location.origin)}}
 window.addEventListener('load',()=>{if('ResizeObserver' in window)new ResizeObserver(()=>requestAnimationFrame(notifyEdithFrameHeight)).observe(document.body);notifyEdithFrameHeight()});
 const V={}, $=id=>document.getElementById(id);let step=0,municipios=[],lastClues='',postals={},postalEntries=[],postalReady=false,postalAutoMunicipio='',postalAutoEstado='',postalSelection='';
 const streetsCache=new Map(),streetRequests=new Map();let streetSelection='';

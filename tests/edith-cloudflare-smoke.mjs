@@ -62,13 +62,33 @@ try {
  // El iframe solo recibe datos sintéticos: NO se consultan pacientes ni credenciales.
  await page.evaluate(()=>{
   const frame=document.createElement('iframe');
-  frame.id='edith-map-frame';frame.src='/mapa/';
+  frame.id='edith-map-frame';frame.src='/mapa/?embed=1';
   frame.style.width='900px';frame.style.height='700px';
   document.body.appendChild(frame);
  });
  const iframe=page.frameLocator('#edith-map-frame');
  await iframe.locator('#edithLiveToggle').waitFor({timeout:45000});
  await page.waitForFunction(()=>/Cartografía cargada: 72 municipios/.test(document.querySelector('#edith-map-frame')?.contentDocument?.getElementById('detail')?.textContent||''),{timeout:45000});
+ const embed=await page.evaluate(()=>{
+   const frame=document.querySelector('#edith-map-frame');
+   const doc=frame.contentDocument;
+   return {
+     embedded:doc.documentElement.classList.contains('edith-embedded'),
+     headerHidden:getComputedStyle(doc.querySelector('header')).display==='none',
+     mapHeight:doc.querySelector('#map').getBoundingClientRect().height,
+     shellScroll:doc.documentElement.scrollHeight,
+     frameHeight:frame.clientHeight
+   };
+ });
+ assert.equal(embed.embedded,true,'El iframe debe activar el modo integrado');
+ assert.equal(embed.headerHidden,true,'La cabecera duplicada debe ocultarse');
+ assert.ok(embed.mapHeight>=500,'El mapa debe aprovechar la altura del panel');
+ assert.ok(embed.shellScroll<=embed.frameHeight+3,'No debe existir un segundo scroll general dentro del visor');
+ await page.evaluate(()=>document.getElementById('edith-map-frame').contentWindow.postMessage({type:'EDITH_MAP_FILTERS_TOGGLE'},location.origin));
+ await page.waitForFunction(()=>document.querySelector('#edith-map-frame')?.contentDocument?.documentElement.classList.contains('edith-filters-collapsed'),{timeout:10000});
+ await page.evaluate(()=>document.getElementById('edith-map-frame').contentWindow.postMessage({type:'EDITH_MAP_FILTERS_TOGGLE'},location.origin));
+ await page.waitForFunction(()=>!document.querySelector('#edith-map-frame')?.contentDocument?.documentElement.classList.contains('edith-filters-collapsed'),{timeout:10000});
+ log('Modo integrado: una sola cabecera, sin scroll anidado y filtros plegables');
  await page.evaluate(()=>document.getElementById('edith-map-frame').contentWindow.postMessage({
   type:'EDITH_MAP_DATA',
   rows:[{year:2026,municipality_code:'030',cases:6,suppressed:false}],

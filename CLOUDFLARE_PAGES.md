@@ -23,7 +23,7 @@ La carpeta incluye únicamente el piloto público `index.html` y el archivo `_he
 ## Validación obligatoria del despliegue
 
 1. En el panel Cloudflare seleccionar **Cómputo → Workers y Pages → edith → Implementaciones**.
-2. Abrir la ejecución posterior al commit de configuración. Si no aparece, pulsar **Reintentar compilación** para obligar a ejecutar el `main` más reciente.
+2. Abrir la ejecución más reciente, posterior al commit de configuración. Si no aparece, revisar en **Configuración → Compilaciones** que la integración de GitHub despliegue la rama `main`. **No usar «Reintentar compilación» en una ejecución antigua**, ya que podría repetir el commit anterior.
 3. Revisar los logs: `Assets directory`, `Output directory` o el archivo de configuración deben indicar `./cloudflare-pages`, no `.`.
 4. Abrir `https://edith.ibrahimharos.workers.dev/`; debe mostrar el portal **EDITH NEXT**, no el mapa raíz.
 5. Probar `https://edith.ibrahimharos.workers.dev/data/snapshot/rows-01.json`; **no debe mostrar el archivo** (debería responder 404). Verificar que `/README.md` tampoco se publique.

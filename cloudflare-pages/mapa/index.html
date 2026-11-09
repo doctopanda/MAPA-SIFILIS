@@ -797,10 +797,16 @@ function panorama2026Rate(code){
      incidenceNumerator.period_end!==birthsData.period[1])return null;
   var births=panoramaBirths(code);
   if(births===null||births<5)return null;
+  // Evitar publicar relaciones entre subconjuntos que revelarían celdas 1–4
+  // por diferencia respecto de los registros públicos del año.
+  var annual=panoramaYearRow(code,2026);
+  if(!annual.present||annual.suppressed||annual.value===null)return null;
   var found=(incidenceNumerator.rows||[]).filter(function(r){return r.geography_type==='municipality'&&String(r.geography_id).padStart(3,'0')===code});
   if(found.length!==1||found[0].suppressed===true)return null;
   var count=Number(found[0].numerator);
   if(!Number.isSafeInteger(count)||count<0||(count>0&&count<5))return null;
+  var difference=annual.value-count;
+  if(difference<0||(difference>=1&&difference<=4))return null;
   return count/births*1000;
 }
 function renderMunicipalPanorama(){
@@ -837,7 +843,7 @@ function renderMunicipalPanorama(){
       '<div class="panorama-stat"><span>'+label+' · '+currentYear()+'</span><b>'+caseText+'</b><small>'+(edithLiveMode?'Supabase, RLS':'Corte público por año')+'</small></div>'+
       '<div class="panorama-stat"><span>Población CONAPO '+currentYear()+'</span><b>N/D</b><small>Catálogo municipal por año pendiente</small></div>'+
       '<div class="panorama-stat"><span>Nacidos vivos residentes · 2026</span><b>'+(births===null?'N/D':nfmt(births))+'</b><small>SINBA, 1 ene–24 sep 2026</small></div>'+
-      '<div class="panorama-stat"><span>Tasa SC por 1,000 nacidos vivos · 2026</span><b>'+(rate===null?'N/D':nfmt(rate))+'</b><small>'+(rate===null?'No calculable con corte y privacidad actuales':'Corte parcial alineado al 24 sep 2026')+'</small></div>'+
+      '<div class="panorama-stat"><span>Razón exploratoria de registros SC / 1,000 NV · 2026</span><b>'+(rate===null?'N/D':nfmt(rate))+'</b><small>'+(rate===null?'No calculable con corte y privacidad actuales':'Corte parcial 24 sep 2026 · no equivale a incidencia confirmada')+'</small></div>'+
     '</div>'+
     '<div class="panorama-graph"><h3>Registros por año · 2024–2026</h3>'+bars+
       '<p class="panorama-note">Las barras representan conteos visibles; <b>&lt;5</b> oculta 1–4 y <b>N/D</b> indica que no hay una cifra publicable. No son tendencias de incidencia.</p></div>'+
@@ -851,7 +857,7 @@ function renderMunicipalPanorama(){
     '<p class="panorama-source"><b>Fuentes:</b> EDITH-SC, históricos agregados 2024–2026'+
        (edithLiveMode?' o consulta autorizada RLS (sin mezclar sus conteos).':' (corte público).')+
        ' Nacimientos SINBA y numerador alineado, 24 sep 2026. Población CONAPO pendiente de conectar. '+
-       'Confirmados clínicos no equivalen a confirmados por laboratorio. Sin datos nominales; sin inferencias de celdas pequeñas.</p>';
+       'La razón de registros no equivale a incidencia confirmada. Confirmados clínicos no equivalen a confirmados por laboratorio. Sin datos nominales; sin inferencias de celdas pequeñas.</p>';
 }
 panoramaToggle.addEventListener('click',function(){
  if(!selectedCode)return;

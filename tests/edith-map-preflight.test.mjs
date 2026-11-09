@@ -4,6 +4,7 @@ import {existsSync, readFileSync, readdirSync} from 'node:fs';
 import {join, relative, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
+import {gunzipSync} from 'node:zlib';
 
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const assets=join(root,'cloudflare-pages');
@@ -117,4 +118,29 @@ test('El cruce operativo de 10 regiones y 6 distritos cubre 72 municipios sin du
   }
  }
  assert.match(regions.status,/operational_crosswalk_supplied_by_project_owner/,'El cruce no debe anunciarse como oficialmente homologado');
+});
+
+test('Históricos 2024–2026 contienen series municipales publicables sin nominales',()=>{
+ const manifest=parse(mapRoot,'data/history/history_manifest.json');
+ assert.deepEqual(manifest.visible_years,[2024,2025,2026]);
+ for(const year of manifest.visible_years){
+  const gzFile=join(mapRoot,manifest.files[String(year)].replace(/^data\//,'data/'));
+  assert.ok(existsSync(gzFile),'Histórico ausente '+year);
+  const data=JSON.parse(gunzipSync(readFileSync(gzFile)).toString('utf8'));
+  assert.ok(Array.isArray(data.rows),'Histórico sin filas '+year);
+  const municipal=data.rows.filter(r=>r.program==='SC'&&r.layer_id==='maternal_residence'&&r.metric_id==='cases'&&
+    (r.cohort_id||'year_total')==='year_total'&&r.geography_type==='municipality');
+  assert.ok(municipal.length>=60,'Sin serie municipal suficiente para '+year);
+  const example=municipal.find(r=>String(r.geography_id).replace(/^26/,'').padStart(3,'0')==='030');
+  assert.ok(example,'Hermosillo no presente en histórico '+year);
+  for(const row of municipal){
+   assertNoNewFields(row,new Set([...rowAllowed,'study_period','population_year','cut_date']),String(year));
+   if(row.suppressed){
+    assert.equal(row.numerator,null,'Celda pequeña en '+year);
+    assert.equal(row.value,null,'Valor pequeño en '+year);
+   }else if(row.numerator!=null){
+    assert.ok(Number.isInteger(row.numerator)&&row.numerator>=0&&(row.numerator===0||row.numerator>=5),'Conteo 1–4 publicado '+year);
+   }
+  }
+ }
 });

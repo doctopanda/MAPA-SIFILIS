@@ -100,7 +100,7 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
     <div class="brandmark">🧬</div>
     <div><h1>MAPA-SIFILIS</h1><p>EDITH SA + EDITH SC · Inteligencia territorial de sífilis en Sonora</p></div>
   </div>
-  <a href="/" title="Abrir EDITH ÚNICA" style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;text-decoration:none;background:#fff;color:#762a52;padding:8px 12px;border-radius:10px;font-size:11px;font-weight:850;border:1px solid #ead9e3">✳ EDITH ÚNICA</a>
+  <a id="edithReturnLink" href="/" title="Volver a EDITH ÚNICA" style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;text-decoration:none;background:#fff;color:#762a52;padding:8px 12px;border-radius:10px;font-size:11px;font-weight:850;border:1px solid #ead9e3">✳ EDITH ÚNICA</a>
   <div class="header-meta">Fase cartográfica v0.4.1 · geometría municipal INEGI 2025<br>Datos nominales: nunca publicados</div>
 </header>
 
@@ -209,7 +209,17 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
 <script>
 (function(){
 'use strict';
-
+// Un visor abierto desde EDITH conserva su propia página. Sólo recibe agregados
+// autenticados mediante mensajes del mismo origen y de la ventana que lo abrió.
+var mapInstitutionalTab=new URLSearchParams(location.search).get('institucional')==='1'&&!!window.opener&&window.opener!==window;
+var lastInstitutionalRequest=0;
+function requestDataFromEdith(){
+  if(!mapInstitutionalTab||!window.opener||window.opener.closed)return;
+  var now=Date.now();
+  if(now-lastInstitutionalRequest<7000)return;
+  lastInstitutionalRequest=now;
+  window.opener.postMessage({type:'EDITH_MAP_READY'},location.origin);
+}
 var MUN_URL='data/sonora_municipios.geojson';
 var map=L.map('map',{preferCanvas:true,zoomControl:true}).setView([29.1,-110.5],7);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
@@ -845,6 +855,7 @@ async function init(){
     renderLegend();renderStatus();renderFlows();renderUnitNetworkPanel();
     document.getElementById('detail').innerHTML='Cartografía cargada: '+gj.features.length+' municipios. Históricos EDITH disponibles: '+esc((historyManifest.visible_years||[]).join(', '))+'.';
     if(window.parent!==window)window.parent.postMessage({type:'EDITH_MAP_READY'},window.location.origin);
+    if(mapInstitutionalTab)requestDataFromEdith();
     if(document.documentElement.classList.contains('edith-embedded'))publishFiltersState();
   }catch(e){statusEl.innerHTML='<b>Error de inicialización:</b> '+esc(e.message)}
 }
@@ -911,7 +922,10 @@ function publishFiltersState(){
 }
 window.addEventListener('resize',function(){map.invalidateSize();publishFiltersState()});
 window.addEventListener('message',function(event){
-  if(window.parent===window||event.source!==window.parent||event.origin!==window.location.origin)return;
+  if(event.origin!==window.location.origin)return;
+  var fromEmbed=window.parent!==window&&event.source===window.parent;
+  var fromOpener=mapInstitutionalTab&&!!window.opener&&event.source===window.opener;
+  if(!fromEmbed&&!fromOpener)return;
   var msg=event.data;
   if(!msg||typeof msg!=='object')return;
   if(msg.type==='EDITH_MAP_FILTERS_TOGGLE'&&document.documentElement.classList.contains('edith-embedded')){
@@ -932,7 +946,7 @@ window.addEventListener('message',function(event){
     return;
   }
   if(msg.type!=='EDITH_MAP_DATA'||!Array.isArray(msg.rows)||msg.rows.length>220)return;
-  if(msg.rows.some(function(r){return !r||![2024,2025,2026].includes(r.year)||!/^[0-9]{3}$/.test(r.municipality_code)||typeof r.suppressed!=='boolean'||(r.suppressed?r.cases!==null:!Number.isSafeInteger(r.cases)||r.cases<5)}))return;
+  if(msg.rows.some(function(r){return !r||![2024,2025,2026].includes(r.year)||!/^[0-9]{3}$/.test(r.municipality_code)||typeof r.suppressed!=='boolean'||(r.suppressed?r.cases!==null:!Number.isSafeInteger(r.cases)||(r.cases!==0&&r.cases<5))}))return;
   edithLiveRows=msg.rows.map(function(r){return {year:r.year,municipality_code:r.municipality_code,cases:r.cases,suppressed:r.suppressed}});
   edithLiveStamp=String(msg.generated_at||'').slice(0,28);
   edithLiveScope=String(msg.scope||'').slice(0,40);
@@ -941,6 +955,30 @@ window.addEventListener('message',function(event){
   else if(edithLiveMode)update();
 });
 document.getElementById('edithLiveToggle').addEventListener('click',edithToggle);
+if(mapInstitutionalTab){
+  document.getElementById('edithReturnLink').addEventListener('click',function(event){
+    if(!window.opener||window.opener.closed)return;
+    event.preventDefault();
+    window.opener.focus();
+    window.close();
+    // Si el navegador no permite cerrar la pestaña, navega a EDITH.
+    setTimeout(function(){if(!window.closed)location.assign('/')},150);
+  });
+  window.addEventListener('focus',requestDataFromEdith);
+  setInterval(function(){
+    if(!window.opener||window.opener.closed){
+      if(edithLiveRows){
+        if(edithLiveMode)edithToggle();
+        edithLiveRows=null;edithLiveStamp='';edithLiveScope='';
+        edithPriorState=null;edithAutoSelected=false;
+        edithLiveControls();
+        document.getElementById('edithLiveNotice').textContent='Sesión de EDITH desconectada. Volviste al corte público.';
+      }
+      return;
+    }
+    if(document.visibilityState==='visible')requestDataFromEdith();
+  },45000);
+}
 
 init();
 })();

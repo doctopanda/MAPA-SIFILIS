@@ -183,7 +183,7 @@ body.edith-authenticated .layout{visibility:visible;pointer-events:auto}
        return {
          list(folder,opts={}){return storageRequest('object/list/'+encodeURIComponent(bucket),'POST',JSON.stringify({prefix:folder,limit:opts.limit||100,sortBy:opts.sortBy||{column:'name',order:'asc'}}),{'Content-Type':'application/json'});},
          download(path){return storageRequest(storageObjectPath(bucket,path,'authenticated/'),'GET',null,{},true);},
-         upload(path,file,opts={}){return storageRequest(storageObjectPath(bucket,path,''),'POST',file,{'Content-Type':opts.contentType||file.type||'application/octet-stream','x-upsert':'false','cache-control':String(opts.cacheControl||'3600')});}
+         upload(path,file,opts={}){return storageRequest(storageObjectPath(bucket,path,''),'POST',file,{'Content-Type':opts.contentType||file.type||'application/octet-stream','x-upsert':'false','cache-control':'max-age='+String(opts.cacheControl||'3600')});}
        };
      }
    };

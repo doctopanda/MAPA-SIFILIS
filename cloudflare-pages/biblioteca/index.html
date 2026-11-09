@@ -8,7 +8,7 @@ main{max-width:1160px;margin:auto;padding:20px}h2{font-size:20px;margin:12px 0 5
 .muted{color:var(--muted)}.tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:15px 0}input[type=search],select{border:1px solid #d7c6d1;border-radius:9px;background:#fff;padding:12px;min-width:170px;font:inherit}input[type=search]{flex:2}select{flex:1}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px;box-shadow:0 5px 15px #63314708;min-width:0}.card p{font-size:12px;color:var(--muted)}.tag{display:inline-block;border-radius:20px;background:#f4e8ef;color:#794058;font-size:11px;padding:3px 8px}button,.action{display:inline-flex;align-items:center;gap:7px;padding:10px 12px;border:1px solid #d7c2ce;background:white;color:var(--wine);border-radius:9px;text-decoration:none;font:700 12px system-ui,Arial;cursor:pointer;max-width:100%}button.primary{background:var(--wine);border-color:var(--wine);color:white}button:disabled{opacity:.55;cursor:not-allowed}.actions{margin-top:13px;display:flex;gap:8px;flex-wrap:wrap}.upload{border:1px dashed #a9879a;background:#fff;border-radius:14px;padding:18px;margin-top:20px}.upload input{margin:9px 0;display:block;max-width:100%}.status{font-weight:650;color:var(--teal);margin-top:10px}.filename{overflow-wrap:anywhere}.small{font-size:11px}a{color:var(--wine)}.hidden{display:none!important}
 .embedded body>header{display:none}.embedded main{padding:4px;max-width:none}.embedded .card{box-shadow:none}.inventory{margin:12px 0 18px}.inventory .card{border-left:3px solid #b889a3}.inventory .card.ready{border-left-color:#2c8d72}.inventory .card h3{font-size:13px}.inventory .tag.pending{background:#fff3db;color:#86601e}.inventory .tag.ready{background:#e8f5ef;color:#236b50}.inventory-title{font-size:13px;font-weight:750;margin:8px 0}.file-note{font-size:11px;color:var(--muted)}
 </style>
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<!-- Usa la sesión efímera de EDITH. No se crea otra sesión ni se almacenan tokens. -->
 </head><body>
 <header><h1>📚 Biblioteca epidemiológica EDITH-SC</h1><p>Formatos originales editables · Documentación normativa · Laboratorio e indicadores</p></header>
 <main>
@@ -64,7 +64,7 @@ function renderInventory(){
 }
 function status(s,bad=false){$('progress').textContent=s;$('progress').style.color=bad?'#a83451':'#267363'}
 function readable(n){return String(n).replace(/^[^/]+\//,'').replace(/\.(docx|xlsx|pdf)$/i,'').replace(/[_-]/g,' ').replace(/\s+/g,' ').trim()}
-function showFiles(){renderInventory();const q=$('query').value.trim().toLocaleLowerCase('es'),cat=$('category').value;const subset=items.filter(f=>(!cat||f.group===cat)&&[f.name,readable(f.name),f.group].join(' ').toLocaleLowerCase('es').includes(q));if(!ready){$('files').innerHTML='<div class="card">Inicia sesión en EDITH-SC para consultar o cargar los archivos originales protegidos.</div>';return}if(!subset.length){$('files').innerHTML='<div class="card"><strong>Los archivos originales todavía no se han publicado.</strong><p>La biblioteca está preparada; Administración Maestra debe importar el ZIP con los cuatro originales vacíos. No se mostrarán botones de descarga hasta que los documentos estén realmente almacenados.</p></div>';return}
+function showFiles(){renderInventory();const q=$('query').value.trim().toLocaleLowerCase('es'),cat=$('category').value;const subset=items.filter(f=>(!cat||f.group===cat)&&[f.name,readable(f.name),f.group].join(' ').toLocaleLowerCase('es').includes(q));if(!ready){$('files').innerHTML='<div class="card">Abre Biblioteca desde el menú de EDITH-SC con una sesión institucional activa.</div>';return}if(!subset.length){$('files').innerHTML='<div class="card"><strong>Los archivos originales todavía no se han publicado.</strong><p>La biblioteca está preparada; Administración Maestra debe importar el ZIP con los cuatro originales vacíos. No se mostrarán botones de descarga hasta que los documentos estén realmente almacenados.</p></div>';return}
 $('files').innerHTML=subset.map(f=>'<article class="card"><span class="tag">'+(f.group==='formatos'?'Formato editable':'Referencia')+'</span><h3 class="filename">'+esc(readable(f.name))+'</h3><p>'+esc(f.name)+' · '+(f.meta?.size?Math.round(f.meta.size/1024)+' KB':'Documento original')+'</p><div class="actions"><button type="button" data-download="'+esc(f.path)+'">⬇ Descargar archivo original</button></div></article>').join('');
 document.querySelectorAll('[data-download]').forEach(b=>b.onclick=()=>downloadDoc(b.dataset.download,b))}
 async function downloadDoc(path,button){if(!db)return;button.disabled=true;try{const {data,error}=await db.storage.from(BUCKET).download(path);if(error)throw error;
@@ -92,13 +92,32 @@ status('Publicando '+(done+1)+' de '+files.length+': '+name);
 const {error}=await db.storage.from(BUCKET).upload(p,f,{contentType:mime(name),upsert:false,cacheControl:'3600'});if(error){if(/already exists|duplicate/i.test(error.message)){status('Ya existe '+name+'. Se conserva la versión anterior.')}else throw new Error(name+': '+error.message)}done++}
 status('Se procesaron '+done+' archivos. Biblioteca actualizada.');$('choose').value='';$('safe-confirm').checked=false;await load()}
 catch(e){status('No se pudo completar: '+e.message,true)}finally{$('upload-now').disabled=false}}
-async function init(){let tries=0;while(!window.supabase&&tries++<20)await new Promise(r=>setTimeout(r,150));if(!window.supabase){$('identity').textContent='No se cargó Supabase. Revisa la conexión de red.';return}
-db=window.supabase.createClient(URL_BASE,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
-const {data:{user},error}=await db.auth.getUser();if(error||!user){$('identity').innerHTML='<strong>Acceso institucional requerido.</strong> Inicia sesión en <a href="/" target="_top">EDITH-SC</a> y regresa a Biblioteca.';showFiles();return}
-sessionUser=user;
-const {data:profile,error:pe}=await db.from('edith_sc_profiles').select('role,active').eq('user_id',user.id).maybeSingle();
-if(pe||!profile?.active){$('identity').textContent='No hay un perfil activo para esta sesión. Solicita autorización institucional.';showFiles();return}
-ready=true;master=profile.role==='ADMINISTRADOR_MAESTRO';$('identity').classList.add('good');$('identity').textContent='Sesión institucional verificada · Acceso de '+(master?'Administración Maestra':'usuario autorizado')+' · Documentos protegidos con RLS.';$('upload').classList.toggle('hidden',!master);await load()}
+async function init(){
+ let bridge=null;
+ try{
+   // Mismo origen: solo EDITH padre puede proporcionar la sesión institucional.
+   if(window.parent!==window && window.parent.location.origin===window.location.origin)
+     bridge=window.parent.EDITH_UNICA?.getLibraryBridge?.()||null;
+ }catch(e){bridge=null}
+ if(!bridge){
+   ready=false;master=false;db=null;
+   $('upload').classList.add('hidden');
+   $('identity').classList.remove('good');
+   $('identity').innerHTML='<strong>Biblioteca protegida.</strong> Para acceder a los formatos, abre <a href="/" target="_top">EDITH-SC</a>, inicia sesión y entra en «Biblioteca · Archivos originales» desde el menú. No debes iniciar sesión dos veces.';
+   showFiles();return;
+ }
+ // Adaptador de tres operaciones autorizadas, sin exponer credenciales.
+ db={storage:{from:()=>({
+   list:(folder,options)=>bridge.list(folder,options),
+   download:(path)=>bridge.download(path),
+   upload:(path,file,options)=>bridge.upload(path,file,options)
+ })}};
+ ready=true;master=bridge.role==='ADMINISTRADOR_MAESTRO';
+ $('identity').classList.add('good');
+ $('identity').textContent='Sesión EDITH-SC vinculada correctamente · '+(master?'Administración Maestra':'Perfil institucional autorizado')+' · Permisos RLS activos.';
+ $('upload').classList.toggle('hidden',!master);
+ await load();
+}
 $('query').addEventListener('input',showFiles);$('category').addEventListener('change',showFiles);$('refresh').addEventListener('click',load);$('upload-now').addEventListener('click',upload);
 readApprovedManifest().catch(e=>{status('No se pudo verificar el manifiesto v0.3: '+e.message,true)}).finally(()=>init().catch(e=>{$('identity').textContent='Error de conexión institucional: '+e.message;showFiles()}));
 })();

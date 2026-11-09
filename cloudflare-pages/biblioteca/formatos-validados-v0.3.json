@@ -1,0 +1,33 @@
+{
+  "schema": "edith-sc-biblioteca-manifest-v0.3",
+  "status": "validado_por_responsable",
+  "approvedDate": "2026-11-09",
+  "source": "Archivos originales editables aprobados para biblioteca institucional",
+  "notes": "El manifiesto verifica integridad de archivos; no constituye validacion de vigencia normativa ni publicacion del binario.",
+  "files": [
+    {
+      "name": "DICTAMINACION_ORIGINAL_SIN_DATOS.docx",
+      "size": 277925,
+      "sha256": "c30e35c267f2a350b87570399dd8dea1ed2221d1c7de4bf73fc5545745ee249f",
+      "title": "Formato único de dictaminación"
+    },
+    {
+      "name": "HOJA_ALTO_VALOR_ORIGINAL_SIN_DATOS.docx",
+      "size": 113552,
+      "sha256": "2dd9a8b240be582dba07a2ef7ec8ccbed27fda5fab3cd1181aacc9ccb04dbe22",
+      "title": "Hoja de muestra de alto valor"
+    },
+    {
+      "name": "RESUMEN_CLINICO_ORIGINAL_SIN_DATOS.docx",
+      "size": 281777,
+      "sha256": "0878b226b2c7c48d4d06a78a8c93f2591eaef0aaa0a4b42f5e5acbd6c42e6829",
+      "title": "Resumen clínico"
+    },
+    {
+      "name": "ESTUDIO_EPIDEMIOLOGICO_ORIGINAL_SIN_DATOS.xlsx",
+      "size": 109356,
+      "sha256": "b9c4255117c1e168ab90d3d30f63139f6989724418779ef09ec276c00b77a7be",
+      "title": "Estudio epidemiológico de caso"
+    }
+  ]
+}

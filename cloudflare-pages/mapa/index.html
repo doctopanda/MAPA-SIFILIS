@@ -92,6 +92,40 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
   .edith-embedded .map-float{max-width:min(58vw,220px)}
 }
 @media(prefers-reduced-motion:reduce){.edith-embedded aside{transition:none}}
+
+/* Panorama municipal: ficha flotante, aislada de los agregados del mapa y plegable. */
+.panorama-card{position:absolute;top:76px;right:12px;z-index:735;width:min(394px,calc(100% - 24px));max-height:calc(100% - 143px);overflow:auto;background:#fff;border:1px solid #e4d7e4;border-radius:17px;box-shadow:0 16px 42px rgba(40,16,46,.23);padding:15px}
+.panorama-card[hidden]{display:none}
+.panorama-card.expanded{width:min(680px,calc(100% - 24px));max-height:calc(100% - 100px);top:12px}
+.panorama-top{display:flex;align-items:start;justify-content:space-between;gap:12px}
+.panorama-top h2{font-size:23px;line-height:1.12;margin:4px 0 3px}
+.panorama-top small{font-size:10px;color:#756779}
+.panorama-tools{display:flex;gap:5px}
+.panorama-tools button{background:#f7f1f7;border:1px solid #e4d7e4;border-radius:8px;color:#64365e;font-size:15px;width:31px;height:31px;cursor:pointer}
+.panorama-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.panorama-stat{background:#f9f5f9;border:1px solid #e9dfe9;border-radius:11px;padding:10px;min-width:0}
+.panorama-stat span{display:block;font-size:9px;line-height:1.35;color:#716676;font-weight:700}
+.panorama-stat b{display:block;font-size:19px;line-height:1.25;margin-top:4px;overflow-wrap:anywhere;color:#5c2857}
+.panorama-stat small{display:block;font-size:9px;color:#806e7a;margin-top:5px}
+.panorama-graph{margin:13px 0;border:1px solid #ebe2ec;background:#fff;border-radius:12px;padding:12px}
+.panorama-graph h3{font-size:12px;margin:0 0 10px}
+.panorama-bar-row{display:grid;grid-template-columns:38px minmax(0,1fr) 53px;align-items:center;gap:8px;margin-bottom:9px}
+.panorama-bar-row:last-child{margin-bottom:0}
+.panorama-bar-row label{font-size:10px;color:#594a61;font-weight:800}
+.panorama-bar-bg{height:12px;background:#f2ecf3;border-radius:99px;overflow:hidden;display:block}
+.panorama-bar-fill{display:block;height:100%;background:linear-gradient(90deg,#b15e81,#5e2a59);border-radius:99px}
+.panorama-bar-row strong{text-align:right;font-size:10px;white-space:nowrap}
+.panorama-note{font-size:10px;line-height:1.5;color:#665b68;margin:10px 0 0}
+.panorama-note b{color:#542943}
+.panorama-source{font-size:9px;color:#7e7280;border-top:1px solid #eee7ed;padding-top:9px;margin-top:11px;line-height:1.6}
+.panorama-open{position:absolute;right:12px;bottom:17px;z-index:740;border:1px solid #76324f;background:#762a52;color:#fff;min-height:38px;padding:8px 13px;border-radius:11px;box-shadow:0 7px 22px rgba(52,28,55,.2);font-size:11px;font-weight:800;cursor:pointer}
+.panorama-open:hover{filter:brightness(1.08)}
+@media(max-width:860px){
+ .panorama-card{top:auto;bottom:62px;left:8px;right:8px;width:auto;max-height:min(68vh,560px);padding:12px}
+ .panorama-card.expanded{top:9px;bottom:62px;max-height:none;width:auto;left:8px;right:8px}
+ .panorama-card .panorama-top h2{font-size:19px}
+ .panorama-open{bottom:10px;right:10px}
+}
 </style>
 </head>
 <body>
@@ -202,6 +236,13 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div id="map"></div>
   <div class="map-float"><b id="floatTitle">MAPA-SIFILIS</b><div id="floatText">Cargando polígonos municipales…</div></div>
   <div class="map-actions"><button id="zoomData">Enfocar con datos</button></div>
+  <button type="button" id="municipalPanoramaToggle" class="panorama-open" aria-controls="municipalPanorama" aria-expanded="false">◩ Panorama municipal</button>
+  <section id="municipalPanorama" class="panorama-card" aria-label="Panorama epidemiológico municipal" hidden>
+    <div class="panorama-top"><div><div class="eyebrow">Ficha epidemiológica territorial</div><h2 id="municipalPanoramaTitle">Panorama municipal</h2><small id="municipalPanoramaSubtitle"></small></div>
+      <div class="panorama-tools"><button type="button" id="municipalPanoramaExpand" title="Ampliar o reducir ficha" aria-label="Ampliar ficha">⤢</button><button type="button" id="municipalPanoramaClose" title="Ocultar ficha" aria-label="Ocultar ficha">×</button></div>
+    </div>
+    <div id="municipalPanoramaContent"></div>
+  </section>
 </main>
 </div>
 
@@ -718,11 +759,120 @@ function renderFlows(){
   }
 }
 
+
+/* Panorama municipal: los históricos y el modo RLS nunca se combinan para
+   reconstruir valores suprimidos. Cada año se toma de su propia cohorte. */
+var panoramaEnabled=true,panoramaExpanded=false;
+var panoramaCard=document.getElementById('municipalPanorama');
+var panoramaContent=document.getElementById('municipalPanoramaContent');
+var panoramaToggle=document.getElementById('municipalPanoramaToggle');
+function panoramaYearRow(code,year){
+  if(edithLiveMode){
+    var live=(edithLiveRows||[]).filter(function(r){return r.year===year&&r.municipality_code===code});
+    return live.length===1?{present:true,suppressed:live[0].suppressed,value:live[0].cases,source:'RLS'}:{present:false};
+  }
+  var hist=historySnapshots[String(year)]||historySnapshots[year];
+  if(!hist||!Array.isArray(hist.rows))return {present:false};
+  var found=hist.rows.filter(function(r){
+    return r.program==='SC'&&r.layer_id==='maternal_residence'&&r.metric_id==='cases'&&
+      (r.cohort_id||'year_total')==='year_total'&&r.geography_type==='municipality'&&
+      String(r.geography_id||'').replace(/^26/,'').padStart(3,'0')===code;
+  });
+  if(found.length!==1)return {present:false};
+  var row=found[0];
+  if(row.suppressed===true)return {present:true,suppressed:true,value:null,source:'público'};
+  var num=Number(row.numerator);
+  if(row.numerator==null||!Number.isSafeInteger(num)||num<0||(num>0&&num<5))return {present:false};
+  return {present:true,suppressed:false,value:num,source:'público'};
+}
+function panoramaBirths(code){
+  var row=birthByCode[code];
+  return row&&Number.isSafeInteger(Number(row.r))&&Number(row.r)>=0?Number(row.r):null;
+}
+function panorama2026Rate(code){
+  // Usar exclusivamente el numerador de fecha de nacimiento y corte alineado
+  // con SINBA, nunca casos de notificación o un denominador CONAPO.
+  if(edithLiveMode||!incidenceNumerator||!birthsData||!Array.isArray(birthsData.period)||
+     incidenceNumerator.period_start!==birthsData.period[0]||
+     incidenceNumerator.period_end!==birthsData.period[1])return null;
+  var births=panoramaBirths(code);
+  if(births===null||births<5)return null;
+  var found=(incidenceNumerator.rows||[]).filter(function(r){return r.geography_type==='municipality'&&String(r.geography_id).padStart(3,'0')===code});
+  if(found.length!==1||found[0].suppressed===true)return null;
+  var count=Number(found[0].numerator);
+  if(!Number.isSafeInteger(count)||count<0||(count>0&&count<5))return null;
+  return count/births*1000;
+}
+function renderMunicipalPanorama(){
+  var row=selectedCode&&rowFor(selectedCode);
+  var visible=!!(row&&panoramaEnabled);
+  panoramaCard.hidden=!visible;
+  panoramaToggle.textContent=visible?'◪ Ocultar panorama':'◩ Mostrar panorama';
+  panoramaToggle.setAttribute('aria-expanded',String(visible));
+  panoramaToggle.disabled=!row;
+  if(!row)return;
+  if(!visible)return;
+  document.getElementById('municipalPanoramaTitle').textContent=row.municipality_name;
+  var district=(districtCfg&&districtCfg.districts||[]).find(function(d){return d.id===row.health_district_id});
+  document.getElementById('municipalPanoramaSubtitle').textContent=
+    (district?district.name+' · ':'')+'Municipio '+selectedCode+' · Sonora';
+  panoramaCard.classList.toggle('expanded',panoramaExpanded);
+  var years=[2024,2025,2026],series=years.map(function(y){return {year:y,entry:panoramaYearRow(selectedCode,y)}});
+  var known=series.filter(function(x){return x.entry.present&&!x.entry.suppressed&&x.entry.value!==null}).map(function(x){return x.entry.value});
+  var peak=Math.max.apply(null,[1].concat(known));
+  var count=panoramaYearRow(selectedCode,currentYear());
+  var caseText=!count.present?'N/D':count.suppressed?'&lt;5':nfmt(count.value);
+  var label=edithLiveMode?'Registros EDITH · año de fuente':'Registros históricos · residencia';
+  var births=panoramaBirths(selectedCode);
+  var rate=panorama2026Rate(selectedCode);
+  var bars=series.map(function(x){
+    var v=x.entry.present?(x.entry.suppressed?'&lt;5':nfmt(x.entry.value)):'N/D';
+    var pct=x.entry.present&&!x.entry.suppressed&&x.entry.value!==null?Math.max(0,Math.min(100,x.entry.value/peak*100)):0;
+    return '<div class="panorama-bar-row" data-year="'+x.year+'"><label>'+x.year+'</label>'+
+       '<span class="panorama-bar-bg"><i class="panorama-bar-fill" style="width:'+pct+'%"></i></span>'+
+       '<strong>'+v+'</strong></div>';
+  }).join('');
+  panoramaContent.innerHTML=
+    '<div class="panorama-stats">'+
+      '<div class="panorama-stat"><span>'+label+' · '+currentYear()+'</span><b>'+caseText+'</b><small>'+(edithLiveMode?'Supabase, RLS':'Corte público por año')+'</small></div>'+
+      '<div class="panorama-stat"><span>Población CONAPO '+currentYear()+'</span><b>N/D</b><small>Catálogo municipal por año pendiente</small></div>'+
+      '<div class="panorama-stat"><span>Nacidos vivos residentes · 2026</span><b>'+(births===null?'N/D':nfmt(births))+'</b><small>SINBA, 1 ene–24 sep 2026</small></div>'+
+      '<div class="panorama-stat"><span>Tasa SC por 1,000 nacidos vivos · 2026</span><b>'+(rate===null?'N/D':nfmt(rate))+'</b><small>'+(rate===null?'No calculable con corte y privacidad actuales':'Corte parcial alineado al 24 sep 2026')+'</small></div>'+
+    '</div>'+
+    '<div class="panorama-graph"><h3>Registros por año · 2024–2026</h3>'+bars+
+      '<p class="panorama-note">Las barras representan conteos visibles; <b>&lt;5</b> oculta 1–4 y <b>N/D</b> indica que no hay una cifra publicable. No son tendencias de incidencia.</p></div>'+
+    '<table class="detail-table">'+
+      '<tr><td>Distrito de Salud</td><td>'+esc(row.health_district_id)+' · '+esc(district?district.head:'No identificado')+'</td></tr>'+
+      '<tr><td>Región IMSS-Bienestar</td><td>'+esc(row.imss_bienestar_region_name)+' (adscripción municipal provisional)</td></tr>'+
+      '<tr><td>Confirmados por laboratorio</td><td>No disponible: requiere homologación de resultados</td></tr>'+
+      '<tr><td>Prevalencia</td><td>No calculada: falta definición epidemiológica válida</td></tr>'+
+      '<tr><td>Tasas 2024–2025</td><td>No disponibles: faltan denominadores alineados por año</td></tr>'+
+    '</table>'+
+    '<p class="panorama-source"><b>Fuentes:</b> EDITH-SC, históricos agregados 2024–2026'+
+       (edithLiveMode?' o consulta autorizada RLS (sin mezclar sus conteos).':' (corte público).')+
+       ' Nacimientos SINBA y numerador alineado, 24 sep 2026. Población CONAPO pendiente de conectar. '+
+       'Confirmados clínicos no equivalen a confirmados por laboratorio. Sin datos nominales; sin inferencias de celdas pequeñas.</p>';
+}
+panoramaToggle.addEventListener('click',function(){
+ if(!selectedCode)return;
+ panoramaEnabled=!panoramaEnabled;
+ renderMunicipalPanorama();
+});
+document.getElementById('municipalPanoramaClose').addEventListener('click',function(){
+ panoramaEnabled=false;
+ renderMunicipalPanorama();
+});
+document.getElementById('municipalPanoramaExpand').addEventListener('click',function(){
+ panoramaExpanded=!panoramaExpanded;
+ panoramaCard.classList.toggle('expanded',panoramaExpanded);
+ this.setAttribute('aria-label',panoramaExpanded?'Reducir ficha':'Ampliar ficha');
+});
+
 function update(){
   if(stateLayer)stateLayer.setStyle(styleFeature);
   if(stateLayer)stateLayer.eachLayer(function(l){if(l.getTooltip())l.setTooltipContent(tooltip(l.feature))});
   renderLegend();renderStatus();renderFlows();renderUnitNetworkPanel();
-
+  renderMunicipalPanorama();
 }
 
 function showDetail(code){
@@ -747,6 +897,7 @@ function showDetail(code){
     '<p class="tiny"><b>Trazabilidad:</b> '+(edithLiveMode?'Consulta Supabase autenticada bajo RLS. Los valores 1–4 quedan suprimidos. No se muestran casos confirmados ni incidencia.':'El mapa sólo muestra agregados. La apertura de registros nominales y su edición corresponde a EDITH según permisos.')+'</p>';
   if(stateLayer)stateLayer.setStyle(styleFeature);
   renderLegend();renderStatus();
+  renderMunicipalPanorama();
 }
 
 function onEach(f,l){

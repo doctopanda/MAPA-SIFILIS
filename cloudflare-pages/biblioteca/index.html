@@ -39,7 +39,7 @@ const URL_BASE='https://nzmbbahsgwcudzlqxfqf.supabase.co';
 const KEY='sb_publishable_--j-caDyEkjm2hHVBeFrWg_eIZ76sC1';
 const BUCKET='edith-sc-biblioteca';
 document.documentElement.classList.toggle('embedded',new URLSearchParams(location.search).get('embed')==='1');
-function notifyEdithFrameHeight(){if(window.parent!==window&&document.body)window.parent.postMessage({type:'edith-embed-height',module:'biblioteca',height:Math.ceil(document.documentElement.scrollHeight)},window.location.origin)}
+function notifyEdithFrameHeight(){if(window.parent!==window&&document.body)window.parent.postMessage({type:'edith-embed-height',module:'biblioteca',height:Math.ceil((document.querySelector('main')?.getBoundingClientRect().bottom||document.body.scrollHeight)+window.scrollY+16)},window.location.origin)}
 window.addEventListener('load',()=>{if('ResizeObserver' in window)new ResizeObserver(()=>requestAnimationFrame(notifyEdithFrameHeight)).observe(document.body);notifyEdithFrameHeight()});
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

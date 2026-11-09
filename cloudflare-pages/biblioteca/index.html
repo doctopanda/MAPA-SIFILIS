@@ -6,19 +6,21 @@
 header{padding:22px clamp(18px,4vw,46px);background:linear-gradient(110deg,#552338,#894b67);color:#fff}header h1{margin:0;font-size:25px}header p{margin:4px 0;color:#f2dfe8}
 main{max-width:1160px;margin:auto;padding:20px}h2{font-size:20px;margin:12px 0 5px}h3{font-size:16px;margin:8px 0}p{margin:4px 0 12px}.notice{background:#fff7e8;border-left:4px solid #bd9253;border-radius:9px;padding:12px 15px;margin-bottom:14px}.notice.good{background:#ecf7f3;border-color:#27846c}.notice.danger{background:#fff0f2;border-color:#b34762}
 .muted{color:var(--muted)}.tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:15px 0}input[type=search],select{border:1px solid #d7c6d1;border-radius:9px;background:#fff;padding:12px;min-width:170px;font:inherit}input[type=search]{flex:2}select{flex:1}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px;box-shadow:0 5px 15px #63314708;min-width:0}.card p{font-size:12px;color:var(--muted)}.tag{display:inline-block;border-radius:20px;background:#f4e8ef;color:#794058;font-size:11px;padding:3px 8px}button,.action{display:inline-flex;align-items:center;gap:7px;padding:10px 12px;border:1px solid #d7c2ce;background:white;color:var(--wine);border-radius:9px;text-decoration:none;font:700 12px system-ui,Arial;cursor:pointer;max-width:100%}button.primary{background:var(--wine);border-color:var(--wine);color:white}button:disabled{opacity:.55;cursor:not-allowed}.actions{margin-top:13px;display:flex;gap:8px;flex-wrap:wrap}.upload{border:1px dashed #a9879a;background:#fff;border-radius:14px;padding:18px;margin-top:20px}.upload input{margin:9px 0;display:block;max-width:100%}.status{font-weight:650;color:var(--teal);margin-top:10px}.filename{overflow-wrap:anywhere}.small{font-size:11px}a{color:var(--wine)}.hidden{display:none!important}
+.embedded body>header{display:none}.embedded main{padding:4px;max-width:none}.embedded .card{box-shadow:none}.inventory{margin:12px 0 18px}.inventory .card{border-left:3px solid #b889a3}.inventory .card.ready{border-left-color:#2c8d72}.inventory .card h3{font-size:13px}.inventory .tag.pending{background:#fff3db;color:#86601e}.inventory .tag.ready{background:#e8f5ef;color:#236b50}.inventory-title{font-size:13px;font-weight:750;margin:8px 0}.file-note{font-size:11px;color:var(--muted)}
 </style>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head><body>
 <header><h1>📚 Biblioteca epidemiológica EDITH-SC</h1><p>Formatos originales editables · Documentación normativa · Laboratorio e indicadores</p></header>
 <main>
-<div class="notice"><strong>Formatos auténticos, sin prellenado:</strong> la descarga se realiza como Word, Excel o PDF. Los expedientes y bases nominales no forman parte de esta biblioteca. Los lineamientos de 2017 y 2021 se muestran como referencias históricas; comprobar vigencia para decisiones clínicas.</div>
+<div class="notice"><strong>Formatos auténticos, sin prellenado:</strong> la descarga se realiza como Word, Excel o PDF. Los expedientes y bases nominales no forman parte de esta biblioteca. Los lineamientos de 2017 y 2021 se muestran como referencias históricas; comprobar vigencia para decisiones clínicas. El acceso a los cuatro machotes es exclusivo de usuarios autorizados.</div>
 <div id="identity" class="notice">Verificando sesión institucional…</div>
-<h2>Formatos para descargar</h2><p class="muted">Estos archivos viven en un depósito privado de EDITH-SC. Conservan el diseño original, firmas, tablas y encabezados.</p>
+<h2>Formatos originales editables</h2><p class="muted">Estos archivos viven en un depósito privado de EDITH-SC. Conservan el diseño original, firmas, tablas y encabezados.</p>
+<section class="inventory" aria-label="Inventario de documentos esperados"><div class="inventory-title">Control de disponibilidad de los cuatro originales</div><div id="expected" class="grid"></div></section>
 <div class="tools"><input type="search" id="query" placeholder="Buscar: resumen, dictaminación, alto valor, epidemiológico…" aria-label="Buscar documentos"><select id="category"><option value="">Todos los recursos</option><option value="formatos">Formatos editables</option><option value="normativa">Normativa y referencias</option></select><button id="refresh" type="button">↻ Actualizar</button></div>
 <div id="files" class="grid"><div class="card">Conectando al archivo institucional…</div></div>
 <section id="upload" class="upload hidden" aria-label="Carga maestra de plantillas">
  <h2>Administración Maestra · Cargar archivos originales</h2>
- <p>Sube los cuatro archivos limpios, o selecciona directamente el ZIP preparado en esta conversación. Los documentos se almacenan de forma privada y después estarán disponibles para descarga en los perfiles autorizados.</p>
+ <p>Selecciona el ZIP «EDITH_SC_MACHOTES_ORIGINALES_EDITABLES.zip» o los cuatro Word/Excel que contiene. Se publicarán en el depósito privado y aparecerán arriba como «Descargable». No se aceptan registros clínicos ni formatos prellenados.</p>
  <input id="choose" type="file" multiple accept=".docx,.xlsx,.pdf,.zip" aria-label="Selecciona Word, Excel, PDF o ZIP de formatos limpios">
  <label class="small" style="display:flex;align-items:flex-start;gap:8px"><input type="checkbox" id="safe-confirm"> Confirmo que los archivos no contienen nombres, CURP, domicilios, diagnósticos individuales ni otros datos identificables y están autorizados para la biblioteca.</label>
  <div class="actions"><select id="folder" aria-label="Carpeta de destino"><option value="formatos">Formatos editables</option><option value="normativa">Normativa de referencia</option></select><button class="primary" type="button" id="upload-now">Publicar archivos autorizados</button></div><p id="progress" class="status" role="status"></p>
@@ -36,12 +38,30 @@ main{max-width:1160px;margin:auto;padding:20px}h2{font-size:20px;margin:12px 0 5
 const URL_BASE='https://nzmbbahsgwcudzlqxfqf.supabase.co';
 const KEY='sb_publishable_--j-caDyEkjm2hHVBeFrWg_eIZ76sC1';
 const BUCKET='edith-sc-biblioteca';
+document.documentElement.classList.toggle('embedded',new URLSearchParams(location.search).get('embed')==='1');
+function notifyEdithFrameHeight(){if(window.parent!==window&&document.body)window.parent.postMessage({type:'edith-embed-height',module:'biblioteca',height:Math.ceil(document.documentElement.scrollHeight)},window.location.origin)}
+window.addEventListener('load',()=>{if('ResizeObserver' in window)new ResizeObserver(()=>requestAnimationFrame(notifyEdithFrameHeight)).observe(document.body);notifyEdithFrameHeight()});
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let db=null,master=false,ready=false,items=[],sessionUser=null;
+const EXPECTED=[
+ {name:'RESUMEN_CLINICO_ORIGINAL_SIN_DATOS.docx',title:'Resumen clínico original',type:'Word'},
+ {name:'DICTAMINACION_ORIGINAL_SIN_DATOS.docx',title:'Formato único de dictaminación',type:'Word'},
+ {name:'HOJA_ALTO_VALOR_ORIGINAL_SIN_DATOS.docx',title:'Solicitud de muestra de alto valor',type:'Word'},
+ {name:'ESTUDIO_EPIDEMIOLOGICO_ORIGINAL_SIN_DATOS.xlsx',title:'Estudio epidemiológico de caso',type:'Excel'}
+];
+function renderInventory(){
+ const root=$('expected');if(!root)return;
+ root.innerHTML=EXPECTED.map(f=>{
+  const exists=ready&&items.some(x=>x.group==='formatos'&&x.name.toUpperCase()===f.name.toUpperCase());
+  const state=!ready?'Requiere acceso':exists?'Descargable':'Pendiente de publicar';
+  return '<article class="card '+(exists?'ready':'')+'"><span class="tag '+(exists?'ready':'pending')+'">'+esc(state)+'</span><h3>'+esc(f.title)+'</h3><span class="file-note">'+esc(f.type)+' · '+esc(f.name)+'</span></article>';
+ }).join('');
+ requestAnimationFrame(notifyEdithFrameHeight);
+}
 function status(s,bad=false){$('progress').textContent=s;$('progress').style.color=bad?'#a83451':'#267363'}
 function readable(n){return String(n).replace(/^[^/]+\//,'').replace(/\.(docx|xlsx|pdf)$/i,'').replace(/[_-]/g,' ').replace(/\s+/g,' ').trim()}
-function showFiles(){const q=$('query').value.trim().toLocaleLowerCase('es'),cat=$('category').value;const subset=items.filter(f=>(!cat||f.group===cat)&&[f.name,readable(f.name),f.group].join(' ').toLocaleLowerCase('es').includes(q));if(!ready){$('files').innerHTML='<div class="card">Inicia sesión en EDITH para acceder a los documentos editables.</div>';return}if(!subset.length){$('files').innerHTML='<div class="card"><strong>Aún no hay archivos cargados.</strong><p>Administración Maestra debe publicar los originales vacíos una sola vez. Esta vista no generará documentos sustitutos.</p></div>';return}
+function showFiles(){renderInventory();const q=$('query').value.trim().toLocaleLowerCase('es'),cat=$('category').value;const subset=items.filter(f=>(!cat||f.group===cat)&&[f.name,readable(f.name),f.group].join(' ').toLocaleLowerCase('es').includes(q));if(!ready){$('files').innerHTML='<div class="card">Inicia sesión en EDITH-SC para consultar o cargar los archivos originales protegidos.</div>';return}if(!subset.length){$('files').innerHTML='<div class="card"><strong>Los archivos originales todavía no se han publicado.</strong><p>La biblioteca está preparada; Administración Maestra debe importar el ZIP con los cuatro originales vacíos. No se mostrarán botones de descarga hasta que los documentos estén realmente almacenados.</p></div>';return}
 $('files').innerHTML=subset.map(f=>'<article class="card"><span class="tag">'+(f.group==='formatos'?'Formato editable':'Referencia')+'</span><h3 class="filename">'+esc(readable(f.name))+'</h3><p>'+esc(f.name)+' · '+(f.meta?.size?Math.round(f.meta.size/1024)+' KB':'Documento original')+'</p><div class="actions"><button type="button" data-download="'+esc(f.path)+'">⬇ Descargar archivo original</button></div></article>').join('');
 document.querySelectorAll('[data-download]').forEach(b=>b.onclick=()=>downloadDoc(b.dataset.download,b))}
 async function downloadDoc(path,button){if(!db)return;button.disabled=true;try{const {data,error}=await db.storage.from(BUCKET).download(path);if(error)throw error;const link=document.createElement('a'),url=window.URL.createObjectURL(data);link.href=url;link.download=path.split('/').pop();document.body.appendChild(link);link.click();link.remove();setTimeout(()=>window.URL.revokeObjectURL(url),15000)}catch(e){alert('No se pudo descargar: '+e.message)}finally{button.disabled=false}}

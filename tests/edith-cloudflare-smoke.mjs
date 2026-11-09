@@ -53,6 +53,33 @@ try {
   await page.close();
  }
  const page=await browser.newPage({viewport:{width:1280,height:850}});
+ // Se intercepta exclusivamente el HTML servido a este navegador CI para
+ // habilitar una sesión sintética; el repositorio y Cloudflare no cambian.
+ await page.route(origin+'/',async route=>{
+   const response=await route.fetch();
+   const raw=await response.text();
+   const needle='wireCore();renderHeader();renderMain();';
+   assert.ok(raw.includes(needle),'El shell EDITH conserva inicialización');
+   const inject=`window.__edithTestActivate=()=>{
+     state.demo=false;
+     state.user={id:'synthetic-ci-user'};
+     state.client={
+       rpc:async(name)=>{
+         if(name==='edith_sc_mapa_residencia_v1'){
+           window.__mapRpcCalls++;
+           return {data:{schema:'EDITH_SC_MAPA_RLS_V1',
+             rows:[{year:2026,municipality_code:'030',cases:6,suppressed:false},
+                   {year:2026,municipality_code:'001',cases:null,suppressed:true}],
+             generated_at:'2026-11-09T12:00:00Z',scope:'ADMINISTRADOR_ESTATAL'},error:null};
+         }
+         return {data:null,error:null};
+       },
+       auth:{signOut:async()=>({error:null})}
+     };
+   };
+   `+needle;
+   await route.fulfill({response,body:raw.replace(needle,inject)});
+ });
  await page.goto(origin+'/',{waitUntil:'domcontentloaded'});
  assert.equal(await page.locator('dialog#login-dialog[open]').count(),1,'EDITH debe mostrar login institucional');
  const hidden=await page.evaluate(()=>!document.body.classList.contains('edith-authenticated'));
@@ -65,20 +92,7 @@ try {
    document.getElementById('login-dialog').close();
    document.body.classList.add('edith-authenticated');
    window.__mapRpcCalls=0;
-   state.demo=false;
-   state.client={
-     rpc:async(name)=>{
-       if(name==='edith_sc_mapa_residencia_v1'){
-         window.__mapRpcCalls++;
-         return {data:{schema:'EDITH_SC_MAPA_RLS_V1',
-           rows:[{year:2026,municipality_code:'030',cases:6,suppressed:false},
-                 {year:2026,municipality_code:'001',cases:null,suppressed:true}],
-           generated_at:'2026-11-09T12:00:00Z',scope:'ADMINISTRADOR_ESTATAL'},error:null};
-       }
-       return {data:null,error:null};
-     },
-     auth:{signOut:async()=>({error:null})}
-   };
+   window.__edithTestActivate();
  });
  await page.locator('[data-view="mapa"]').click();
  assert.equal(await page.locator('#edith-map-frame').count(),0,'EDITH no debe mostrar iframe incrustado');

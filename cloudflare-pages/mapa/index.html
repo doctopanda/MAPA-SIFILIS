@@ -871,7 +871,17 @@ function edithToggle(){
 window.addEventListener('message',function(event){
   if(window.parent===window||event.source!==window.parent||event.origin!==window.location.origin)return;
   var msg=event.data;
-  if(!msg||msg.type!=='EDITH_MAP_DATA'||!Array.isArray(msg.rows)||msg.rows.length>220)return;
+  if(!msg||typeof msg!=='object')return;
+  if(msg.type==='EDITH_MAP_REVOKE'){
+    // Eliminar todo agregado institucional de la memoria del visor al revocar la sesión.
+    if(edithLiveMode)edithToggle();
+    edithLiveRows=null;edithLiveStamp='';edithLiveScope='';
+    edithPriorState=null;edithAutoSelected=false;
+    edithLiveControls();
+    document.getElementById('edithLiveNotice').textContent='Consulta institucional desconectada. Sólo permanece visible el corte público.';
+    return;
+  }
+  if(msg.type!=='EDITH_MAP_DATA'||!Array.isArray(msg.rows)||msg.rows.length>220)return;
   if(msg.rows.some(function(r){return !r||![2024,2025,2026].includes(r.year)||!/^[0-9]{3}$/.test(r.municipality_code)||typeof r.suppressed!=='boolean'||(r.suppressed?r.cases!==null:!Number.isSafeInteger(r.cases)||r.cases<5)}))return;
   edithLiveRows=msg.rows.map(function(r){return {year:r.year,municipality_code:r.municipality_code,cases:r.cases,suppressed:r.suppressed}});
   edithLiveStamp=String(msg.generated_at||'').slice(0,28);

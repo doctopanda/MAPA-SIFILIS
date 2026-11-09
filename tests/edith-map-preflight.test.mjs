@@ -1,0 +1,88 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {existsSync, readFileSync, readdirSync} from 'node:fs';
+import {join, relative, dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import vm from 'node:vm';
+
+const root=join(dirname(fileURLToPath(import.meta.url)),'..');
+const assets=join(root,'cloudflare-pages');
+const mapRoot=join(assets,'mapa');
+const read=(base,path)=>readFileSync(join(base,path));
+const parse=(base,path)=>JSON.parse(read(base,path).toString('utf8'));
+const rowAllowed=new Set(['program','layer_id','metric_id','cohort_id','geography_type','geography_id','geography_name','numerator','denominator','value','suppressed','display_value','source_system','source_cut_date','calculation_version','year','epidemiological_week_from','epidemiological_week_to','case_definition']);
+const flowAllowed=new Set(['program','layer_id','metric_id','cohort_id','geography_type','origin_geography_id','destination_geography_id','flow_count','suppressed','source_cut_date','calculation_version','year','epidemiological_week_from','epidemiological_week_to']);
+
+function files(dir){
+ return readdirSync(dir,{withFileTypes:true}).flatMap(x=>x.isDirectory()?files(join(dir,x.name)):[join(dir,x.name)]);
+}
+function assertNoNewFields(obj,allowed,label){
+ for(const key of Object.keys(obj))assert.ok(allowed.has(key),label+': campo no autorizado en agregados públicos: '+key);
+}
+test('Cloudflare incluye rutas esenciales y mapa con geometría local',()=>{
+ for(const p of ['index.html','mapa/index.html','captura/index.html','biblioteca/index.html','mapa/data/sonora_municipios.geojson'])assert.ok(existsSync(join(assets,p)),p+' ausente');
+ const html=read(assets,'mapa/index.html').toString('utf8');
+ assert.match(html,/data\/sonora_municipios\.geojson/);
+ assert.match(html,/EDITH_MAP_REVOKE/);
+ const parent=read(assets,'index.html').toString('utf8');
+ assert.match(parent,/edith_sc_mapa_residencia_v1/);
+ assert.match(parent,/EDITH_MAP_REVOKE/);
+});
+
+test('Scripts de EDITH y MAPA-SÍFILIS tienen sintaxis válida',()=>{
+ for(const path of ['index.html','mapa/index.html','captura/index.html','biblioteca/index.html']){
+  const html=read(assets,path).toString('utf8');
+  for(const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){
+   if(/\bsrc\s*=/.test(match[1]))continue;
+   if(match[2].trim())assert.doesNotThrow(()=>new vm.Script(match[2],{filename:path}),path);
+  }
+ }
+});
+
+test('Todos los agregados del mapa respetan supresión y contrato sin nominales',()=>{
+ const m=parse(mapRoot,'data/snapshot_manifest.json');
+ assert.equal(m.privacy?.nominal_data,false);
+ assert.equal(m.privacy?.small_cell_suppression_applied,true);
+ assert.equal(m.privacy?.small_cell_suppression_threshold,5);
+ assert.equal(m.row_shards?.length,16);
+ let totalRows=0;
+ for(const path of m.row_shards){
+  assert.match(path,/^data\/snapshot\/rows-\d{2}\.json$/);
+  const shard=parse(mapRoot,path);
+  for(const [i,row] of (shard.rows||[]).entries()){
+   totalRows++;
+   assertNoNewFields(row,rowAllowed,path+':'+i);
+   assert.equal(typeof row.suppressed,'boolean');
+   if(row.suppressed){
+    assert.equal(row.numerator,null,'numerador suprimido');
+    assert.equal(row.value,null,'valor suprimido');
+    assert.equal(row.denominator,null,'denominador suprimido');
+    assert.equal(row.display_value,'<5');
+   }else{
+    for(const key of ['numerator','value'])if(typeof row[key]==='number')assert.ok(row[key]===0||row[key]>=5,'celda pequeña expuesta: '+path);
+   }
+  }
+ }
+ assert.equal(totalRows,m.row_count);
+ let totalFlows=0;
+ for(const path of m.flow_shards){
+  assert.match(path,/^data\/snapshot\/flows\.json$/);
+  for(const [i,flow] of (parse(mapRoot,path).flows||[]).entries()){
+   totalFlows++;assertNoNewFields(flow,flowAllowed,path+':'+i);
+   assert.ok(flow.suppressed===true||Number.isInteger(flow.flow_count)&&flow.flow_count>=5,'flujo sin supresión');
+  }
+ }
+ assert.equal(totalFlows,m.flow_count);
+});
+
+test('Copias cartográficas de Cloudflare coinciden con las fuentes públicas de GitHub',()=>{
+ const target=join(mapRoot,'data');
+ for(const deployed of files(target)){
+  const rel=relative(target,deployed);
+  // Única adición: geometría local INEGI, obtenida sin datos personales.
+  if(rel==='sonora_municipios.geojson')continue;
+  const original=join(root,'data',rel);
+  assert.ok(existsSync(original),'Falta fuente de '+rel);
+  assert.deepEqual(readFileSync(deployed),readFileSync(original),'Copia obsoleta: '+rel);
+ }
+});

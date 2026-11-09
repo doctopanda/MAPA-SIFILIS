@@ -59,13 +59,24 @@ try {
  assert.equal(hidden,true,'Interfaz clínica no debe abrirse sin login');
  log('Shell institucional protegido sin sesión');
 
- // El iframe solo recibe datos sintéticos: NO se consultan pacientes ni credenciales.
+ // Prueba visual del flujo real de EDITH sin iniciar sesión ni consultar datos.
+ // La clase se cambia exclusivamente en este navegador efímero de CI.
  await page.evaluate(()=>{
-  const frame=document.createElement('iframe');
-  frame.id='edith-map-frame';frame.src='/mapa/?embed=1';
-  frame.style.width='900px';frame.style.height='700px';
-  document.body.appendChild(frame);
+   document.getElementById('login-dialog').close();
+   document.body.classList.add('edith-authenticated');
  });
+ await page.locator('[data-view="mapa"]').click();
+ assert.equal(await page.locator('#edith-map-frame').count(),0,'El mapa no debe incrustarse dentro de la página');
+ await page.locator('#edith-map-open-workspace').click();
+ assert.equal(await page.locator('#edith-map-workspace[open]').count(),1,'Abrir un espacio cartográfico modal');
+ assert.equal(await page.locator('#edith-map-frame').count(),1,'Carga perezosa del visor sólo al abrir');
+ assert.equal(await page.evaluate(()=>document.body.classList.contains('edith-map-open')),true,'Sin scroll del documento base');
+ const dimensions=await page.locator('#edith-map-workspace').evaluate(el=>{
+   const box=el.getBoundingClientRect();
+   return {height:box.height,windowHeight:innerHeight,width:box.width,windowWidth:innerWidth};
+ });
+ assert.ok(Math.abs(dimensions.height-dimensions.windowHeight)<=3,'El espacio cartográfico ocupa la altura completa');
+ assert.ok(Math.abs(dimensions.width-dimensions.windowWidth)<=3,'El espacio cartográfico ocupa el ancho completo');
  const iframe=page.frameLocator('#edith-map-frame');
  await iframe.locator('#edithLiveToggle').waitFor({timeout:45000});
  await page.waitForFunction(()=>/Cartografía cargada: 72 municipios/.test(document.querySelector('#edith-map-frame')?.contentDocument?.getElementById('detail')?.textContent||''),{timeout:45000});
@@ -84,9 +95,9 @@ try {
  assert.equal(embed.headerHidden,true,'La cabecera duplicada debe ocultarse');
  assert.ok(embed.mapHeight>=500,'El mapa debe aprovechar la altura del panel');
  assert.ok(embed.shellScroll<=embed.frameHeight+3,'No debe existir un segundo scroll general dentro del visor');
- await page.evaluate(()=>document.getElementById('edith-map-frame').contentWindow.postMessage({type:'EDITH_MAP_FILTERS_TOGGLE'},location.origin));
+ await page.locator('#edith-map-filters').click();
  await page.waitForFunction(()=>document.querySelector('#edith-map-frame')?.contentDocument?.documentElement.classList.contains('edith-filters-collapsed'),{timeout:10000});
- await page.evaluate(()=>document.getElementById('edith-map-frame').contentWindow.postMessage({type:'EDITH_MAP_FILTERS_TOGGLE'},location.origin));
+ await page.locator('#edith-map-filters').click();
  await page.waitForFunction(()=>!document.querySelector('#edith-map-frame')?.contentDocument?.documentElement.classList.contains('edith-filters-collapsed'),{timeout:10000});
  log('Modo integrado: una sola cabecera, sin scroll anidado y filtros plegables');
  await page.evaluate(()=>document.getElementById('edith-map-frame').contentWindow.postMessage({
@@ -100,6 +111,24 @@ try {
  const message=await iframe.locator('#edithLiveNotice').innerText();
  assert.match(message,/desconectada/i);
  log('Puente de mensajes de mismo origen y revocación de datos institucionales');
+ // En móvil no debe reaparecer el scroll general dentro de EDITH.
+ await page.setViewportSize({width:390,height:844});
+ const mobileWorkspace=await page.locator('#edith-map-workspace').evaluate(el=>{
+   const b=el.getBoundingClientRect(),frame=el.querySelector('iframe').getBoundingClientRect();
+   return {height:b.height,viewport:innerHeight,frameHeight:frame.height,width:b.width,viewportWidth:innerWidth};
+ });
+ assert.ok(Math.abs(mobileWorkspace.height-mobileWorkspace.viewport)<=3,'Modal móvil a pantalla completa');
+ assert.ok(mobileWorkspace.frameHeight>=400,'Mapa móvil con altura suficiente');
+ assert.ok(Math.abs(mobileWorkspace.width-mobileWorkspace.viewportWidth)<=3,'Modal móvil sin desbordamiento horizontal');
+ await page.locator('#edith-map-filters').click();
+ await page.waitForFunction(()=>document.querySelector('#edith-map-frame')?.contentDocument?.documentElement.classList.contains('edith-filters-open'),{timeout:10000});
+ await page.locator('#edith-map-filters').click();
+ await page.waitForFunction(()=>!document.querySelector('#edith-map-frame')?.contentDocument?.documentElement.classList.contains('edith-filters-open'),{timeout:10000});
+ await page.locator('#edith-map-close').click();
+ await page.waitForFunction(()=>!document.querySelector('#edith-map-workspace'),{timeout:10000});
+ assert.equal(await page.locator('#edith-map-frame').count(),0,'Al regresar se destruye el mapa y sus datos en memoria');
+ assert.equal(await page.evaluate(()=>document.body.classList.contains('edith-map-open')),false,'Se restaura el scroll de EDITH');
+ log('EDITH: tarjeta de acceso, visor pantalla completa, cierre seguro y navegación móvil');
  await page.close();
 } finally {
  await browser.close();

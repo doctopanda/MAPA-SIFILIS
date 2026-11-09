@@ -50,6 +50,28 @@ try {
   const widths=await page.evaluate(()=>({viewport:innerWidth,scroll:document.documentElement.scrollWidth}));
   assert.ok(widths.scroll<=widths.viewport+18,'Desbordamiento horizontal en '+size.width+'px: '+JSON.stringify(widths));
   log('Mapa interactivo '+size.width+'px, 72 polígonos');
+  await page.locator('#search').fill('Hermosillo');
+  await page.locator('#search').press('Enter');
+  await page.locator('#municipalPanorama').waitFor({state:'visible',timeout:10000});
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Hermosillo/);
+  assert.equal(await page.locator('#municipalPanorama .panorama-bar-row').count(),3,'Serie anual 2024–2026');
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/SINBA/,'Fuente de nacimientos');
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/CONAPO/,'Fuente pendiente identificada');
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/laboratorio/i,'No confundir clasificación con laboratorio');
+  await page.locator('#municipalPanoramaExpand').click();
+  assert.equal(await page.locator('#municipalPanorama.expanded').count(),1,'Ampliar panorama');
+  await page.locator('#municipalPanoramaClose').click();
+  assert.equal(await page.locator('#municipalPanorama').isHidden(),true,'Ocultar panorama');
+  await page.locator('#municipalPanoramaToggle').click();
+  assert.equal(await page.locator('#municipalPanorama').isVisible(),true,'Volver a mostrar panorama');
+  await page.locator('#search').fill('Aconchi');
+  await page.locator('#search').press('Enter');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Aconchi/,'Actualizar por municipio');
+  const year2026=(await page.locator('#municipalPanorama .panorama-bar-row[data-year="2026"]').innerText()).trim();
+  assert.ok(/<5|N\/D|^2026\s+0$|2026\s+\d+/.test(year2026),'Celdas históricas bien tipadas');
+  const horizontal=await page.evaluate(()=>({screen:innerWidth,scroll:document.documentElement.scrollWidth}));
+  assert.ok(horizontal.scroll<=horizontal.screen+18,'Sin desbordamiento tras abrir panorama: '+JSON.stringify(horizontal));
+  log('Panorama municipal '+size.width+'px, 3 años, expandir, ocultar y cambiar municipio');
   await page.close();
  }
  const page=await browser.newPage({viewport:{width:1280,height:850}});

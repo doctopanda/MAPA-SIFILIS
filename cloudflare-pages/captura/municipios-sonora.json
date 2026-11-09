@@ -1,0 +1,439 @@
+{
+  "source": "MAPA-SIFILIS municipal crosswalk",
+  "state": "Sonora",
+  "version": "MAPA-SIFILIS-MUNICIPALITY-CROSSWALK-0.1",
+  "municipios": [
+    {
+      "codigo": "001",
+      "nombre": "Aconchi",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "002",
+      "nombre": "Agua Prieta",
+      "distrito": "DS03",
+      "region": "Nogales"
+    },
+    {
+      "codigo": "003",
+      "nombre": "Álamos",
+      "distrito": "DS05",
+      "region": "Navojoa"
+    },
+    {
+      "codigo": "004",
+      "nombre": "Altar",
+      "distrito": "DS02",
+      "region": "Caborca"
+    },
+    {
+      "codigo": "005",
+      "nombre": "Arivechi",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "006",
+      "nombre": "Arizpe",
+      "distrito": "DS03",
+      "region": "Ures"
+    },
+    {
+      "codigo": "007",
+      "nombre": "Átil",
+      "distrito": "DS02",
+      "region": "Caborca"
+    },
+    {
+      "codigo": "008",
+      "nombre": "Bacadéhuachi",
+      "distrito": "DS01",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "009",
+      "nombre": "Bacanora",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "010",
+      "nombre": "Bacerac",
+      "distrito": "DS03",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "011",
+      "nombre": "Bacoachi",
+      "distrito": "DS03",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "012",
+      "nombre": "Bácum",
+      "distrito": "DS04",
+      "region": "Cajeme"
+    },
+    {
+      "codigo": "013",
+      "nombre": "Banámichi",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "014",
+      "nombre": "Baviácora",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "015",
+      "nombre": "Bavispe",
+      "distrito": "DS03",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "016",
+      "nombre": "Benjamín Hill",
+      "distrito": "DS03",
+      "region": "Nogales"
+    },
+    {
+      "codigo": "017",
+      "nombre": "Caborca",
+      "distrito": "DS02",
+      "region": "Caborca"
+    },
+    {
+      "codigo": "018",
+      "nombre": "Cajeme",
+      "distrito": "DS04",
+      "region": "Cajeme"
+    },
+    {
+      "codigo": "019",
+      "nombre": "Cananea",
+      "distrito": "DS03",
+      "region": "Nogales"
+    },
+    {
+      "codigo": "020",
+      "nombre": "Carbó",
+      "distrito": "DS01",
+      "region": "Hermosillo"
+    },
+    {
+      "codigo": "021",
+      "nombre": "La Colorada",
+      "distrito": "DS01",
+      "region": "Hermosillo"
+    },
+    {
+      "codigo": "022",
+      "nombre": "Cucurpe",
+      "distrito": "DS03",
+      "region": "Nogales"
+    },
+    {
+      "codigo": "023",
+      "nombre": "Cumpas",
+      "distrito": "DS01",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "024",
+      "nombre": "Divisaderos",
+      "distrito": "DS01",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "025",
+      "nombre": "Empalme",
+      "distrito": "DS04",
+      "region": "Guaymas"
+    },
+    {
+      "codigo": "026",
+      "nombre": "Etchojoa",
+      "distrito": "DS05",
+      "region": "Huatabampo"
+    },
+    {
+      "codigo": "027",
+      "nombre": "Fronteras",
+      "distrito": "DS03",
+      "region": "Nogales"
+    },
+    {
+      "codigo": "028",
+      "nombre": "Granados",
+      "distrito": "DS01",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "029",
+      "nombre": "Guaymas",
+      "distrito": "DS04",
+      "region": "Guaymas"
+    },
+    {
+      "codigo": "030",
+      "nombre": "Hermosillo",
+      "distrito": "DS01",
+      "region": "Hermosillo"
+    },
+    {
+      "codigo": "031",
+      "nombre": "Huachinera",
+      "distrito": "DS03",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "032",
+      "nombre": "Huásabas",
+      "distrito": "DS01",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "033",
+      "nombre": "Huatabampo",
+      "distrito": "DS05",
+      "region": "Huatabampo"
+    },
+    {
+      "codigo": "034",
+      "nombre": "Huépac",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "035",
+      "nombre": "Ímuris",
+      "distrito": "DS03",
+      "region": "Nogales"
+    },
+    {
+      "codigo": "036",
+      "nombre": "Magdalena",
+      "distrito": "DS03",
+      "region": "Nogales"
+    },
+    {
+      "codigo": "037",
+      "nombre": "Mazatán",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "038",
+      "nombre": "Moctezuma",
+      "distrito": "DS01",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "039",
+      "nombre": "Naco",
+      "distrito": "DS03",
+      "region": "Nogales"
+    },
+    {
+      "codigo": "040",
+      "nombre": "Nácori Chico",
+      "distrito": "DS01",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "041",
+      "nombre": "Nacozari de García",
+      "distrito": "DS01",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "042",
+      "nombre": "Navojoa",
+      "distrito": "DS05",
+      "region": "Navojoa"
+    },
+    {
+      "codigo": "043",
+      "nombre": "Nogales",
+      "distrito": "DS03",
+      "region": "Nogales"
+    },
+    {
+      "codigo": "044",
+      "nombre": "Ónavas",
+      "distrito": "DS01",
+      "region": "Guaymas"
+    },
+    {
+      "codigo": "045",
+      "nombre": "Opodepe",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "046",
+      "nombre": "Oquitoa",
+      "distrito": "DS02",
+      "region": "Caborca"
+    },
+    {
+      "codigo": "047",
+      "nombre": "Pitiquito",
+      "distrito": "DS02",
+      "region": "Caborca"
+    },
+    {
+      "codigo": "048",
+      "nombre": "Puerto Peñasco",
+      "distrito": "DS06",
+      "region": "San Luis Río Colorado"
+    },
+    {
+      "codigo": "049",
+      "nombre": "Quiriego",
+      "distrito": "DS04",
+      "region": "Cajeme"
+    },
+    {
+      "codigo": "050",
+      "nombre": "Rayón",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "051",
+      "nombre": "Rosario",
+      "distrito": "DS04",
+      "region": "Cajeme"
+    },
+    {
+      "codigo": "052",
+      "nombre": "Sahuaripa",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "053",
+      "nombre": "San Felipe de Jesús",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "054",
+      "nombre": "San Javier",
+      "distrito": "DS01",
+      "region": "Guaymas"
+    },
+    {
+      "codigo": "055",
+      "nombre": "San Luis Río Colorado",
+      "distrito": "DS06",
+      "region": "San Luis Río Colorado"
+    },
+    {
+      "codigo": "056",
+      "nombre": "San Miguel de Horcasitas",
+      "distrito": "DS01",
+      "region": "Hermosillo"
+    },
+    {
+      "codigo": "057",
+      "nombre": "San Pedro de la Cueva",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "058",
+      "nombre": "Santa Ana",
+      "distrito": "DS03",
+      "region": "Nogales"
+    },
+    {
+      "codigo": "059",
+      "nombre": "Santa Cruz",
+      "distrito": "DS03",
+      "region": "Nogales"
+    },
+    {
+      "codigo": "060",
+      "nombre": "Sáric",
+      "distrito": "DS02",
+      "region": "Caborca"
+    },
+    {
+      "codigo": "061",
+      "nombre": "Soyopa",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "062",
+      "nombre": "Suaqui Grande",
+      "distrito": "DS01",
+      "region": "Guaymas"
+    },
+    {
+      "codigo": "063",
+      "nombre": "Tepache",
+      "distrito": "DS01",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "064",
+      "nombre": "Trincheras",
+      "distrito": "DS03",
+      "region": "Caborca"
+    },
+    {
+      "codigo": "065",
+      "nombre": "Tubutama",
+      "distrito": "DS02",
+      "region": "Caborca"
+    },
+    {
+      "codigo": "066",
+      "nombre": "Ures",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "067",
+      "nombre": "Villa Hidalgo",
+      "distrito": "DS01",
+      "region": "Moctezuma"
+    },
+    {
+      "codigo": "068",
+      "nombre": "Villa Pesqueira",
+      "distrito": "DS01",
+      "region": "Ures"
+    },
+    {
+      "codigo": "069",
+      "nombre": "Yécora",
+      "distrito": "DS04",
+      "region": "Cajeme"
+    },
+    {
+      "codigo": "070",
+      "nombre": "General Plutarco Elías Calles",
+      "distrito": "DS06",
+      "region": "San Luis Río Colorado"
+    },
+    {
+      "codigo": "071",
+      "nombre": "Benito Juárez",
+      "distrito": "DS05",
+      "region": "Huatabampo"
+    },
+    {
+      "codigo": "072",
+      "nombre": "San Ignacio Río Muerto",
+      "distrito": "DS04",
+      "region": "Cajeme"
+    }
+  ]
+}

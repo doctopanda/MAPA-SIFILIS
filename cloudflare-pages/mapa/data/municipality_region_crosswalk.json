@@ -1,0 +1,583 @@
+{
+  "schema": "MAPA-SIFILIS-MUNICIPALITY-CROSSWALK-0.1",
+  "state": "Sonora",
+  "municipality_count": 72,
+  "rows": [
+    {
+      "municipality_code": "001",
+      "municipality_name": "Aconchi",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "002",
+      "municipality_name": "Agua Prieta",
+      "imss_bienestar_region_id": "IB03",
+      "imss_bienestar_region_name": "Nogales",
+      "imss_bienestar_region_label": "Región Nogales (Norte)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "003",
+      "municipality_name": "Álamos",
+      "imss_bienestar_region_id": "IB09",
+      "imss_bienestar_region_name": "Navojoa",
+      "imss_bienestar_region_label": "Región Navojoa (Sur)",
+      "health_district_id": "DS05"
+    },
+    {
+      "municipality_code": "004",
+      "municipality_name": "Altar",
+      "imss_bienestar_region_id": "IB02",
+      "imss_bienestar_region_name": "Caborca",
+      "imss_bienestar_region_label": "Región Caborca",
+      "health_district_id": "DS02"
+    },
+    {
+      "municipality_code": "005",
+      "municipality_name": "Arivechi",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "006",
+      "municipality_name": "Arizpe",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "007",
+      "municipality_name": "Átil",
+      "imss_bienestar_region_id": "IB02",
+      "imss_bienestar_region_name": "Caborca",
+      "imss_bienestar_region_label": "Región Caborca",
+      "health_district_id": "DS02"
+    },
+    {
+      "municipality_code": "008",
+      "municipality_name": "Bacadéhuachi",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "009",
+      "municipality_name": "Bacanora",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "010",
+      "municipality_name": "Bacerac",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "011",
+      "municipality_name": "Bacoachi",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "012",
+      "municipality_name": "Bácum",
+      "imss_bienestar_region_id": "IB08",
+      "imss_bienestar_region_name": "Cajeme",
+      "imss_bienestar_region_label": "Región Cajeme",
+      "health_district_id": "DS04"
+    },
+    {
+      "municipality_code": "013",
+      "municipality_name": "Banámichi",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "014",
+      "municipality_name": "Baviácora",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "015",
+      "municipality_name": "Bavispe",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "016",
+      "municipality_name": "Benjamín Hill",
+      "imss_bienestar_region_id": "IB03",
+      "imss_bienestar_region_name": "Nogales",
+      "imss_bienestar_region_label": "Región Nogales (Norte)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "017",
+      "municipality_name": "Caborca",
+      "imss_bienestar_region_id": "IB02",
+      "imss_bienestar_region_name": "Caborca",
+      "imss_bienestar_region_label": "Región Caborca",
+      "health_district_id": "DS02"
+    },
+    {
+      "municipality_code": "018",
+      "municipality_name": "Cajeme",
+      "imss_bienestar_region_id": "IB08",
+      "imss_bienestar_region_name": "Cajeme",
+      "imss_bienestar_region_label": "Región Cajeme",
+      "health_district_id": "DS04"
+    },
+    {
+      "municipality_code": "019",
+      "municipality_name": "Cananea",
+      "imss_bienestar_region_id": "IB03",
+      "imss_bienestar_region_name": "Nogales",
+      "imss_bienestar_region_label": "Región Nogales (Norte)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "020",
+      "municipality_name": "Carbó",
+      "imss_bienestar_region_id": "IB06",
+      "imss_bienestar_region_name": "Hermosillo",
+      "imss_bienestar_region_label": "Región Hermosillo (Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "021",
+      "municipality_name": "La Colorada",
+      "imss_bienestar_region_id": "IB06",
+      "imss_bienestar_region_name": "Hermosillo",
+      "imss_bienestar_region_label": "Región Hermosillo (Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "022",
+      "municipality_name": "Cucurpe",
+      "imss_bienestar_region_id": "IB03",
+      "imss_bienestar_region_name": "Nogales",
+      "imss_bienestar_region_label": "Región Nogales (Norte)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "023",
+      "municipality_name": "Cumpas",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "024",
+      "municipality_name": "Divisaderos",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "025",
+      "municipality_name": "Empalme",
+      "imss_bienestar_region_id": "IB07",
+      "imss_bienestar_region_name": "Guaymas",
+      "imss_bienestar_region_label": "Región Guaymas",
+      "health_district_id": "DS04"
+    },
+    {
+      "municipality_code": "026",
+      "municipality_name": "Etchojoa",
+      "imss_bienestar_region_id": "IB10",
+      "imss_bienestar_region_name": "Huatabampo",
+      "imss_bienestar_region_label": "Región Huatabampo",
+      "health_district_id": "DS05"
+    },
+    {
+      "municipality_code": "027",
+      "municipality_name": "Fronteras",
+      "imss_bienestar_region_id": "IB03",
+      "imss_bienestar_region_name": "Nogales",
+      "imss_bienestar_region_label": "Región Nogales (Norte)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "028",
+      "municipality_name": "Granados",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "029",
+      "municipality_name": "Guaymas",
+      "imss_bienestar_region_id": "IB07",
+      "imss_bienestar_region_name": "Guaymas",
+      "imss_bienestar_region_label": "Región Guaymas",
+      "health_district_id": "DS04"
+    },
+    {
+      "municipality_code": "030",
+      "municipality_name": "Hermosillo",
+      "imss_bienestar_region_id": "IB06",
+      "imss_bienestar_region_name": "Hermosillo",
+      "imss_bienestar_region_label": "Región Hermosillo (Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "031",
+      "municipality_name": "Huachinera",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "032",
+      "municipality_name": "Huásabas",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "033",
+      "municipality_name": "Huatabampo",
+      "imss_bienestar_region_id": "IB10",
+      "imss_bienestar_region_name": "Huatabampo",
+      "imss_bienestar_region_label": "Región Huatabampo",
+      "health_district_id": "DS05"
+    },
+    {
+      "municipality_code": "034",
+      "municipality_name": "Huépac",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "035",
+      "municipality_name": "Ímuris",
+      "imss_bienestar_region_id": "IB03",
+      "imss_bienestar_region_name": "Nogales",
+      "imss_bienestar_region_label": "Región Nogales (Norte)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "036",
+      "municipality_name": "Magdalena",
+      "imss_bienestar_region_id": "IB03",
+      "imss_bienestar_region_name": "Nogales",
+      "imss_bienestar_region_label": "Región Nogales (Norte)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "037",
+      "municipality_name": "Mazatán",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "038",
+      "municipality_name": "Moctezuma",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "039",
+      "municipality_name": "Naco",
+      "imss_bienestar_region_id": "IB03",
+      "imss_bienestar_region_name": "Nogales",
+      "imss_bienestar_region_label": "Región Nogales (Norte)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "040",
+      "municipality_name": "Nácori Chico",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "041",
+      "municipality_name": "Nacozari de García",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "042",
+      "municipality_name": "Navojoa",
+      "imss_bienestar_region_id": "IB09",
+      "imss_bienestar_region_name": "Navojoa",
+      "imss_bienestar_region_label": "Región Navojoa (Sur)",
+      "health_district_id": "DS05"
+    },
+    {
+      "municipality_code": "043",
+      "municipality_name": "Nogales",
+      "imss_bienestar_region_id": "IB03",
+      "imss_bienestar_region_name": "Nogales",
+      "imss_bienestar_region_label": "Región Nogales (Norte)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "044",
+      "municipality_name": "Ónavas",
+      "imss_bienestar_region_id": "IB07",
+      "imss_bienestar_region_name": "Guaymas",
+      "imss_bienestar_region_label": "Región Guaymas",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "045",
+      "municipality_name": "Opodepe",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "046",
+      "municipality_name": "Oquitoa",
+      "imss_bienestar_region_id": "IB02",
+      "imss_bienestar_region_name": "Caborca",
+      "imss_bienestar_region_label": "Región Caborca",
+      "health_district_id": "DS02"
+    },
+    {
+      "municipality_code": "047",
+      "municipality_name": "Pitiquito",
+      "imss_bienestar_region_id": "IB02",
+      "imss_bienestar_region_name": "Caborca",
+      "imss_bienestar_region_label": "Región Caborca",
+      "health_district_id": "DS02"
+    },
+    {
+      "municipality_code": "048",
+      "municipality_name": "Puerto Peñasco",
+      "imss_bienestar_region_id": "IB01",
+      "imss_bienestar_region_name": "San Luis Río Colorado",
+      "imss_bienestar_region_label": "Región San Luis Río Colorado",
+      "health_district_id": "DS06"
+    },
+    {
+      "municipality_code": "049",
+      "municipality_name": "Quiriego",
+      "imss_bienestar_region_id": "IB08",
+      "imss_bienestar_region_name": "Cajeme",
+      "imss_bienestar_region_label": "Región Cajeme",
+      "health_district_id": "DS04"
+    },
+    {
+      "municipality_code": "050",
+      "municipality_name": "Rayón",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "051",
+      "municipality_name": "Rosario",
+      "imss_bienestar_region_id": "IB08",
+      "imss_bienestar_region_name": "Cajeme",
+      "imss_bienestar_region_label": "Región Cajeme",
+      "health_district_id": "DS04"
+    },
+    {
+      "municipality_code": "052",
+      "municipality_name": "Sahuaripa",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "053",
+      "municipality_name": "San Felipe de Jesús",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "054",
+      "municipality_name": "San Javier",
+      "imss_bienestar_region_id": "IB07",
+      "imss_bienestar_region_name": "Guaymas",
+      "imss_bienestar_region_label": "Región Guaymas",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "055",
+      "municipality_name": "San Luis Río Colorado",
+      "imss_bienestar_region_id": "IB01",
+      "imss_bienestar_region_name": "San Luis Río Colorado",
+      "imss_bienestar_region_label": "Región San Luis Río Colorado",
+      "health_district_id": "DS06"
+    },
+    {
+      "municipality_code": "056",
+      "municipality_name": "San Miguel de Horcasitas",
+      "imss_bienestar_region_id": "IB06",
+      "imss_bienestar_region_name": "Hermosillo",
+      "imss_bienestar_region_label": "Región Hermosillo (Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "057",
+      "municipality_name": "San Pedro de la Cueva",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "058",
+      "municipality_name": "Santa Ana",
+      "imss_bienestar_region_id": "IB03",
+      "imss_bienestar_region_name": "Nogales",
+      "imss_bienestar_region_label": "Región Nogales (Norte)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "059",
+      "municipality_name": "Santa Cruz",
+      "imss_bienestar_region_id": "IB03",
+      "imss_bienestar_region_name": "Nogales",
+      "imss_bienestar_region_label": "Región Nogales (Norte)",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "060",
+      "municipality_name": "Sáric",
+      "imss_bienestar_region_id": "IB02",
+      "imss_bienestar_region_name": "Caborca",
+      "imss_bienestar_region_label": "Región Caborca",
+      "health_district_id": "DS02"
+    },
+    {
+      "municipality_code": "061",
+      "municipality_name": "Soyopa",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "062",
+      "municipality_name": "Suaqui Grande",
+      "imss_bienestar_region_id": "IB07",
+      "imss_bienestar_region_name": "Guaymas",
+      "imss_bienestar_region_label": "Región Guaymas",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "063",
+      "municipality_name": "Tepache",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "064",
+      "municipality_name": "Trincheras",
+      "imss_bienestar_region_id": "IB02",
+      "imss_bienestar_region_name": "Caborca",
+      "imss_bienestar_region_label": "Región Caborca",
+      "health_district_id": "DS03"
+    },
+    {
+      "municipality_code": "065",
+      "municipality_name": "Tubutama",
+      "imss_bienestar_region_id": "IB02",
+      "imss_bienestar_region_name": "Caborca",
+      "imss_bienestar_region_label": "Región Caborca",
+      "health_district_id": "DS02"
+    },
+    {
+      "municipality_code": "066",
+      "municipality_name": "Ures",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "067",
+      "municipality_name": "Villa Hidalgo",
+      "imss_bienestar_region_id": "IB04",
+      "imss_bienestar_region_name": "Moctezuma",
+      "imss_bienestar_region_label": "Región Moctezuma (Sierra Alta/Noreste)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "068",
+      "municipality_name": "Villa Pesqueira",
+      "imss_bienestar_region_id": "IB05",
+      "imss_bienestar_region_name": "Ures",
+      "imss_bienestar_region_label": "Región Ures (Río Sonora y Sierra Centro)",
+      "health_district_id": "DS01"
+    },
+    {
+      "municipality_code": "069",
+      "municipality_name": "Yécora",
+      "imss_bienestar_region_id": "IB08",
+      "imss_bienestar_region_name": "Cajeme",
+      "imss_bienestar_region_label": "Región Cajeme",
+      "health_district_id": "DS04"
+    },
+    {
+      "municipality_code": "070",
+      "municipality_name": "General Plutarco Elías Calles",
+      "imss_bienestar_region_id": "IB01",
+      "imss_bienestar_region_name": "San Luis Río Colorado",
+      "imss_bienestar_region_label": "Región San Luis Río Colorado",
+      "health_district_id": "DS06"
+    },
+    {
+      "municipality_code": "071",
+      "municipality_name": "Benito Juárez",
+      "imss_bienestar_region_id": "IB10",
+      "imss_bienestar_region_name": "Huatabampo",
+      "imss_bienestar_region_label": "Región Huatabampo",
+      "health_district_id": "DS05"
+    },
+    {
+      "municipality_code": "072",
+      "municipality_name": "San Ignacio Río Muerto",
+      "imss_bienestar_region_id": "IB08",
+      "imss_bienestar_region_name": "Cajeme",
+      "imss_bienestar_region_label": "Región Cajeme",
+      "health_district_id": "DS04"
+    }
+  ]
+}

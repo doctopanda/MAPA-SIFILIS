@@ -69,6 +69,15 @@ body.edith-authenticated .layout{visibility:visible;pointer-events:auto}
 .edith-source-actions{display:flex;justify-content:flex-end;margin:10px 0}
 .edith-source-actions button{border:1px solid #c99cae;border-radius:8px;padding:7px 11px;background:#fff;color:#63354a;cursor:pointer}
 </style>
+<style>
+.edith-map-shell{overflow:hidden;padding:0!important}
+.edith-map-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;padding:14px 18px;background:#fff8fb;border-bottom:1px solid #ead9e2}
+.edith-map-toolbar>div:first-child{display:grid;gap:3px}
+.edith-map-toolbar small{color:#6f6070;font-size:12px}
+.edith-map-frame{display:block;width:100%;height:min(82vh,980px);min-height:680px;border:0;background:#fff}
+@media(max-width:760px){.edith-map-toolbar{padding:12px}.edith-map-toolbar .action-group{display:flex;flex-wrap:wrap}.edith-map-frame{min-height:620px;height:84vh}}
+.edith-map-shell:fullscreen{width:100vw;height:100vh;overflow:hidden;background:#fff}.edith-map-shell:fullscreen .edith-map-frame{height:calc(100vh - 90px);min-height:0}
+</style>
 </head>
 <body>
 <div class="layout" id="layout">
@@ -494,10 +503,11 @@ async function loadMaster(){if(state.demo||state.role!=='ADMINISTRADOR_MAESTRO'|
  catch(err){state.masterError='No se pudo cargar BlackBox: '+safeError(err)}finally{state.masterBusy=false;renderMain()}
 }
 /* EDITH Única · Recuperación analítica v1.9.0 · Sin fuentes nominales al navegador */
-L.NAMES.analitica='Inteligencia estadística';L.NAMES.productos='Productos de información';L.NAMES.territorio='Panorama territorial';
+L.NAMES.analitica='Inteligencia estadística';L.NAMES.productos='Productos de información';L.NAMES.territorio='Panorama territorial';L.NAMES.mapa='MAPA-SÍFILIS';
 L.NAV.splice(1,0,
  {id:'analitica',icon:'▥',text:'Inteligencia estadística',roles:['ALL']},
  {id:'territorio',icon:'◇',text:'Panorama territorial',roles:['ALL']},
+ {id:'mapa',icon:'⬡',text:'MAPA-SÍFILIS · Visor',roles:['ALL']},
  {id:'productos',icon:'▧',text:'Productos de información',roles:['ALL']}
 );
 L.NAMES.calidad='Calidad y oportunidad';
@@ -666,10 +676,16 @@ function renderAnalitica(){const a=state.analytics;return title('ANÁLISIS EPIDE
  anaPanel('Tendencia mensual y confirmación',anaTable(chosenRows('monthly'),[['month','Mes de notificación'],['registros','Notificaciones'],['confirmados','Confirmados']]))+
  anaPanel('Serie comparativa anual',anaTable(analyticRows('annual'),[['year','Año'],['registros','Registros'],['confirmados','Confirmados'],['descartados','Descartados'],['sin_clasificar','Pendientes']]))+
  anaNote()+notice('Las tasas de incidencia, indicadores de oportunidad y análisis estadísticos inferenciales necesitan denominadores y reglas de corte validados. No se han calculado ni inventado en esta versión.','warning'))}
-function renderTerritorio(){return title('GEOGRAFÍA EPIDEMIOLÓGICA','Panorama territorial','Municipios e instituciones notificantes del año seleccionado; ámbito definido por los permisos del usuario.')+demoRoleWidget()+anaControls()+(!state.analytics?anaBlocked():
+function renderTerritorio(){return title('GEOGRAFÍA EPIDEMIOLÓGICA','Panorama territorial','Municipios e instituciones notificantes del año seleccionado; ámbito definido por los permisos del usuario.')+`<div class="panel" style="margin-bottom:16px"><div class="panel-title"><div><h2>Cartografía de sífilis en Sonora</h2><p class="small muted">El visor MAPA-SÍFILIS reúne municipios, distritos de salud, regiones IMSS-Bienestar y capas epidemiológicas publicadas.</p></div><button type="button" class="button-primary" id="edith-open-map">Abrir mapa interactivo</button></div><p class="small muted" style="margin:0">El visor utiliza cortes públicos agregados separados de la consulta institucional actual. Los filtros no se sincronizan automáticamente con estas tablas.</p></div>`+demoRoleWidget()+anaControls()+(!state.analytics?anaBlocked():
  `<div class="grid2">${anaPanel('Municipios: notificaciones',anaHorizontal(chosenRows('municipal').sort((a,b)=>b.registros-a.registros),'registros','municipio',14))}${anaPanel('Instituciones notificantes',anaHorizontal(chosenRows('institutions').sort((a,b)=>b.registros-a.registros),'registros','institucion',14))}</div>`+
  anaPanel('Tabla municipal',anaTable(chosenRows('municipal').sort((a,b)=>b.registros-a.registros),[['municipio','Municipio'],['registros','Registros'],['confirmados','Confirmados']]))+
  anaPanel('Tabla por institución',anaTable(chosenRows('institutions').sort((a,b)=>b.registros-a.registros),[['institucion','Institución'],['registros','Registros'],['confirmados','Confirmados']]))+anaNote()+notice('El mapa interactivo y las tasas por nacidos vivos siguen pendientes de revalidación territorial. Estos conteos NO son mapas de incidencia.','warning'))}
+function renderMapaSifilis(){
+ return title('OBSERVATORIO TERRITORIAL','MAPA-SÍFILIS · Sonora','Visor interactivo integrado a EDITH con capas de sífilis congénita, nacimientos, distritos y regiones operativas.')+
+ notice('EDITH puede consultar <b>registros activos por municipio y año en Supabase bajo RLS</b>, con celdas 1–4 suprimidas. El mapa también permite regresar a sus cortes históricos públicos. Estos registros no equivalen a casos confirmados ni a incidencia.','teal')+
+ '<section class="panel edith-map-shell" id="edith-map-shell"><div class="edith-map-toolbar"><div><b>Visor cartográfico</b><small id="edith-map-status" role="status">Preparando mapa y consulta institucional…</small></div><div class="action-group"><button type="button" class="button-outline" id="edith-map-live-refresh">↻ Datos EDITH</button><button type="button" class="button-outline" id="edith-map-reload">↻ Visor</button><button type="button" class="button-primary" id="edith-map-fullscreen">⤢ Ampliar</button><a class="button-outline" href="/mapa/" target="_blank" rel="noopener noreferrer">Vista pública independiente</a></div></div><iframe id="edith-map-frame" class="edith-map-frame" src="/mapa/" title="Mapa interactivo epidemiológico de sífilis en Sonora" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></section>'+
+ '<p class="small muted" style="margin-top:12px">Interpretación: residencia materna y lugar de nacimiento son geografías diferentes. La incidencia sólo aplica cuando casos y nacidos vivos comparten definición, ámbito y periodo. Si el visor no aparece, revisa la publicación de /mapa/ en Cloudflare.</p>';
+}
 function qualityRate(n,total){return total>0?`${(100*Number(n||0)/total).toFixed(1)} %`:'Sin denominador';}
 function renderCalidad(){
  const q=state.quality, a=state.analytics;
@@ -807,7 +823,7 @@ window.addEventListener('message',event=>{
  const h=Number(event.data.height);
  if(Number.isFinite(h)&&h>100&&h<12000&&Math.abs((parseFloat(frame.style.height)||0)-h)>5)frame.style.height=Math.ceil(h)+'px';
 });
-function renderMain(){let html;switch(state.current){case 'biblioteca':html='<div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:12px 16px"><strong>Biblioteca de EDITH-SC · Archivo institucional</strong><button type="button" id="edith-biblioteca-fullscreen" class="small-button">Pantalla completa ⛶</button></div><iframe id="edith-biblioteca-frame" title="Biblioteca documental EDITH-SC" src="/biblioteca/?embed=1" style="display:block;width:100%;height:1150px;border:0;border-radius:12px;background:white" loading="eager"></iframe>';break;case 'captura':html='<div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:12px 16px"><strong>Carátula de captura · Estudio epidemiológico completo</strong><a href="/captura/" target="_blank" rel="noopener noreferrer">Abrir en ventana completa ↗</a></div><iframe id="edith-captura-frame" title="Carátula de captura EDITH-SC" src="/captura/?embed=1" style="display:block;width:100%;height:1600px;border:0;border-radius:12px;background:white" loading="eager"></iframe>';break;case 'analitica':html=renderAnaliticaV19();break;case 'calidad':html=renderCalidad();break;case 'territorio':html=renderTerritorio();break;case 'productos':html=renderProductos();break;case 'importacion':html=renderImport();break;case 'solicitudes':html=renderRequests();break;case 'hospital':case 'prenatal':case 'capasits':html=renderClinical(state.current);break;case 'clues':html=renderClues();break;case 'seguridad':html=renderSecurity();break;case 'maestro':html=renderMaster();break;default:html=renderPanoramaV19()};$('main').innerHTML=html;const fs=$('edith-biblioteca-fullscreen');if(fs)fs.onclick=()=>{const frame=$('edith-biblioteca-frame');if(frame?.requestFullscreen){frame.requestFullscreen().catch(()=>toast('No se pudo activar pantalla completa'));}else toast('El navegador no permite pantalla completa aquí')};wireView();}
+function renderMain(){let html;switch(state.current){case 'biblioteca':html='<div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:12px 16px"><strong>Biblioteca de EDITH-SC · Archivo institucional</strong><button type="button" id="edith-biblioteca-fullscreen" class="small-button">Pantalla completa ⛶</button></div><iframe id="edith-biblioteca-frame" title="Biblioteca documental EDITH-SC" src="/biblioteca/?embed=1" style="display:block;width:100%;height:1150px;border:0;border-radius:12px;background:white" loading="eager"></iframe>';break;case 'captura':html='<div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:12px 16px"><strong>Carátula de captura · Estudio epidemiológico completo</strong><a href="/captura/" target="_blank" rel="noopener noreferrer">Abrir en ventana completa ↗</a></div><iframe id="edith-captura-frame" title="Carátula de captura EDITH-SC" src="/captura/?embed=1" style="display:block;width:100%;height:1600px;border:0;border-radius:12px;background:white" loading="eager"></iframe>';break;case 'analitica':html=renderAnaliticaV19();break;case 'calidad':html=renderCalidad();break;case 'territorio':html=renderTerritorio();break;case 'mapa':html=renderMapaSifilis();break;case 'productos':html=renderProductos();break;case 'importacion':html=renderImport();break;case 'solicitudes':html=renderRequests();break;case 'hospital':case 'prenatal':case 'capasits':html=renderClinical(state.current);break;case 'clues':html=renderClues();break;case 'seguridad':html=renderSecurity();break;case 'maestro':html=renderMaster();break;default:html=renderPanoramaV19()};$('main').innerHTML=html;const fs=$('edith-biblioteca-fullscreen');if(fs)fs.onclick=()=>{const frame=$('edith-biblioteca-frame');if(frame?.requestFullscreen){frame.requestFullscreen().catch(()=>toast('No se pudo activar pantalla completa'));}else toast('El navegador no permite pantalla completa aquí')};wireView();}
 
 // EDITH 1.9.3: chart-click model for panels outside Análisis ampliado.
 // Counts are descriptive; provenance never exposes patient-level values.
@@ -895,6 +911,10 @@ function edithWireProvenance(){
 }
 function wireView(){
 v192Wire();edithWireProvenance();
+if($('edith-open-map'))$('edith-open-map').onclick=()=>showView('mapa');
+if($('edith-map-reload'))$('edith-map-reload').onclick=()=>{const frame=$('edith-map-frame');if(frame){mapLiveSeq++;frame.src='/mapa/?actualizado='+Date.now()}};
+if($('edith-map-live-refresh'))$('edith-map-live-refresh').onclick=()=>loadLiveMap();
+if($('edith-map-fullscreen'))$('edith-map-fullscreen').onclick=()=>{const shell=$('edith-map-shell');if(!shell)return;if(document.fullscreenElement)document.exitFullscreen?.();else shell.requestFullscreen?.().catch(()=>toast('La pantalla completa no está disponible en este navegador'))};
 if($('ana-year'))$('ana-year').onchange=e=>{state.analyticsYear=e.target.value;loadAnalytics(true)};
 if($('ana-district'))$('ana-district').onchange=e=>{state.analyticsDistrict=e.target.value;loadAnalytics(true)};
 if($('ana-refresh'))$('ana-refresh').onclick=()=>loadAnalytics(true);
@@ -951,6 +971,35 @@ async function connectUser(email,password){loginFeedback('');if(!window.supabase
 }
 async function logout(){document.body.classList.remove('edith-authenticated');await writeActivity('LOGOUT','auth');if(state.client){try{await state.client.auth.signOut()}catch{}}state.client=null;state.user=null;state.demo=true;state.role=state.demoRole;state.profile={...DEMO_PROFILE};state.counts=null;state.batches=[];state.requests=[];state.memberships=[];state.reviewItems=[];state.reviewBatchId='';state.analytics=null;state.analyticsError='';state.analyticsDistrict='';state.masterLoaded=false;state.masterEvents=[];state.masterExports=[];state.masterProfiles=[];state.analysis=null;state.file=null;renderHeader();showView('panorama');toast('Sesión cerrada')}
 function wireCore(){$('configure-btn').onclick=()=>$('login-dialog').showModal();$('close-dialog').onclick=()=>$('login-dialog').close();$('demo-from-dialog').onclick=()=>$('login-dialog').close();$('logout-btn').onclick=logout;$('mobile-menu').onclick=()=>$('sidebar').classList.toggle('open');$('login-form').onsubmit=async event=>{event.preventDefault();if(state.busy)return;state.busy=true;const b=$('login-submit');b.disabled=true;try{await connectUser($('auth-email').value,$('auth-password').value)}catch(err){loginFeedback(safeError(err));toast('No se pudo iniciar sesión: revisa el mensaje del formulario');if(state.client){try{await state.client.auth.signOut()}catch{}}state.client=null;state.user=null;state.demo=true;state.role=state.demoRole;state.profile={...DEMO_PROFILE};document.body.classList.remove('edith-authenticated');renderHeader();}finally{state.busy=false;b.disabled=false}};}
+let mapLiveSeq=0;
+async function loadLiveMap(){
+ const frame=$('edith-map-frame'),status=$('edith-map-status');
+ if(!frame||!frame.contentWindow||state.current!=='mapa')return;
+ if(state.demo||!state.client){if(status)status.textContent='Corte público · acceso institucional no disponible';return}
+ const request=++mapLiveSeq;
+ if(status)status.textContent='Consultando agregados autorizados en Supabase…';
+ try{
+  const result=await state.client.rpc('edith_sc_mapa_residencia_v1',{});
+  if(result.error)throw result.error;
+  const data=result.data;
+  if(!data||data.schema!=='EDITH_SC_MAPA_RLS_V1'||!Array.isArray(data.rows)||data.rows.length>220)throw Error('Respuesta territorial no disponible o incompleta');
+  const rows=data.rows.map(r=>({year:Number(r.year),municipality_code:String(r.municipality_code),cases:r.cases===null?null:Number(r.cases),suppressed:r.suppressed===true}));
+  if(rows.some(r=>![2024,2025,2026].includes(r.year)||!/^[0-9]{3}$/.test(r.municipality_code)||(r.suppressed?r.cases!==null:!Number.isSafeInteger(r.cases)||r.cases<5)))throw Error('Agregados no válidos');
+  if(request!==mapLiveSeq||state.demo||frame!==$('edith-map-frame')||state.current!=='mapa')return;
+  frame.contentWindow.postMessage({type:'EDITH_MAP_DATA',rows:rows,generated_at:data.generated_at,scope:data.scope},location.origin);
+  if(status)status.textContent='Supabase: consulta autorizada · '+new Date().toLocaleString('es-MX')+' · celdas 1–4 suprimidas';
+ }catch(err){
+  if(request!==mapLiveSeq||frame!==$('edith-map-frame')||state.current!=='mapa')return;
+  if(status)status.textContent='No disponible: '+safeError(err)+' · el corte público sigue accesible';
+  console.warn('MAPA-SÍFILIS: fallo de consulta territorial segura',err?.message||err);
+ }
+}
+window.addEventListener('message',event=>{
+ const frame=$('edith-map-frame');
+ if(event.origin!==location.origin||!frame||event.source!==frame.contentWindow||event.data?.type!=='EDITH_MAP_READY')return;
+ loadLiveMap();
+});
+setInterval(()=>{if(state.current==='mapa'&&!state.demo&&document.visibilityState==='visible')loadLiveMap()},120000);
 wireCore();renderHeader();renderMain();try{$('login-dialog').showModal()}catch(err){console.error('Error al abrir acceso institucional',err)}
 window.EDITH_UNICA={
  version:'1.9.4.2',pilot:true,getMode:()=>state.demo?'demo':'authenticated',

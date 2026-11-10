@@ -72,6 +72,25 @@ try {
   const horizontal=await page.evaluate(()=>({screen:innerWidth,scroll:document.documentElement.scrollWidth}));
   assert.ok(horizontal.scroll<=horizontal.screen+18,'Sin desbordamiento tras abrir panorama: '+JSON.stringify(horizontal));
   log('Panorama municipal '+size.width+'px, 3 años, expandir, ocultar y cambiar municipio');
+  // Los seis distritos operan en la misma ficha y se seleccionan sin recargar la página.
+  await page.locator('#panoramaScope').selectOption('health_district');
+  await page.locator('#panoramaDistrict').selectOption('DS01');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Distrito de Salud 01/);
+  assert.equal(await page.locator('#panoramaDistrict option').count(),7,'6 distritos + opción inicial');
+  assert.equal(await page.locator('#municipalPanorama .panorama-bar-row').count(),3,'Serie histórica distrital');
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/sin sumatorias|Nunca se reconstruye/i,'Protección de celdas');
+  await page.locator('#panoramaDistrict').selectOption('DS05');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Distrito de Salud 05/);
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/Navojoa/);
+  await page.locator('#territory').selectOption('health_district');
+  await page.locator('#search').fill('Hermosillo');
+  await page.locator('#search').press('Enter');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Distrito de Salud 01/,'La selección territorial distrital toma el distrito del municipio pulsado');
+  await page.locator('#municipalPanoramaClose').click();
+  assert.equal(await page.locator('#municipalPanorama').isHidden(),true,'Ocultar panorama distrital');
+  await page.locator('#municipalPanoramaToggle').click();
+  assert.equal(await page.locator('#municipalPanorama').isVisible(),true,'Mostrar panorama distrital');
+  log('Panorama distrital '+size.width+'px, seis distritos, años, filtro y privacidad');
   await page.close();
  }
  const page=await browser.newPage({viewport:{width:1280,height:850}});

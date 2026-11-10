@@ -244,7 +244,7 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
     <div class="panorama-top"><div><div class="eyebrow">Ficha epidemiológica territorial</div><h2 id="municipalPanoramaTitle">Panorama municipal</h2><small id="municipalPanoramaSubtitle"></small></div>
       <div class="panorama-tools"><button type="button" id="municipalPanoramaExpand" title="Ampliar o reducir ficha" aria-label="Ampliar ficha">⤢</button><button type="button" id="municipalPanoramaClose" title="Ocultar ficha" aria-label="Ocultar ficha">×</button></div>
     </div>
-    <div class="panorama-selector"><label for="panoramaScope">Tipo de panorama</label><select id="panoramaScope"><option value="municipality">Municipal</option><option value="health_district">Distrital</option></select><label for="panoramaDistrict">Distrito de Salud</label><select id="panoramaDistrict" aria-label="Seleccionar distrito"><option value="">Selecciona distrito</option></select></div>
+    <div class="panorama-selector"><label for="panoramaScope">Tipo de panorama</label><select id="panoramaScope"><option value="municipality">Municipal</option><option value="health_district">Distrital</option><option value="imss_region">Región IMSS-Bienestar</option></select><label for="panoramaDistrict">Distrito de Salud</label><select id="panoramaDistrict" aria-label="Seleccionar distrito"><option value="">Selecciona distrito</option></select><label for="panoramaRegion" hidden>Región IMSS-Bienestar</label><select id="panoramaRegion" aria-label="Seleccionar región" hidden><option value="">Selecciona región</option></select></div>
     <div id="municipalPanoramaContent"></div>
   </section>
 </main>
@@ -766,12 +766,13 @@ function renderFlows(){
 
 /* Panorama municipal: los históricos y el modo RLS nunca se combinan para
    reconstruir valores suprimidos. Cada año se toma de su propia cohorte. */
-var panoramaEnabled=true,panoramaExpanded=false,panoramaScope="municipality",selectedDistrict=null;
+var panoramaEnabled=true,panoramaExpanded=false,panoramaScope="municipality",selectedDistrict=null,selectedRegion=null;
 var panoramaCard=document.getElementById('municipalPanorama');
 var panoramaContent=document.getElementById('municipalPanoramaContent');
 var panoramaToggle=document.getElementById('municipalPanoramaToggle');
 var panoramaScopeEl=document.getElementById('panoramaScope');
 var panoramaDistrictEl=document.getElementById('panoramaDistrict');
+var panoramaRegionEl=document.getElementById('panoramaRegion');
 function panoramaYearRow(code,year){
   if(edithLiveMode){
     var live=(edithLiveRows||[]).filter(function(r){return r.year===year&&r.municipality_code===code});
@@ -823,6 +824,7 @@ function panoramaDistrictFor(code){
 function panoramaDistrictList(){
  return (districtCfg&&districtCfg.districts)||[];
 }
+function panoramaRegionList(){return (regionCfg&&regionCfg.regions)||[];}
 function panoramaDistrictYearRow(id,year){
  if(!id||!/^DS0[1-6]$/.test(id))return {present:false};
  // La RPC actual sólo publica municipios; no se reconstruyen distritos
@@ -911,33 +913,71 @@ function panoramaSelectDistrict(id){
  renderMunicipalPanorama();
 }
 panoramaScopeEl.addEventListener('change',function(){
- panoramaScope=this.value==='health_district'?'health_district':'municipality';
- if(panoramaScope==='health_district'&&!selectedDistrict&&selectedCode)selectedDistrict=panoramaDistrictFor(selectedCode);
- if(panoramaScope==='health_district'&&!selectedDistrict)selectedDistrict='DS01';
+ panoramaScope=['municipality','health_district','imss_region'].includes(this.value)?this.value:'municipality';
+ if(panoramaScope==='health_district'&&!selectedDistrict)selectedDistrict=selectedCode&&rowFor(selectedCode)?.health_district_id||'DS01';
+ if(panoramaScope==='imss_region'&&!selectedRegion)selectedRegion=selectedCode&&rowFor(selectedCode)?.imss_bienestar_region_id||'IB01';
  if(panoramaScope==='municipality'&&!selectedCode){
-   var d=panoramaDistrictList().find(function(r){return r.id===selectedDistrict});
-   if(d)selectedCode=d.municipalities[0];
+  var d=panoramaDistrictList().find(x=>x.id===selectedDistrict),r=panoramaRegionList().find(x=>x.id===selectedRegion);
+  selectedCode=d?.municipalities[0]||r?.municipalities[0]?.code||null;
  }
  panoramaEnabled=true;renderMunicipalPanorama();
 });
 panoramaDistrictEl.addEventListener('change',function(){panoramaSelectDistrict(this.value)});
 
+
+function panoramaRegionalYearRow(id,year){
+ if(!panoramaRegionList().some(r=>r.id===id)||edithLiveMode)return {present:false};
+ var snap=historySnapshots[String(year)]||historySnapshots[year];
+ if(!snap||!Array.isArray(snap.rows))return {present:false};
+ var rows=snap.rows.filter(r=>r.program==='SC'&&r.layer_id==='maternal_residence'&&r.metric_id==='cases'&&(r.cohort_id||'year_total')==='year_total'&&r.geography_type==='imss_bienestar_region'&&r.geography_id===id);
+ if(rows.length!==1)return {present:false};
+ var r=rows[0];if(r.suppressed)return {present:true,suppressed:true};
+ var n=Number(r.numerator);
+ if(r.numerator===null||!Number.isSafeInteger(n)||n<0||(n>0&&n<5))return {present:false};
+ return {present:true,value:n,suppressed:false};
+}
+function renderRegionalPanorama(){
+ var region=panoramaRegionList().find(r=>r.id===selectedRegion);if(!region)return;
+ document.getElementById('municipalPanoramaTitle').textContent='Región '+region.name;
+ document.getElementById('municipalPanoramaSubtitle').textContent='IMSS-Bienestar · '+region.municipality_count+' municipios · cruce provisional';
+ var series=[2024,2025,2026].map(year=>({year,data:panoramaRegionalYearRow(region.id,year)}));
+ var peak=Math.max(1,...series.filter(x=>x.data.present&&!x.data.suppressed).map(x=>x.data.value));
+ var current=panoramaRegionalYearRow(region.id,currentYear());
+ var count=!current.present?'N/D':current.suppressed?'&lt;5':nfmt(current.value);
+ var bars=series.map(x=>'<div class="panorama-bar-row" data-year="'+x.year+'"><label>'+x.year+'</label><span class="panorama-bar-bg"><i class="panorama-bar-fill" style="width:'+(x.data.present&&!x.data.suppressed?Math.min(100,x.data.value/peak*100):0)+'%"></i></span><strong>'+(!x.data.present?'N/D':x.data.suppressed?'&lt;5':nfmt(x.data.value))+'</strong></div>').join('');
+ panoramaContent.innerHTML='<p class="panorama-note"><b>Regionalización provisional.</b> El cruce municipio-región aún requiere homologación oficial y por CLUES.</p>'+
+ '<div class="panorama-stats"><div class="panorama-stat"><span>Registros por residencia · '+currentYear()+'</span><b>'+count+'</b><small>'+(edithLiveMode?'RPC sólo municipal':'Agregado regional histórico')+'</small></div>'+
+ '<div class="panorama-stat"><span>Población CONAPO</span><b>N/D</b><small>Fuente por incorporar</small></div>'+
+ '<div class="panorama-stat"><span>Municipios en catálogo</span><b>'+region.municipality_count+'</b><small>Adscripción provisional</small></div>'+
+ '<div class="panorama-stat"><span>Incidencia y prevalencia</span><b>N/D</b><small>No calcular sin homologación</small></div></div>'+
+ '<div class="panorama-graph"><h3>Registros territoriales por año · 2024–2026</h3>'+bars+
+ '<p class="panorama-note">Se usan agregados regionales <b>directos</b>, nunca sumas de celdas municipales ocultas. N/D no equivale a cero.</p></div>'+
+ '<table class="detail-table"><tr><td>Región</td><td>'+esc(region.name)+' ('+esc(region.id)+')</td></tr><tr><td>Confirmación por laboratorio</td><td>N/D, pendiente de homologación</td></tr><tr><td>Denominadores SINBA</td><td>N/D, regionalización pendiente de validación</td></tr></table>'+
+ '<p class="panorama-source"><b>Fuentes:</b> históricos EDITH-SC, agregado directo por región. Catálogo operativo del proyecto todavía no homologado; no se publican registros nominales ni se deducen celdas suprimidas.</p>';
+}
+panoramaRegionEl.addEventListener('change',function(){if(!panoramaRegionList().some(r=>r.id===this.value))return;selectedRegion=this.value;panoramaScope='imss_region';panoramaEnabled=true;renderMunicipalPanorama()});
+
 function renderMunicipalPanorama(){
-  var row=selectedCode&&rowFor(selectedCode);
-  if(panoramaScope==='health_district'&&!selectedDistrict&&row)selectedDistrict=row.health_district_id;
-  var validDistrict=panoramaDistrictList().some(function(d){return d.id===selectedDistrict});
-  var visible=!!(panoramaEnabled&&(panoramaScope==='health_district'?validDistrict:row));
-  panoramaCard.hidden=!visible;
-  panoramaToggle.textContent=visible?'◪ Ocultar panorama':(panoramaScope==='health_district'?'◩ Panorama distrital':'◩ Panorama municipal');
-  panoramaToggle.setAttribute('aria-expanded',String(visible));
-  panoramaToggle.disabled=!(row||validDistrict);
-  if(!visible)return;
-  panoramaScopeEl.value=panoramaScope;
-  panoramaDistrictEl.value=selectedDistrict||'';
-  panoramaDistrictEl.style.display=panoramaScope==='health_district'?'block':'none';
-  panoramaDistrictEl.previousElementSibling.style.display=panoramaScope==='health_district'?'block':'none';
-  panoramaCard.classList.toggle('expanded',panoramaExpanded);
-  if(panoramaScope==='health_district'){renderDistrictPanorama();return}
+ var row=selectedCode&&rowFor(selectedCode);
+ if(panoramaScope==='health_district'&&!selectedDistrict&&row)selectedDistrict=row.health_district_id;
+ if(panoramaScope==='imss_region'&&!selectedRegion&&row)selectedRegion=row.imss_bienestar_region_id;
+ var districtOK=panoramaDistrictList().some(d=>d.id===selectedDistrict),regionOK=panoramaRegionList().some(r=>r.id===selectedRegion);
+ var visible=!!(panoramaEnabled&&(panoramaScope==='health_district'?districtOK:panoramaScope==='imss_region'?regionOK:row));
+ panoramaCard.hidden=!visible;
+ panoramaToggle.textContent=visible?'◪ Ocultar panorama':panoramaScope==='imss_region'?'◩ Panorama regional':panoramaScope==='health_district'?'◩ Panorama distrital':'◩ Panorama municipal';
+ panoramaToggle.setAttribute('aria-expanded',String(visible));
+ panoramaToggle.disabled=!(row||districtOK||regionOK);
+ if(!visible)return;
+ panoramaScopeEl.value=panoramaScope;
+ panoramaDistrictEl.value=selectedDistrict||'';
+ panoramaDistrictEl.hidden=panoramaScope!=='health_district';
+ panoramaDistrictEl.previousElementSibling.hidden=panoramaScope!=='health_district';
+ panoramaRegionEl.value=selectedRegion||'';
+ panoramaRegionEl.hidden=panoramaScope!=='imss_region';
+ panoramaRegionEl.previousElementSibling.hidden=panoramaScope!=='imss_region';
+ panoramaCard.classList.toggle('expanded',panoramaExpanded);
+ if(panoramaScope==='health_district'){renderDistrictPanorama();return}
+ if(panoramaScope==='imss_region'){renderRegionalPanorama();return}
   document.getElementById('municipalPanoramaTitle').textContent=row.municipality_name;
   var district=(districtCfg&&districtCfg.districts||[]).find(function(d){return d.id===row.health_district_id});
   document.getElementById('municipalPanoramaSubtitle').textContent=
@@ -1006,6 +1046,8 @@ function showDetail(code){
   if(!x)return;
   if(territoryEl.value==='health_district'){
     panoramaScope='health_district';selectedDistrict=x.health_district_id;panoramaEnabled=true;
+  }else if(territoryEl.value==='imss_region'){
+    panoramaScope='imss_region';selectedRegion=x.imss_bienestar_region_id;panoramaEnabled=true;
   }else if(territoryEl.value==='municipality'){
     panoramaScope='municipality';panoramaEnabled=true;
   }
@@ -1125,6 +1167,8 @@ async function init(){
     districtCfg=cfg[0];regionCfg=cfg[1];crosswalk=cfg[2];layerCfg=cfg[3];
     panoramaDistrictEl.innerHTML='<option value="">Selecciona distrito</option>'+
       (districtCfg.districts||[]).map(function(d){return '<option value="'+esc(d.id)+'">'+esc(d.name+' · '+d.head)+'</option>'}).join('');
+    panoramaRegionEl.innerHTML='<option value="">Selecciona región</option>'+
+      (regionCfg.regions||[]).map(function(r){return '<option value="'+esc(r.id)+'">'+esc(r.name)+'</option>'}).join('');
     historyManifest=cfg[4].manifest;historySnapshots=cfg[4].snapshots;
     unitNetworkManifest=cfg[5].manifest;unitNetworks=cfg[5].networks;legacySnapshot=cfg[6];
     incidenceNumerator=cfg[7];birthsData=cfg[8];birthFlows=cfg[9];
@@ -1154,6 +1198,7 @@ yearEl.addEventListener('change',function(){
 territoryEl.addEventListener('change',function(){
   structureMode=false;selectedCode=null;
   if(territoryEl.value==='health_district'){panoramaScope='health_district';selectedDistrict=selectedDistrict||'DS01'}
+  else if(territoryEl.value==='imss_region'){panoramaScope='imss_region';selectedRegion=selectedRegion||'IB01'}
   else if(territoryEl.value==='municipality')panoramaScope='municipality';
   update();
 });

@@ -1,0 +1,60 @@
+name: EDITH-SC · seguridad y paridad del mapa
+on:
+  pull_request:
+    paths:
+      - 'cloudflare-pages/**'
+      - 'data/**'
+      - 'tests/edith-map-preflight.test.mjs'
+      - 'tests/edith-cloudflare-smoke.mjs'
+      - '.github/workflows/edith-map-preflight.yml'
+  workflow_dispatch:
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar sintaxis, rutas, fuente y privacidad del mapa
+        run: node --test tests/edith-map-preflight.test.mjs
+  cloudflare-local-smoke:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar Wrangler local y navegador de prueba
+        run: |
+          npm install --no-save --no-package-lock wrangler@4.159.0 playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Levantar una instancia local Cloudflare sin credenciales de producción
+        run: |
+          nohup npx wrangler dev --local --ip 127.0.0.1 --port 8787 > /tmp/edith-wrangler.log 2>&1 &
+          echo $! > /tmp/edith-wrangler.pid
+          for i in $(seq 1 45); do
+            if curl --fail --silent http://127.0.0.1:8787/mapa/ > /dev/null; then
+              echo "Wrangler local listo."
+              exit 0
+            fi
+            if ! kill -0 "$(cat /tmp/edith-wrangler.pid)" 2>/dev/null; then
+              echo "Wrangler terminó antes de servir el sitio:"
+              cat /tmp/edith-wrangler.log
+              exit 1
+            fi
+            sleep 2
+          done
+          cat /tmp/edith-wrangler.log
+          exit 1
+      - name: QA de assets, privacidad, cartografía, móvil y revocación
+        run: node tests/edith-cloudflare-smoke.mjs
+      - name: Diagnóstico del Worker local si hay error
+        if: failure()
+        run: tail -n 120 /tmp/edith-wrangler.log || true

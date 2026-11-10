@@ -1,0 +1,21 @@
+{
+  "schema": "MAPA-SIFILIS-HISTORY-MANIFEST-0.1",
+  "generated": "2026-10-21T18:54:29.914Z",
+  "program": "SC",
+  "visible_years": [
+    2024,
+    2025,
+    2026
+  ],
+  "default_year": 2026,
+  "calculation_version": "EDITH-SC-1.3.1-HISTORICOS-MAPA",
+  "files": {
+    "2024": "data/history/sc_2024_v04.json.gz",
+    "2025": "data/history/sc_2025_v04.json.gz",
+    "2026": "data/history/sc_2026_v04.json.gz"
+  },
+  "privacy": {
+    "contains_nominal_data": false,
+    "small_cell_suppression_threshold": 5
+  }
+}

@@ -1,0 +1,226 @@
+import assert from 'node:assert/strict';
+import { chromium } from 'playwright';
+
+const origin=process.env.EDITH_SMOKE_URL||'http://127.0.0.1:8787';
+const routes=[
+  '/','/mapa/','/captura/','/biblioteca/',
+  '/mapa/data/snapshot_manifest.json',
+  '/mapa/data/snapshot/rows-01.json',
+  '/mapa/data/sonora_municipios.geojson',
+  '/mapa/data/history/history_manifest.json',
+  '/mapa/data/history/sc_2026_v04.json.gz'
+];
+const protectedPaths=['/docs/EDITH_MAPA_RPC_RLS_v1.sql','/wrangler.jsonc','/data/snapshot_manifest.json'];
+const log=(name)=>console.log('✓ '+name);
+
+for(const path of routes){
+ const response=await fetch(origin+path,{redirect:'manual'});
+ assert.equal(response.status,200,path+' => '+response.status);
+ const bytes=new Uint8Array(await response.arrayBuffer());
+ assert.ok(bytes.byteLength>50,'Recurso vacío '+path);
+ if(path.endsWith('.json'))assert.doesNotThrow(()=>JSON.parse(new TextDecoder().decode(bytes)),path);
+ if(path.endsWith('sonora_municipios.geojson')){
+  const geo=JSON.parse(new TextDecoder().decode(bytes));
+  assert.equal(geo.features?.length,72,'Debe mostrar 72 municipios');
+ }
+ log('HTTP 200 '+path+' ('+bytes.byteLength+' bytes)');
+}
+for(const path of protectedPaths){
+ const response=await fetch(origin+path,{redirect:'manual'});
+ assert.equal(response.status,404,'No publicar '+path+': '+response.status);
+ log('HTTP 404, recurso protegido '+path);
+}
+const root=await fetch(origin+'/');
+assert.equal(root.headers.get('x-content-type-options'),'nosniff','Falta cabecera de seguridad');
+log('Cabeceras de seguridad');
+
+const browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage']});
+try {
+ for(const size of [{width:1400,height:900},{width:390,height:844}]){
+  const mobile=size.width<500;
+  const page=await browser.newPage({viewport:size,isMobile:mobile,hasTouch:mobile});
+  const issues=[];
+  page.on('pageerror',error=>issues.push(error.message));
+  await page.goto(origin+'/mapa/',{waitUntil:'domcontentloaded',timeout:30000});
+  await page.waitForFunction(()=>/Cartografía cargada: 72 municipios/.test(document.getElementById('detail')?.textContent||''),{timeout:45000}).catch(async()=>{
+   const status=await page.locator('#status').innerText();
+   throw new Error('Mapa no inicializado '+size.width+'px: '+status+'; errores '+issues.join(' | '));
+  });
+  assert.equal(await page.locator('#map.leaflet-container').count(),1,'Leaflet no inicializó');
+  const widths=await page.evaluate(()=>({viewport:innerWidth,scroll:document.documentElement.scrollWidth}));
+  assert.ok(widths.scroll<=widths.viewport+18,'Desbordamiento horizontal en '+size.width+'px: '+JSON.stringify(widths));
+  log('Mapa interactivo '+size.width+'px, 72 polígonos');
+  await page.locator('#search').fill('Hermosillo');
+  await page.locator('#search').press('Enter');
+  await page.locator('#municipalPanorama').waitFor({state:'visible',timeout:10000});
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Hermosillo/);
+  assert.equal(await page.locator('#municipalPanorama .panorama-bar-row').count(),3,'Serie anual 2024–2026');
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/SINBA/,'Fuente de nacimientos');
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/CONAPO/,'Fuente CONAPO identificada');
+  const pop=await page.locator('#municipalPanoramaContent').innerText();
+  assert.match(pop,/1,043,797|1.043.797|1043797/,'CONAPO 2026 Hermosillo verificado');
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/laboratorio/i,'No confundir clasificación con laboratorio');
+  await page.locator('#municipalPanoramaExpand').click();
+  assert.equal(await page.locator('#municipalPanorama.expanded').count(),1,'Ampliar panorama');
+  await page.locator('#municipalPanoramaClose').click();
+  assert.equal(await page.locator('#municipalPanorama').isHidden(),true,'Ocultar panorama');
+  await page.locator('#municipalPanoramaToggle').click();
+  assert.equal(await page.locator('#municipalPanorama').isVisible(),true,'Volver a mostrar panorama');
+  await page.locator('#search').fill('Aconchi');
+  await page.locator('#search').press('Enter');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Aconchi/,'Actualizar por municipio');
+  const year2026=(await page.locator('#municipalPanorama .panorama-bar-row[data-year="2026"]').innerText()).trim();
+  assert.ok(/<5|N\/D|^2026\s+0$|2026\s+\d+/.test(year2026),'Celdas históricas bien tipadas');
+  const horizontal=await page.evaluate(()=>({screen:innerWidth,scroll:document.documentElement.scrollWidth}));
+  assert.ok(horizontal.scroll<=horizontal.screen+18,'Sin desbordamiento tras abrir panorama: '+JSON.stringify(horizontal));
+  log('Panorama municipal '+size.width+'px, 3 años, expandir, ocultar y cambiar municipio');
+  // Los seis distritos operan en la misma ficha y se seleccionan sin recargar la página.
+  await page.locator('#panoramaScope').selectOption('health_district');
+  await page.locator('#panoramaDistrict').selectOption('DS01');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Distrito de Salud 01/);
+  assert.equal(await page.locator('#panoramaDistrict option').count(),7,'6 distritos + opción inicial');
+  assert.equal(await page.locator('#municipalPanorama .panorama-bar-row').count(),3,'Serie histórica distrital');
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/sin sumatorias|Nunca se reconstruye/i,'Protección de celdas');
+  await page.locator('#panoramaDistrict').selectOption('DS05');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Distrito de Salud 05/);
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/Navojoa/);
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/Población CONAPO/,'CONAPO distrital');
+  await page.locator('#territory').selectOption('health_district');
+  await page.locator('#search').fill('Hermosillo');
+  await page.locator('#search').press('Enter');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Distrito de Salud 01/,'La selección territorial distrital toma el distrito del municipio pulsado');
+  await page.locator('#municipalPanoramaClose').click();
+  assert.equal(await page.locator('#municipalPanorama').isHidden(),true,'Ocultar panorama distrital');
+  await page.locator('#municipalPanoramaToggle').click();
+  assert.equal(await page.locator('#municipalPanorama').isVisible(),true,'Mostrar panorama distrital');
+  log('Panorama distrital '+size.width+'px, seis distritos, años, filtro y privacidad');
+  await page.locator('#panoramaScope').selectOption('imss_region');
+  assert.equal(await page.locator('#panoramaRegion option').count(),11,'10 regiones y opción inicial');
+  await page.locator('#panoramaRegion').selectOption('IB06');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Región Hermosillo/);
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/provisional/i);
+  assert.equal(await page.locator('#municipalPanorama .panorama-bar-row').count(),3,'Serie regional histórica');
+  await page.locator('#panoramaRegion').selectOption('IB10');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Región Huatabampo/);
+  await page.locator('#territory').selectOption('imss_region');
+  await page.locator('#search').fill('Hermosillo');
+  await page.locator('#search').press('Enter');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Región Hermosillo/);
+  await page.locator('#municipalPanoramaClose').click();
+  assert.equal(await page.locator('#municipalPanorama').isHidden(),true);
+  await page.locator('#municipalPanoramaToggle').click();
+  assert.equal(await page.locator('#municipalPanorama').isVisible(),true);
+  log('Panorama IMSS-Bienestar '+size.width+'px, 10 regiones, serie histórica y cautela territorial');
+  await page.close();
+ }
+ const page=await browser.newPage({viewport:{width:1280,height:850}});
+ // Se intercepta exclusivamente el HTML servido a este navegador CI para
+ // habilitar una sesión sintética; el repositorio y Cloudflare no cambian.
+ await page.route(origin+'/',async route=>{
+   const response=await route.fetch();
+   const raw=await response.text();
+   const needle='wireCore();renderHeader();renderMain();';
+   assert.ok(raw.includes(needle),'El shell EDITH conserva inicialización');
+   const inject=`window.__edithTestActivate=()=>{
+     state.demo=false;
+     state.user={id:'synthetic-ci-user'};
+     state.client={
+       rpc:async(name)=>{
+         if(name==='edith_sc_mapa_residencia_v1'){
+           window.__mapRpcCalls++;
+           return {data:{schema:'EDITH_SC_MAPA_RLS_V1',
+             rows:[{year:2026,municipality_code:'030',cases:10,suppressed:false},
+                   {year:2026,municipality_code:'001',cases:null,suppressed:true}],
+             generated_at:'2026-11-09T12:00:00Z',scope:'ADMINISTRADOR_ESTATAL'},error:null};
+         }
+         if(name==='edith_sc_mapa_laboratorio_v1'){
+           window.__labRpcCalls=(window.__labRpcCalls||0)+1;
+           return {data:{schema:'EDITH_SC_MAPA_LAB_CLASS_RLS_V1',
+             rows:[{year:2026,municipality_code:'030',lab_confirmed:5,suppressed:false},
+                   {year:2025,municipality_code:'030',lab_confirmed:null,suppressed:true}],
+             generated_at:'2026-11-09T12:00:00Z',definition:'CLAS_FINAL_CONFIRMADO_LESP_LABORATORIO_WESTERN_BLOT'},error:null};
+         }
+         return {data:null,error:null};
+       },
+       auth:{signOut:async()=>({error:null})}
+     };
+   };
+   `+needle;
+   await route.fulfill({response,body:raw.replace(needle,inject)});
+ });
+ await page.goto(origin+'/',{waitUntil:'domcontentloaded'});
+ assert.equal(await page.locator('dialog#login-dialog[open]').count(),1,'EDITH debe mostrar login institucional');
+ const hidden=await page.evaluate(()=>!document.body.classList.contains('edith-authenticated'));
+ assert.equal(hidden,true,'Interfaz clínica no debe abrirse sin login');
+ log('Shell institucional protegido sin sesión');
+
+ // Aislamiento de la sesión: stub sintético exclusivamente dentro del navegador CI.
+ // Nunca se consultan datos nominales, usuarios, contraseñas ni tokens reales.
+ await page.evaluate(()=>{
+   document.getElementById('login-dialog').close();
+   document.body.classList.add('edith-authenticated');
+   window.__mapRpcCalls=0;
+   window.__edithTestActivate();
+ });
+ await page.locator('[data-view="mapa"]').click();
+ assert.equal(await page.locator('#edith-map-frame').count(),0,'EDITH no debe mostrar iframe incrustado');
+ assert.equal(await page.locator('#edith-map-workspace').count(),0,'EDITH no debe abrir visor modal');
+ assert.equal(await page.evaluate(()=>window.__mapRpcCalls),0,'No consultar agregados antes de abrir el mapa');
+ const opened=page.waitForEvent('popup');
+ await page.locator('#edith-map-open-workspace').click();
+ const popup=await opened;
+ await popup.waitForLoadState('domcontentloaded');
+ assert.equal(new URL(popup.url()).pathname,'/mapa/','El mapa debe estar en ruta independiente');
+ assert.equal(new URL(popup.url()).searchParams.get('institucional'),'1','Permitir puente institucional en pestaña separada');
+ assert.equal(await popup.locator('header .brand h1').innerText(),'MAPA-SIFILIS','El mapa tiene cabecera propia');
+ await popup.waitForFunction(()=>/Cartografía cargada: 72 municipios/.test(document.getElementById('detail')?.textContent||''),{timeout:45000});
+ await popup.waitForFunction(()=>document.getElementById('edithLiveToggle')?.textContent==='Volver al corte público',{timeout:20000});
+ assert.ok(await page.evaluate(()=>window.__mapRpcCalls)>=1,'La ventana verificada debe solicitar agregados al opener EDITH');
+ assert.equal(await popup.locator('#edithLiveToggle').isDisabled(),false,'Se reciben datos agregados con permiso');
+ await popup.waitForFunction(()=>document.getElementById('edithLiveToggle')?.textContent==='Volver al corte público'&&
+   !!document.getElementById('edithLiveNotice'),{timeout:12000});
+ await popup.locator('#search').fill('Hermosillo');
+ await popup.locator('#search').press('Enter');
+ await popup.waitForFunction(()=>document.getElementById('municipalPanoramaContent')?.textContent?.includes('2026: 5'),{timeout:12000});
+ assert.match(await popup.locator('#municipalPanoramaContent').innerText(),/2025: <5|2025: < 5/,'Privacidad de clasificación laboratorial');
+ assert.ok(await page.evaluate(()=>window.__labRpcCalls)>=1,'Consulta laboratorial protegida disponible por RPC');
+ log('MAPA-SÍFILIS en pestaña propia, 72 municipios y puente RLS sin credenciales');
+
+ // Una ventana o pestaña distinta no debe disparar RPC institucional por sí sola.
+ const beforeSpoof=await page.evaluate(()=>window.__mapRpcCalls);
+ await page.evaluate(()=>window.postMessage({type:'EDITH_MAP_READY'},location.origin));
+ await page.waitForTimeout(150);
+ assert.equal(await page.evaluate(()=>window.__mapRpcCalls),beforeSpoof,'El opener ignora mensajes externos que no vienen del mapa');
+
+ // Enlace público directo, sin opener institucional: sólo el corte público.
+ const standalone=await browser.newPage({viewport:{width:1250,height:800}});
+ await standalone.goto(origin+'/mapa/',{waitUntil:'domcontentloaded'});
+ await standalone.waitForFunction(()=>/Cartografía cargada: 72 municipios/.test(document.getElementById('detail')?.textContent||''),{timeout:45000});
+ assert.equal(await standalone.locator('#edithLiveToggle').isDisabled(),true,'La ruta pública no hereda sesión ni datos');
+ await standalone.close();
+ log('Mapa público separado y protegido del modo institucional');
+
+ // Logout desde EDITH revoca datos en la otra pestaña.
+ await page.evaluate(async()=>await document.getElementById('logout-btn').onclick());
+ await popup.waitForFunction(()=>document.getElementById('edithLiveToggle')?.disabled===true,{timeout:10000});
+ assert.match(await popup.locator('#edithLiveNotice').innerText(),/desconectada/i);
+ log('La sesión revoca la información institucional en la ventana independiente');
+
+ // La vista móvil es una página real, no un iframe con scroll duplicado.
+ await popup.setViewportSize({width:390,height:844});
+ assert.equal(await popup.locator('#map.leaflet-container').count(),1,'Mapa móvil sigue activo');
+ const mobileWidth=await popup.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
+ assert.ok(mobileWidth.scroll<=mobileWidth.width+18,'No debe haber desbordamiento horizontal del mapa móvil');
+ log('Mapa móvil en página propia');
+ const returned=popup.waitForEvent('close',{timeout:10000});
+ // El botón cierra inmediatamente la pestaña: no esperar la navegación/estabilidad
+ // después del click, porque Playwright pierde el target mientras resuelve la acción.
+ await popup.evaluate(()=>{setTimeout(()=>document.getElementById('edithReturnLink')?.click(),40)});
+ await returned;
+ assert.equal(await page.locator('#edith-map-frame').count(),0,'EDITH sigue libre de mapas incrustados');
+ log('Regreso a EDITH sin mapa embebido ni segundo login');
+ await page.close();
+} finally {
+ await browser.close();
+}
+console.log('✅ Pruebas de rutas, mapa, móvil y revocación concluidas');

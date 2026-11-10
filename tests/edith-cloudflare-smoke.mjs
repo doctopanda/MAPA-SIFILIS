@@ -213,7 +213,9 @@ try {
  assert.ok(mobileWidth.scroll<=mobileWidth.width+18,'No debe haber desbordamiento horizontal del mapa móvil');
  log('Mapa móvil en página propia');
  const returned=popup.waitForEvent('close',{timeout:10000});
- await popup.locator('#edithReturnLink').click();
+ // El botón cierra inmediatamente la pestaña: no esperar la navegación/estabilidad
+ // después del click, porque Playwright pierde el target mientras resuelve la acción.
+ await popup.evaluate(()=>{setTimeout(()=>document.getElementById('edithReturnLink')?.click(),40)});
  await returned;
  assert.equal(await page.locator('#edith-map-frame').count(),0,'EDITH sigue libre de mapas incrustados');
  log('Regreso a EDITH sin mapa embebido ni segundo login');

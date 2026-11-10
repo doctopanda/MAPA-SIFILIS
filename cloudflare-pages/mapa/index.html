@@ -271,7 +271,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,att
 
 var stateLayer=null,stateBounds=null;
 var edithLiveRows=null,edithLiveMode=false,edithLiveStamp='',edithLiveScope='',edithPriorState=null,edithAutoSelected=false;
-var districtCfg=null,regionCfg=null,crosswalk=null,layerCfg=null,snapshot=null,legacySnapshot=null,historyManifest=null,historySnapshots={},unitNetworkManifest=null,unitNetworks={},incidenceNumerator=null,birthsData=null,birthFlows=null;
+var districtCfg=null,regionCfg=null,crosswalk=null,layerCfg=null,snapshot=null,legacySnapshot=null,historyManifest=null,historySnapshots={},unitNetworkManifest=null,unitNetworks={},incidenceNumerator=null,birthsData=null,birthFlows=null,conapoDataset=null,conapoByCode={};
 var byCode={},birthByCode={},selectedLayer=null,selectedCode=null,structureMode=true;
 var flowLayer=L.layerGroup().addTo(map);
 
@@ -311,6 +311,37 @@ function rowFor(code){return byCode[String(code).padStart(3,'0')]||null}
 function fillCrosswalk(){
   byCode={};
   (crosswalk.rows||[]).forEach(function(r){byCode[r.municipality_code]=r});
+}
+
+
+function validateConapo(doc){
+ if(!doc||doc.schema!=='EDITH_CONAPO_SONORA_MUNICIPAL_MIDYEAR_V1'||!Array.isArray(doc.rows)||doc.rows.length!==72)throw Error('Fuente CONAPO no homologada');
+ var lookup={};
+ doc.rows.forEach(function(r){
+   if(!/^\\d{3}$/.test(r.code)||lookup[r.code]||!byCode[r.code])throw Error('Código CONAPO desconocido o repetido');
+   [2024,2025,2026].forEach(function(y){
+     var v=r.values&&r.values[y];
+     if(!v||!Number.isSafeInteger(v.total)||!Number.isSafeInteger(v.male)||!Number.isSafeInteger(v.female)||
+        v.total<=0||v.male+v.female!==v.total)throw Error('Inconsistencia CONAPO '+r.code+'/'+y);
+   });
+   lookup[r.code]=r;
+ });
+ if(Object.keys(lookup).length!==72)throw Error('Catálogo CONAPO incompleto');
+ conapoDataset=doc;conapoByCode=lookup;
+}
+function conapoMunicipality(code,year){
+ var r=conapoByCode[code];
+ return r&&r.values&&r.values[year]||null;
+}
+function conapoDistrict(id,year){
+ var d=(districtCfg&&districtCfg.districts||[]).find(function(d){return d.id===id});
+ if(!d)return null;
+ var a={total:0,male:0,female:0};
+ for(const code of d.municipalities){
+   var v=conapoMunicipality(code,year);if(!v)return null;
+   a.total+=v.total;a.male+=v.male;a.female+=v.female;
+ }
+ return a;
 }
 
 function fillBirths(){
@@ -884,6 +915,7 @@ function renderDistrictPanorama(){
  var currentText=!current.present?'N/D':current.suppressed?'&lt;5':nfmt(current.value);
  var births=panoramaDistrictBirths(id);
  var rate=panoramaDistrictRate(id);
+ var pop=conapoDistrict(id,currentYear());
  var bars=series.map(function(x){
    var v=!x.entry.present?'N/D':x.entry.suppressed?'&lt;5':nfmt(x.entry.value);
    var pct=x.entry.present&&!x.entry.suppressed&&x.entry.value!==null?Math.max(0,Math.min(100,x.entry.value/peak*100)):0;
@@ -894,7 +926,7 @@ function renderDistrictPanorama(){
  panoramaContent.innerHTML=
    '<div class="panorama-stats">'+
    '<div class="panorama-stat"><span>Registros distritales · '+currentYear()+'</span><b>'+currentText+'</b><small>'+(edithLiveMode?'RPC actual: sólo municipal':'Histórico distrital publicado')+'</small></div>'+
-   '<div class="panorama-stat"><span>Población CONAPO '+currentYear()+'</span><b>N/D</b><small>Catálogo anual pendiente</small></div>'+
+   '<div class="panorama-stat"><span>Población CONAPO '+currentYear()+'</span><b>'+(pop?nfmt(pop.total):'N/D')+'</b><small>'+(pop?'Hombres '+nfmt(pop.male)+' · Mujeres '+nfmt(pop.female):'No disponible')+' · mitad de año</small></div>'+
    '<div class="panorama-stat"><span>Nacidos vivos residentes · 2026</span><b>'+(births===null?'N/D':nfmt(births))+'</b><small>SINBA · 1 ene–24 sep 2026</small></div>'+
    '<div class="panorama-stat"><span>Razón exploratoria de registros SC / 1,000 NV</span><b>'+(rate===null?'N/D':nfmt(rate))+'</b><small>'+(rate===null?'Requiere agregados y denominador alineados':'Corte parcial 2026, no incidencia confirmada')+'</small></div></div>'+
    '<div class="panorama-graph"><h3>Registros distritales por año · 2024–2026</h3>'+bars+
@@ -991,6 +1023,7 @@ function renderMunicipalPanorama(){
   var label=edithLiveMode?'Registros EDITH · año de fuente':'Registros históricos · residencia';
   var births=panoramaBirths(selectedCode);
   var rate=panorama2026Rate(selectedCode);
+  var pop=conapoMunicipality(selectedCode,currentYear());
   var bars=series.map(function(x){
     var v=x.entry.present?(x.entry.suppressed?'&lt;5':nfmt(x.entry.value)):'N/D';
     var pct=x.entry.present&&!x.entry.suppressed&&x.entry.value!==null?Math.max(0,Math.min(100,x.entry.value/peak*100)):0;
@@ -1001,7 +1034,7 @@ function renderMunicipalPanorama(){
   panoramaContent.innerHTML=
     '<div class="panorama-stats">'+
       '<div class="panorama-stat"><span>'+label+' · '+currentYear()+'</span><b>'+caseText+'</b><small>'+(edithLiveMode?'Supabase, RLS':'Corte público por año')+'</small></div>'+
-      '<div class="panorama-stat"><span>Población CONAPO '+currentYear()+'</span><b>N/D</b><small>Catálogo municipal por año pendiente</small></div>'+
+      '<div class="panorama-stat"><span>Población CONAPO '+currentYear()+'</span><b>'+(pop?nfmt(pop.total):'N/D')+'</b><small>'+(pop?'Hombres '+nfmt(pop.male)+' · Mujeres '+nfmt(pop.female):'Sin dato')+' · mitad de año</small></div>'+
       '<div class="panorama-stat"><span>Nacidos vivos residentes · 2026</span><b>'+(births===null?'N/D':nfmt(births))+'</b><small>SINBA, 1 ene–24 sep 2026</small></div>'+
       '<div class="panorama-stat"><span>Razón exploratoria de registros SC / 1,000 NV · 2026</span><b>'+(rate===null?'N/D':nfmt(rate))+'</b><small>'+(rate===null?'No calculable con corte y privacidad actuales':'Corte parcial 24 sep 2026 · no equivale a incidencia confirmada')+'</small></div>'+
     '</div>'+
@@ -1016,7 +1049,7 @@ function renderMunicipalPanorama(){
     '</table>'+
     '<p class="panorama-source"><b>Fuentes:</b> EDITH-SC, históricos agregados 2024–2026'+
        (edithLiveMode?' o consulta autorizada RLS (sin mezclar sus conteos).':' (corte público).')+
-       ' Nacimientos SINBA y numerador alineado, 24 sep 2026. Población CONAPO pendiente de conectar. '+
+       ' Nacimientos SINBA y numerador alineado, 24 sep 2026. CONAPO, estimación de población municipal a mitad de año (2024–2026). '+
        'La razón de registros no equivale a incidencia confirmada. Confirmados clínicos no equivalen a confirmados por laboratorio. Sin datos nominales; sin inferencias de celdas pequeñas.</p>';
 }
 panoramaToggle.addEventListener('click',function(){
@@ -1145,6 +1178,7 @@ async function refreshSnapshot(){
     unitNetworkManifest=un.manifest;unitNetworks=un.networks;
     legacySnapshot=await loadSnapshot();
     incidenceNumerator=await loadJson('data/incidence/sc_birth_cut_2026.json',true);
+    validateConapo(await loadJson('data/conapo_sonora_2024_2026.json',true));
     configureYearSelector();setSnapshotYear(yearEl.value);
     layerOptions();configureDataSelectors();
     structureMode=false;selectedCode=null;update();
@@ -1165,7 +1199,8 @@ async function init(){
       loadSnapshot(),
       loadJson('data/incidence/sc_birth_cut_2026.json',true),
       loadJson('data/births_municipal_2026.json',true),
-      loadJson('data/births_flows_2026.json',true)
+      loadJson('data/births_flows_2026.json',true),
+      loadJson('data/conapo_sonora_2024_2026.json')
     ]);
     districtCfg=cfg[0];regionCfg=cfg[1];crosswalk=cfg[2];layerCfg=cfg[3];
     panoramaDistrictEl.innerHTML='<option value="">Selecciona distrito</option>'+
@@ -1175,7 +1210,7 @@ async function init(){
     historyManifest=cfg[4].manifest;historySnapshots=cfg[4].snapshots;
     unitNetworkManifest=cfg[5].manifest;unitNetworks=cfg[5].networks;legacySnapshot=cfg[6];
     incidenceNumerator=cfg[7];birthsData=cfg[8];birthFlows=cfg[9];
-    fillCrosswalk();fillBirths();configureYearSelector();setSnapshotYear(yearEl.value);layerOptions();configureDataSelectors();
+    fillCrosswalk();fillBirths();validateConapo(cfg[10]);configureYearSelector();setSnapshotYear(yearEl.value);layerOptions();configureDataSelectors();
     structureMode=!((snapshot&&snapshot.rows)||[]).length;
 
     var gj=await loadJson(MUN_URL);

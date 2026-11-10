@@ -39,16 +39,16 @@ h2{font-size:16px;margin:4px 0 7px}p{margin:8px 0;color:var(--muted);font-size:1
 <optgroup label="Nacimientos SINBA"><option value="resident">Nacidos vivos · residencia materna</option><option value="occurrence">Nacidos vivos · ocurrencia</option><option value="preterm">Nacimientos pretérmino</option><option value="lowweight">Bajo peso al nacer</option><option value="cesarean">Nacimientos por cesárea</option><option value="adolescent">Madres adolescentes</option></optgroup>
 <optgroup label="EDITH-SC · conteos preliminares"><option value="case_count">Expedientes SC registrados</option><option value="confirmed_count">Etiquetas de confirmación SC</option></optgroup>
 <optgroup label="Mortalidad · 2026"><option value="general_deaths">Defunciones generales por residencia*</option><option value="fetal_deaths">Muertes fetales por residencia*</option></optgroup></select></label>
-<label class="field">Localizar municipio<input id="search" type="search" placeholder="Hermosillo, Caborca, Navojoa…"></label>
+<label class="field">Lectura<select id="mode"><option value="count">Carga de eventos</option><option value="rate">Natalidad por 1,000 habitantes · CONAPO</option><option value="change">Variación 2024 a 2025</option><option value="quality">Disponibilidad de información</option></select></label><label class="field">Localizar municipio<input id="search" type="search" placeholder="Hermosillo, Caborca, Navojoa…"></label>
 <div class="notice" id="status">Cargando datos agregados y geografía oficial…</div>
 </section>
 <section class="card"><div class="eyebrow">Numeralia</div><div class="kpis"><div class="kpi"><strong id="kpi1">—</strong><small id="label1">Nacimientos de residentes</small></div><div class="kpi"><strong id="kpi2">—</strong><small id="label2">Ocurrencia</small></div></div>
-<p id="cut"></p><div class="legend"><span class="swatch" style="background:#f0e5f0"></span> menor valor <span class="swatch" style="background:#71396d"></span> mayor valor <span class="swatch" style="background:#ded8df"></span> no disponible/suprimido</div>
+<p id="cut"></p><p id="interpretation" class="notice" style="font-size:11px">Análisis exploratorio · pendiente de validación.</p><div class="legend"><span class="swatch" style="background:#f0e5f0"></span> menor valor <span class="swatch" style="background:#71396d"></span> mayor valor <span class="swatch" style="background:#ded8df"></span> no disponible/suprimido</div>
 </section>
 <section class="card"><div class="eyebrow">Histórico territorial</div><h2 id="trendTitle">Sonora · nacimientos por residencia</h2><div id="trend"></div><p>2026 es parcial. Los años completos no deben compararse sin considerar el periodo de exposición.</p></section>
 <section class="card"><div class="eyebrow">Ranking del indicador</div><h2>Municipios visibles</h2><div id="ranking"></div><p>Solo se muestran los municipios con valores publicables. Los demás permanecen sin dato o suprimidos.</p></section>
 <section class="card"><div class="eyebrow">Ficha municipal</div><h2 id="detailTitle">Selecciona un municipio</h2><div id="details">Toca cualquier polígono del mapa para ver nacimientos, distrito, región, indicadores y disponibilidad.</div></section>
-<section class="card"><div class="eyebrow">Cruces y pendientes</div><p><b>EDITH + SINBA:</b> cruces territoriales por municipio y año. Etiquetas de confirmación aún no homologadas a numerador oficial.</p><p><b>DEF 2026:</b> mortalidad general y fetal visible solo en los municipios con agregados preparados; el resto NO equivale a cero.</p><p><b>A50.2:</b> se detectó en el archivo de mortalidad, pero no existe todavía cotejo nominal confirmado. Las celdas pequeñas se mantienen reservadas.</p><p class="footer">Sin CURP, domicilios, nombres, certificados ni folios individuales. Datos agregados con supresión de 1 a 4. Revisión de seguridad integral aún pendiente.</p></section>
+<section class="card"><div class="eyebrow">Productos territoriales en validación</div><p class="footer">Fecundidad adolescente, prenatal por municipio, CLUES, anomalías y cruces SINBA–EDITH-SC–mortalidad requieren desagregación segura y validación epidemiológica.</p><p class="footer">Sin vínculos nominales, tasas oficiales ni deducciones causales. Datos reservados no equivalen a cero.</p></section><section class="card"><div class="eyebrow">Cruces y pendientes</div><p><b>EDITH + SINBA:</b> cruces territoriales por municipio y año. Etiquetas de confirmación aún no homologadas a numerador oficial.</p><p><b>DEF 2026:</b> mortalidad general y fetal visible solo en los municipios con agregados preparados; el resto NO equivale a cero.</p><p><b>A50.2:</b> se detectó en el archivo de mortalidad, pero no existe todavía cotejo nominal confirmado. Las celdas pequeñas se mantienen reservadas.</p><p class="footer">Sin CURP, domicilios, nombres, certificados ni folios individuales. Datos agregados con supresión de 1 a 4. Revisión de seguridad integral aún pendiente.</p></section>
 </aside><main><div id="map"></div><div class="pin"><b>🗺️ MAPA-SIFILIS · EDITH</b><span id="maplabel">72 municipios · espera cartográfica</span></div></main></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -59,9 +59,20 @@ const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUp
 const safe=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const map=L.map('map',{preferCanvas:true}).setView([29.3,-110.4],6);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap'}).addTo(map);
-let data,cross,polys,geoLayer=null,selected=null;let codeIndex={};
+let data,cross,polys,geoLayer=null,selected=null;let codeIndex={},populationMap={};
 function geoCode(f){const p=f.properties||{};let code=String(p.CVEGEO||p.cvegeo||p.CVE_MUN||p.cve_mun||p.MUN||'');return code.length>=5?code.slice(-3):code.padStart(3,'0')}
-function current(){return Number($('year').value)}function metric(){return $('metric').value}
+function current(){return Number($('year').value)}function metric(){return $('metric').value}function mode(){return $('mode').value}
+function population(r,y){return r?(populationMap[y+'|'+norm(r.name)]??null):null}
+function completeness(r){return ['resident','occurrence','preterm','lowweight','cesarean','adolescent'].filter(k=>r&&r[k]!=null).length}
+function mapValue(r,k=metric(),y=current()){if(!r)return null;
+ if(mode()==='quality')return 100*completeness(r)/6;
+ if(mode()==='rate'){let d=population(r,y);return k==='resident'&&r.resident!=null&&d>0?1000*Number(r.resident)/d:null}
+ if(mode()==='change'){if(y!==2025)return null;let o=data.rows.find(x=>x.code===r.code&&x.y===2024),a=o?getVal(o,k):null,b=getVal(r,k);return a!=null&&b!=null&&a>0?100*(b-a)/a:null}
+ return getVal(r,k)}
+function mfmt(v){return v==null?'—':Number(v).toLocaleString('es-MX',{maximumFractionDigits:mode()==='count'?0:1})+(mode()==='count'?'':mode()==='rate'?' ‰':' %')}
+function modeText(){return mode()==='rate'?'Natalidad exploratoria por 1,000 habitantes':mode()==='change'?'Cambio relativo 2024–2025':mode()==='quality'?'Porcentaje de seis indicadores disponibles':'Carga absoluta'}
+function method(){return mode()==='rate'?'Nacimientos por residencia / población anual CONAPO × 1,000. Solo con capa de nacimientos residentes. 2026 es parcial, no tasa anual.':mode()==='change'?'Comparación municipal 2024–2025; no se publica cuando uno de los valores es desconocido o está reservado.':mode()==='quality'?'Proporción de seis indicadores SINBA que pueden consultarse; NO expresa calidad asistencial ni riesgo.':'Conteos registrados sujetos a definición y revisión epidemiológica; no equivalen a tasas.'}
+
 function currentRows(){return data.rows.filter(r=>Number(r.y)===current() && ($('district').value==='ALL'||r.district===$('district').value))}
 function getRow(code){return data.rows.find(r=>r.code===code&&Number(r.y)===current())}
 function mortality(row,key){let death=data.mortality.residence_by_municipality.find(x=>norm(x.name)===norm(row.name));if(!death)return null;let v=key==='general_deaths'?death.general:death.fetal;return v==null?null:v}
@@ -69,31 +80,50 @@ function getVal(row,key=metric()){if(!row)return null;if(key==='general_deaths'|
 function small(row,key=metric()){if(!row)return false;if(key==='resident')return row.resident_status==='SUPRIMIDO_1_4';if(key==='occurrence')return row.occurrence_status==='SUPRIMIDO_1_4';if(key==='case_count')return row.case_suppressed;if(key==='confirmed_count')return row.confirmed_suppressed;return false}
 function valDisplay(row,key=metric()){let v=getVal(row,key);return v==null?(small(row,key)?'1–4 · reservado':'Sin dato'):fmt(v)}
 function metricLabel(){return $('metric').selectedOptions[0]?.textContent||metric()}
-function color(v,max){if(v==null)return '#ddd8e0';let x=Math.sqrt((Math.max(0,v))/Math.max(1,max));let hue=307,sat=25+x*19,lum=93-x*61;return 'hsl('+hue+','+sat+'%,'+lum+'%)'}
+function color(v,max){if(v==null)return '#ddd8e0';if(mode()==='change'){let x=Math.min(1,Math.abs(v)/Math.max(1,max));return v<0?'hsl(205,50%,'+(90-46*x)+'%)':'hsl(321,45%,'+(90-46*x)+'%)'}let x=Math.sqrt(Math.max(0,v)/Math.max(1,max));return 'hsl(307,'+(25+x*19)+'%,'+(93-x*61)+'%)'}
 function update(){
-const key=metric(),rows=currentRows(),max=Math.max(1,...rows.map(r=>getVal(r,key)||0));
-$('status').className='notice ok';$('status').innerHTML='<b>'+safe(metricLabel())+'</b> · '+current()+($('district').value==='ALL'?' · Sonora':' · '+$('district').value)+(current()===2026?' · parcial al 27 oct.':' · año completo');
-$('cut').textContent=key.includes('deaths')?'Defunciones: datos exploratorios del archivo 09/11/2026, cobertura municipal parcial.':'Fuente: SINBA y EDITH-SC, datos agregados con umbral de privacidad.';
-let totals=data.birth_state_totals.find(x=>Number(x.y)===current());$('kpi1').textContent=fmt(totals?.resident);$('kpi2').textContent=fmt(totals?.occurrence);
-$('label1').textContent='Nacimientos · residencia estatal';$('label2').textContent='Nacimientos · ocurrencia estatal';
-$('maplabel').textContent=metricLabel()+' · '+current();
-if(geoLayer){geoLayer.eachLayer(layer=>{let code=geoCode(layer.feature),r=getRow(code);let inDistrict=$('district').value==='ALL'||r?.district===$('district').value;layer.setStyle({color:'#fff',weight:selected===code?2.5:.7,fillColor:inDistrict?color(getVal(r,key),max):'#eae9ec',fillOpacity:inDistrict?.84:.3});});}
-const rank=rows.map(r=>({r,v:getVal(r,key)})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v).slice(0,18);
-$('ranking').innerHTML=rank.map(x=>'<div class="rank" data-code="'+safe(x.r.code)+'"><span>'+safe(x.r.name)+'</span><b>'+fmt(x.v)+'</b></div>').join('')||'<p>Sin datos municipales publicables para esta capa.</p>';
+const key=metric(),rows=currentRows(),max=Math.max(1,...rows.map(r=>Math.abs(mapValue(r,key)||0)));
+$('status').className='notice ok';$('status').innerHTML='<b>'+safe(metricLabel())+' · '+safe(modeText())+'</b> · '+current()+($('district').value==='ALL'?' · Sonora':' · '+$('district').value)+(current()===2026?' · parcial al 27 oct.':' · año completo');
+$('cut').textContent='Fuentes: SINBA, EDITH-SC, mortalidad exploratoria y CONAPO. Datos agregados.';
+$('interpretation').textContent=method()+' · PENDIENTE DE VALIDACIÓN EPIDEMIOLÓGICA.'+(mode()==='rate'&&key!=='resident'?' Cambia el indicador a nacimientos por residencia.':'');
+const totals=['resident','occurrence'].map(k=>{let visible=rows.filter(r=>r[k]!=null);return visible.length?fmt(visible.reduce((n,r)=>n+Number(r[k]),0))+(visible.length<rows.length?'*':''):'—'});$('kpi1').textContent=totals[0];$('kpi2').textContent=totals[1];
+$('label1').textContent='Nacimientos residentes · ámbito';$('label2').textContent='Nacimientos ocurridos · ámbito';
+$('maplabel').textContent=modeText()+' · '+current();
+if(geoLayer){geoLayer.eachLayer(layer=>{let code=geoCode(layer.feature),r=getRow(code);let inDistrict=$('district').value==='ALL'||r?.district===$('district').value;layer.setStyle({color:'#fff',weight:selected===code?2.5:.7,fillColor:inDistrict?color(mapValue(r,key),max):'#eae9ec',fillOpacity:inDistrict?.84:.3});});}
+const rank=rows.map(r=>({r,v:mapValue(r,key)})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v).slice(0,18);
+$('ranking').innerHTML=rank.map(x=>'<div class="rank" data-code="'+safe(x.r.code)+'"><span>'+safe(x.r.name)+'</span><b>'+mfmt(x.v)+'</b></div>').join('')||'<p>Sin datos municipales publicables para esta capa.</p>';
 $('ranking').querySelectorAll('.rank').forEach(x=>x.addEventListener('click',()=>select(x.dataset.code,true)));
 renderTrend();if(selected)select(selected,false);
 }
-function renderTrend(){let keys=metric(),base=data.birth_state_totals.map(x=>({y:x.y,v:keys==='occurrence'?x.occurrence:x.resident}));if(selected){base=[2024,2025,2026].map(y=>{let row=data.rows.find(x=>x.code===selected&&Number(x.y)===y);return {y,v:getMetricForYear(row,keys,y)}})}const max=Math.max(1,...base.map(x=>x.v||0));$('trendTitle').textContent=(selected?(getRow(selected)?.name||'Municipio'):'Sonora')+' · '+(selected?metricLabel():'Nacimientos');$('trend').innerHTML=base.map(x=>'<div class="barcol"><b>'+(x.v==null?'—':fmt(x.v))+'</b><div class="bar" style="height:'+((x.v||0)/max*65)+'px"></div><span>'+x.y+'</span></div>').join('')}
+function renderTrend(){
+ const k=metric(),d=$('district').value;
+ const ys=[2024,2025,2026].map(y=>{
+   let rs=data.rows.filter(x=>x.y===y&&(d==='ALL'||x.district===d)&&(!selected||x.code===selected));
+   if(mode()==='change'&&y!==2025)return {y,v:null};
+   if(selected)return {y,v:mapValue(rs[0],k,y)};
+   if(mode()==='quality')return {y,v:rs.length?rs.reduce((n,r)=>n+100*completeness(r)/6,0)/rs.length:null};
+   if(mode()==='rate'){
+     if(k!=='resident'||rs.some(r=>r.resident==null||!(population(r,y)>0)))return {y,v:null};
+     let p=rs.reduce((n,r)=>n+population(r,y),0);return {y,v:p?rs.reduce((n,r)=>n+Number(r.resident),0)*1000/p:null};
+   }
+   let vals=rs.map(r=>mode()==='change'?mapValue(r,k,y):getMetricForYear(r,k,y));
+   if(!vals.length||vals.some(v=>v==null))return {y,v:null};
+   return {y,v:vals.reduce((n,v)=>n+v,0)/(mode()==='change'?vals.length:1)};
+ });
+ const mx=Math.max(1,...ys.map(r=>Math.abs(r.v||0)));
+ $('trendTitle').textContent=(selected?(getRow(selected)?.name||'Municipio'):(d==='ALL'?'Sonora':d))+' · '+modeText();
+ $('trend').innerHTML=ys.map(r=>'<div class="barcol"><b>'+(r.v==null?'—':Number(r.v).toLocaleString('es-MX',{maximumFractionDigits:1}))+'</b><div class="bar" style="height:'+Math.abs(r.v||0)/mx*65+'px"></div><span>'+r.y+'</span></div>').join('');
+}
 function getMetricForYear(r,key,y){if(!r)return null;if(key==='general_deaths'||key==='fetal_deaths'){return y===2026?mortality(r,key):null}return r[key]==null?null:Number(r[key])}
-function select(code,zoom){selected=code;const r=getRow(code);if(!r)return;const k=metric(),v=valDisplay(r,k);
+function select(code,zoom){selected=code;const r=getRow(code);if(!r)return;const k=metric(),v=mapValue(r,k);
 $('detailTitle').textContent=r.name;
-const fields=[['Año',current()],['Distrito de Salud',r.district||'—'],['Región IMSS Bienestar',r.region||'—'],['Nacimiento · residencia',valDisplay(r,'resident')],['Nacimiento · ocurrencia',valDisplay(r,'occurrence')],['Pretérmino',valDisplay(r,'preterm')],['Bajo peso',valDisplay(r,'lowweight')],['Cesáreas',valDisplay(r,'cesarean')],['Madres adolescentes',valDisplay(r,'adolescent')],['Registros EDITH SC',valDisplay(r,'case_count')],['Etiquetas confirmadas',valDisplay(r,'confirmed_count')],['Defunciones 2026*',current()===2026?valDisplay(r,'general_deaths'):'No aplica']];
-$('details').innerHTML='<p><b>'+safe(metricLabel())+': '+safe(v)+'</b></p><table class="info-table">'+fields.map(([k,val])=>'<tr><td>'+safe(k)+'</td><td>'+safe(val)+'</td></tr>').join('')+'</table><p>Sin tasas oficiales: faltan conciliación diagnóstica y corte temporal equivalente.</p>';
+const fields=[['Año',current()],['Distrito de Salud',r.district||'—'],['Región IMSS Bienestar',r.region||'—'],['Nacimiento · residencia',valDisplay(r,'resident')],['Nacimiento · ocurrencia',valDisplay(r,'occurrence')],['Pretérmino',valDisplay(r,'preterm')],['Bajo peso',valDisplay(r,'lowweight')],['Cesáreas',valDisplay(r,'cesarean')],['Madres adolescentes',valDisplay(r,'adolescent')],['Registros EDITH SC',valDisplay(r,'case_count')],['Etiquetas confirmadas',valDisplay(r,'confirmed_count')],['Defunciones 2026*',current()===2026?valDisplay(r,'general_deaths'):'No aplica'],['Población CONAPO',fmt(population(r,current()))],['Indicadores SINBA disponibles',completeness(r)+' de 6'],['Modo de lectura',mfmt(v)]];
+$('details').innerHTML='<p><b>'+safe(metricLabel())+' · '+safe(modeText())+': '+safe(mfmt(v))+'</b></p><table class="info-table">'+fields.map(([k,val])=>'<tr><td>'+safe(k)+'</td><td>'+safe(val)+'</td></tr>').join('')+'</table><p>'+safe(method())+' <b>Validación pendiente.</b></p>';
 if(geoLayer){geoLayer.eachLayer(layer=>{if(geoCode(layer.feature)===code){layer.setStyle({color:'#ffcb75',weight:3});if(zoom)map.fitBounds(layer.getBounds(),{padding:[25,25],maxZoom:10});else layer.bringToFront()}})}renderTrend();}
-function setupGeo(g){geoLayer=L.geoJSON(g,{style:f=>({weight:.7,color:'#fff',fillColor:'#d4c6dc',fillOpacity:.8}),onEachFeature:(f,layer)=>{let code=geoCode(f);codeIndex[code]=layer;layer.on('click',()=>select(code,false));layer.on('mouseover',()=>{let r=getRow(code);layer.bindTooltip(safe(r?.name||code)+' · '+safe(valDisplay(r)),{sticky:true}).openTooltip()})}}).addTo(map);map.fitBounds(geoLayer.getBounds(),{padding:[10,10]});update()}
-try{let [d,c,g]=await Promise.all([fetch(root+'edith_integrated_2024_2026.json').then(x=>{if(!x.ok)throw Error('Datos no disponibles');return x.json()}),fetch(root+'municipality_region_crosswalk.json').then(x=>x.json()),fetch(geo).then(x=>{if(!x.ok)throw Error('Polígonos no disponibles');return x.json()})]);data=d;cross=c;polys=g;setupGeo(polys);$('status').textContent='Datos cargados';}
+function setupGeo(g){geoLayer=L.geoJSON(g,{style:f=>({weight:.7,color:'#fff',fillColor:'#d4c6dc',fillOpacity:.8}),onEachFeature:(f,layer)=>{let code=geoCode(f);codeIndex[code]=layer;layer.on('click',()=>select(code,false));layer.on('mouseover',()=>{let r=getRow(code);layer.bindTooltip(safe(r?.name||code)+' · '+safe(mfmt(mapValue(r))),{sticky:true}).openTooltip()})}}).addTo(map);map.fitBounds(geoLayer.getBounds(),{padding:[10,10]});update()}
+try{let [d,c,g,cp]=await Promise.all([fetch(root+'edith_integrated_2024_2026.json').then(x=>{if(!x.ok)throw Error('Datos no disponibles');return x.json()}),fetch(root+'municipality_region_crosswalk.json').then(x=>x.json()),fetch(geo).then(x=>{if(!x.ok)throw Error('Polígonos no disponibles');return x.json()}),fetch(root+'edith_conapo_municipal_2024_2026.json').then(x=>{if(!x.ok)throw Error('CONAPO no disponible');return x.json()})]);data=d;cross=c;polys=g;cp.rows.forEach(r=>populationMap[String(r.year)+'|'+norm(r.municipality)]=Number(r.population));setupGeo(polys);$('status').textContent='Datos cargados';}
 catch(e){$('status').className='notice';$('status').textContent='No se pudo cargar toda la cartografía: '+e.message+'. El archivo de datos permanece disponible en el repositorio.';try{data=data||await fetch(root+'edith_integrated_2024_2026.json').then(x=>x.json());update();}catch(e){}}
-$('year').addEventListener('change',()=>{selected=null;update()});$('metric').addEventListener('change',update);$('district').addEventListener('change',update);
+$('year').addEventListener('change',()=>{selected=null;update()});$('metric').addEventListener('change',update);$('mode').addEventListener('change',update);$('district').addEventListener('change',update);
 $('search').addEventListener('input',()=>{let v=norm($('search').value);if(v.length<3||!data)return;let row=data.rows.find(r=>Number(r.y)===current()&&norm(r.name).includes(v));if(row)select(row.code,true)});
 })();
 </script>

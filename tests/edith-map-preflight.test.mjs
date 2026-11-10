@@ -81,7 +81,7 @@ test('Copias cartográficas de Cloudflare coinciden con las fuentes públicas de
  for(const deployed of files(target)){
   const rel=relative(target,deployed);
   // Única adición: geometría local INEGI, obtenida sin datos personales.
-  if(rel==='sonora_municipios.geojson')continue;
+  if(rel==='sonora_municipios.geojson'||rel==='conapo_sonora_2024_2026.json')continue;
   const original=join(root,'data',rel);
   assert.ok(existsSync(original),'Falta fuente de '+rel);
   assert.deepEqual(readFileSync(deployed),readFileSync(original),'Copia obsoleta: '+rel);
@@ -175,5 +175,27 @@ test('Históricos regionales sólo utilizan agregados directos de las 10 regione
    if(row.suppressed)assert.equal(row.numerator,null,'Región suprimida no debe revelar numerador');
    else assert.ok(Number.isInteger(row.numerator)&&row.numerator>=0&&(row.numerator===0||row.numerator>=5),'Valor regional 1–4 no publicable');
   }
+ }
+});
+
+test('CONAPO Sonora: 72 municipios y desglose por sexo 2024–2026',()=>{
+ const data=parse(mapRoot,'data/conapo_sonora_2024_2026.json');
+ assert.equal(data.schema,'EDITH_CONAPO_SONORA_MUNICIPAL_MIDYEAR_V1');
+ assert.equal(data.geographies,72);
+ assert.equal(data.rows.length,72);
+ const codes=data.rows.map(r=>r.code);
+ assert.equal(new Set(codes).size,72);
+ const cw=parse(mapRoot,'data/municipality_region_crosswalk.json');
+ assert.deepEqual(codes.slice().sort(),cw.rows.map(r=>r.municipality_code).sort());
+ for(const year of [2024,2025,2026]){
+  let total=0;
+  for(const row of data.rows){
+   const v=row.values[year];
+   assert.ok(Number.isSafeInteger(v.total)&&v.total>0);
+   assert.ok(Number.isSafeInteger(v.male)&&Number.isSafeInteger(v.female));
+   assert.equal(v.male+v.female,v.total,'Sexos de '+row.code+'/'+year);
+   total+=v.total;
+  }
+  assert.equal(total,({2024:3111704,2025:3140762,2026:3168624})[year]);
  }
 });

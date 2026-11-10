@@ -133,6 +133,13 @@ try {
                    {year:2026,municipality_code:'001',cases:null,suppressed:true}],
              generated_at:'2026-11-09T12:00:00Z',scope:'ADMINISTRADOR_ESTATAL'},error:null};
          }
+         if(name==='edith_sc_mapa_laboratorio_v1'){
+           window.__labRpcCalls=(window.__labRpcCalls||0)+1;
+           return {data:{schema:'EDITH_SC_MAPA_LAB_CLASS_RLS_V1',
+             rows:[{year:2026,municipality_code:'030',lab_confirmed:5,suppressed:false},
+                   {year:2025,municipality_code:'030',lab_confirmed:null,suppressed:true}],
+             generated_at:'2026-11-09T12:00:00Z',definition:'CLAS_FINAL_CONFIRMADO_LESP_LABORATORIO_WESTERN_BLOT'},error:null};
+         }
          return {data:null,error:null};
        },
        auth:{signOut:async()=>({error:null})}
@@ -170,6 +177,13 @@ try {
  await popup.waitForFunction(()=>document.getElementById('edithLiveToggle')?.textContent==='Volver al corte público',{timeout:20000});
  assert.ok(await page.evaluate(()=>window.__mapRpcCalls)>=1,'La ventana verificada debe solicitar agregados al opener EDITH');
  assert.equal(await popup.locator('#edithLiveToggle').isDisabled(),false,'Se reciben datos agregados con permiso');
+ await popup.waitForFunction(()=>document.getElementById('edithLiveToggle')?.textContent==='Volver al corte público'&&
+   !!document.getElementById('edithLiveNotice'),{timeout:12000});
+ await popup.locator('#search').fill('Hermosillo');
+ await popup.locator('#search').press('Enter');
+ await popup.waitForFunction(()=>document.getElementById('municipalPanoramaContent')?.textContent?.includes('2026: 5'),{timeout:12000});
+ assert.match(await popup.locator('#municipalPanoramaContent').innerText(),/2025: <5|2025: < 5/,'Privacidad de clasificación laboratorial');
+ assert.ok(await page.evaluate(()=>window.__labRpcCalls)>=1,'Consulta laboratorial protegida disponible por RPC');
  log('MAPA-SÍFILIS en pestaña propia, 72 municipios y puente RLS sin credenciales');
 
  // Una ventana o pestaña distinta no debe disparar RPC institucional por sí sola.

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EDITH | Visor integrado Sonora 2024-2026</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--ink:#38223e;--muted:#776a7c;--border:#eadce8;--paper:#fcf9fd;--plum:#653363;--rose:#ae607f;--teal:#357e77;--soft:#efe5f0}
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 Inter,system-ui,Segoe UI,Arial;color:var(--ink);background:var(--paper)}
+header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:17px 23px;color:white;background:linear-gradient(108deg,#41204f,#762a52,#b36b88)}
+h1{font-size:21px;margin:0;line-height:1.2}header small{opacity:.85}header a{margin-left:auto;background:white;color:#663767;padding:8px 14px;text-decoration:none;border-radius:10px;font-weight:800;font-size:12px}
+.wrap{display:grid;grid-template-columns:390px minmax(0,1fr);min-height:calc(100vh - 85px)}aside{padding:15px;overflow:auto;background:#fff;border-right:1px solid var(--border)}
+main{position:relative;min-height:750px}#map{position:absolute;inset:0;background:#eae9ef}
+.card{border:1px solid var(--border);background:white;border-radius:17px;padding:14px;margin-bottom:12px;box-shadow:0 3px 12px rgba(82,40,75,.03)}
+.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#985477;font-weight:900}
+h2{font-size:16px;margin:4px 0 7px}p{margin:8px 0;color:var(--muted);font-size:12px}
+.field{display:grid;gap:4px;margin-bottom:9px;font-weight:750;font-size:11px}select,input{font:inherit;min-height:38px;width:100%;padding:7px 9px;background:#fff;border:1px solid #d7c6d7;border-radius:9px;color:var(--ink)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.kpi{padding:11px;background:#f7f1f8;border-radius:12px}.kpi strong{font-size:22px;display:block}.kpi small{font-size:10px;font-weight:800;color:#7f7184;text-transform:uppercase}
+.notice{background:#fff8ee;border-left:4px solid #ca9d54;border-radius:9px;padding:10px;font-size:11px;color:#654f3e}
+.ok{background:#eff8f6;border-left-color:#4b9984}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#trend{display:flex;align-items:flex-end;gap:10px;height:105px;padding:15px 4px 0;border-bottom:1px solid var(--border)}
+.barcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:end;height:100%;gap:4px;text-align:center;font-size:10px;color:var(--muted)}
+.bar{width:70%;max-width:55px;border-radius:7px 7px 0 0;min-height:2px;background:linear-gradient(#a45f87,#64356c)}
+#ranking{max-height:200px;overflow:auto}.rank{display:grid;grid-template-columns:1fr auto;gap:10px;padding:6px 0;border-bottom:1px solid #f2eaf2;font-size:11px;cursor:pointer}
+.rank:hover{color:#9d4d7e}.rank b{font-variant-numeric:tabular-nums}
+#details{font-size:11px}.info-table{width:100%;border-collapse:collapse}.info-table td{border-bottom:1px solid #f0e8f0;padding:5px 0}.info-table td:last-child{text-align:right;font-weight:800}
+.pin{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.96);border:1px solid var(--border);border-radius:12px;max-width:260px;z-index:700;padding:10px 13px;font-size:11px;box-shadow:0 4px 20px #4e204019}
+.pin b{display:block;margin-bottom:4px}.footer{font-size:10px;color:var(--muted)}.legend{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:10px;margin:7px 0}
+.swatch{height:10px;width:18px;border-radius:2px}
+@media(max-width:920px){.wrap{grid-template-columns:1fr}main{min-height:70vh}aside{max-height:none}header a{margin-left:0}}
+</style>
+</head><body>
+<header><div><h1>🟣 EDITH · Visor integrado</h1><small>Sonora | Sífilis congénita, nacimientos y mortalidad · Versión exploratoria 2024–2026</small></div>
+<a href="./">Volver al mapa principal</a></header>
+<div class="wrap"><aside>
+<section class="card"><div class="eyebrow">Centro de control territorial</div><h2>Explora las capas</h2>
+<div class="cols"><label class="field">Año<select id="year"><option>2026</option><option>2025</option><option>2024</option></select></label>
+<label class="field">Distrito<select id="district"><option value="ALL">Todo Sonora</option><option>DS01</option><option>DS02</option><option>DS03</option><option>DS04</option><option>DS05</option><option>DS06</option></select></label></div>
+<label class="field">Indicador<select id="metric">
+<optgroup label="Nacimientos SINBA"><option value="resident">Nacidos vivos · residencia materna</option><option value="occurrence">Nacidos vivos · ocurrencia</option><option value="preterm">Nacimientos pretérmino</option><option value="lowweight">Bajo peso al nacer</option><option value="cesarean">Nacimientos por cesárea</option><option value="adolescent">Madres adolescentes</option></optgroup>
+<optgroup label="EDITH-SC · conteos preliminares"><option value="case_count">Expedientes SC registrados</option><option value="confirmed_count">Etiquetas de confirmación SC</option></optgroup>
+<optgroup label="Mortalidad · 2026"><option value="general_deaths">Defunciones generales por residencia*</option><option value="fetal_deaths">Muertes fetales por residencia*</option></optgroup></select></label>
+<label class="field">Localizar municipio<input id="search" type="search" placeholder="Hermosillo, Caborca, Navojoa…"></label>
+<div class="notice" id="status">Cargando datos agregados y geografía oficial…</div>
+</section>
+<section class="card"><div class="eyebrow">Numeralia</div><div class="kpis"><div class="kpi"><strong id="kpi1">—</strong><small id="label1">Nacimientos de residentes</small></div><div class="kpi"><strong id="kpi2">—</strong><small id="label2">Ocurrencia</small></div></div>
+<p id="cut"></p><div class="legend"><span class="swatch" style="background:#f0e5f0"></span> menor valor <span class="swatch" style="background:#71396d"></span> mayor valor <span class="swatch" style="background:#ded8df"></span> no disponible/suprimido</div>
+</section>
+<section class="card"><div class="eyebrow">Histórico territorial</div><h2 id="trendTitle">Sonora · nacimientos por residencia</h2><div id="trend"></div><p>2026 es parcial. Los años completos no deben compararse sin considerar el periodo de exposición.</p></section>
+<section class="card"><div class="eyebrow">Ranking del indicador</div><h2>Municipios visibles</h2><div id="ranking"></div><p>Solo se muestran los municipios con valores publicables. Los demás permanecen sin dato o suprimidos.</p></section>
+<section class="card"><div class="eyebrow">Ficha municipal</div><h2 id="detailTitle">Selecciona un municipio</h2><div id="details">Toca cualquier polígono del mapa para ver nacimientos, distrito, región, indicadores y disponibilidad.</div></section>
+<section class="card"><div class="eyebrow">Cruces y pendientes</div><p><b>EDITH + SINBA:</b> cruces territoriales por municipio y año. Etiquetas de confirmación aún no homologadas a numerador oficial.</p><p><b>DEF 2026:</b> mortalidad general y fetal visible solo en los municipios con agregados preparados; el resto NO equivale a cero.</p><p><b>A50.2:</b> se detectó en el archivo de mortalidad, pero no existe todavía cotejo nominal confirmado. Las celdas pequeñas se mantienen reservadas.</p><p class="footer">Sin CURP, domicilios, nombres, certificados ni folios individuales. Datos agregados con supresión de 1 a 4. Revisión de seguridad integral aún pendiente.</p></section>
+</aside><main><div id="map"></div><div class="pin"><b>🗺️ MAPA-SIFILIS · EDITH</b><span id="maplabel">72 municipios · espera cartográfica</span></div></main></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(async function(){
+const root='./data/', geo='https://raw.githubusercontent.com/MacWilliXD/INEGI-geojson/main/geojson_descargas/AGEM_26.geojson';
+const $=id=>document.getElementById(id),fmt=n=>n==null?'—':Number(n).toLocaleString('es-MX');
+const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const safe=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const map=L.map('map',{preferCanvas:true}).setView([29.3,-110.4],6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap'}).addTo(map);
+let data,cross,polys,geoLayer=null,selected=null;let codeIndex={};
+function geoCode(f){const p=f.properties||{};let code=String(p.CVEGEO||p.cvegeo||p.CVE_MUN||p.cve_mun||p.MUN||'');return code.length>=5?code.slice(-3):code.padStart(3,'0')}
+function current(){return Number($('year').value)}function metric(){return $('metric').value}
+function currentRows(){return data.rows.filter(r=>Number(r.y)===current() && ($('district').value==='ALL'||r.district===$('district').value))}
+function getRow(code){return data.rows.find(r=>r.code===code&&Number(r.y)===current())}
+function mortality(row,key){let death=data.mortality.residence_by_municipality.find(x=>norm(x.name)===norm(row.name));if(!death)return null;let v=key==='general_deaths'?death.general:death.fetal;return v==null?null:v}
+function getVal(row,key=metric()){if(!row)return null;if(key==='general_deaths'||key==='fetal_deaths')return current()===2026?mortality(row,key):null;return row[key]==null?null:Number(row[key])}
+function small(row,key=metric()){if(!row)return false;if(key==='resident')return row.resident_status==='SUPRIMIDO_1_4';if(key==='occurrence')return row.occurrence_status==='SUPRIMIDO_1_4';if(key==='case_count')return row.case_suppressed;if(key==='confirmed_count')return row.confirmed_suppressed;return false}
+function valDisplay(row,key=metric()){let v=getVal(row,key);return v==null?(small(row,key)?'1–4 · reservado':'Sin dato'):fmt(v)}
+function metricLabel(){return $('metric').selectedOptions[0]?.textContent||metric()}
+function color(v,max){if(v==null)return '#ddd8e0';let x=Math.sqrt((Math.max(0,v))/Math.max(1,max));let hue=307,sat=25+x*19,lum=93-x*61;return 'hsl('+hue+','+sat+'%,'+lum+'%)'}
+function update(){
+const key=metric(),rows=currentRows(),max=Math.max(1,...rows.map(r=>getVal(r,key)||0));
+$('status').className='notice ok';$('status').innerHTML='<b>'+safe(metricLabel())+'</b> · '+current()+($('district').value==='ALL'?' · Sonora':' · '+$('district').value)+(current()===2026?' · parcial al 27 oct.':' · año completo');
+$('cut').textContent=key.includes('deaths')?'Defunciones: datos exploratorios del archivo 09/11/2026, cobertura municipal parcial.':'Fuente: SINBA y EDITH-SC, datos agregados con umbral de privacidad.';
+let totals=data.birth_state_totals.find(x=>Number(x.y)===current());$('kpi1').textContent=fmt(totals?.resident);$('kpi2').textContent=fmt(totals?.occurrence);
+$('label1').textContent='Nacimientos · residencia estatal';$('label2').textContent='Nacimientos · ocurrencia estatal';
+$('maplabel').textContent=metricLabel()+' · '+current();
+if(geoLayer){geoLayer.eachLayer(layer=>{let code=geoCode(layer.feature),r=getRow(code);let inDistrict=$('district').value==='ALL'||r?.district===$('district').value;layer.setStyle({color:'#fff',weight:selected===code?2.5:.7,fillColor:inDistrict?color(getVal(r,key),max):'#eae9ec',fillOpacity:inDistrict?.84:.3});});}
+const rank=rows.map(r=>({r,v:getVal(r,key)})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v).slice(0,18);
+$('ranking').innerHTML=rank.map(x=>'<div class="rank" data-code="'+safe(x.r.code)+'"><span>'+safe(x.r.name)+'</span><b>'+fmt(x.v)+'</b></div>').join('')||'<p>Sin datos municipales publicables para esta capa.</p>';
+$('ranking').querySelectorAll('.rank').forEach(x=>x.addEventListener('click',()=>select(x.dataset.code,true)));
+renderTrend();if(selected)select(selected,false);
+}
+function renderTrend(){let keys=metric(),base=data.birth_state_totals.map(x=>({y:x.y,v:keys==='occurrence'?x.occurrence:x.resident}));if(selected){base=[2024,2025,2026].map(y=>{let row=data.rows.find(x=>x.code===selected&&Number(x.y)===y);return {y,v:getMetricForYear(row,keys,y)}})}const max=Math.max(1,...base.map(x=>x.v||0));$('trendTitle').textContent=(selected?(getRow(selected)?.name||'Municipio'):'Sonora')+' · '+(selected?metricLabel():'Nacimientos');$('trend').innerHTML=base.map(x=>'<div class="barcol"><b>'+(x.v==null?'—':fmt(x.v))+'</b><div class="bar" style="height:'+((x.v||0)/max*65)+'px"></div><span>'+x.y+'</span></div>').join('')}
+function getMetricForYear(r,key,y){if(!r)return null;if(key==='general_deaths'||key==='fetal_deaths'){return y===2026?mortality(r,key):null}return r[key]==null?null:Number(r[key])}
+function select(code,zoom){selected=code;const r=getRow(code);if(!r)return;const k=metric(),v=valDisplay(r,k);
+$('detailTitle').textContent=r.name;
+const fields=[['Año',current()],['Distrito de Salud',r.district||'—'],['Región IMSS Bienestar',r.region||'—'],['Nacimiento · residencia',valDisplay(r,'resident')],['Nacimiento · ocurrencia',valDisplay(r,'occurrence')],['Pretérmino',valDisplay(r,'preterm')],['Bajo peso',valDisplay(r,'lowweight')],['Cesáreas',valDisplay(r,'cesarean')],['Madres adolescentes',valDisplay(r,'adolescent')],['Registros EDITH SC',valDisplay(r,'case_count')],['Etiquetas confirmadas',valDisplay(r,'confirmed_count')],['Defunciones 2026*',current()===2026?valDisplay(r,'general_deaths'):'No aplica']];
+$('details').innerHTML='<p><b>'+safe(metricLabel())+': '+safe(v)+'</b></p><table class="info-table">'+fields.map(([k,val])=>'<tr><td>'+safe(k)+'</td><td>'+safe(val)+'</td></tr>').join('')+'</table><p>Sin tasas oficiales: faltan conciliación diagnóstica y corte temporal equivalente.</p>';
+if(geoLayer){geoLayer.eachLayer(layer=>{if(geoCode(layer.feature)===code){layer.setStyle({color:'#ffcb75',weight:3});if(zoom)map.fitBounds(layer.getBounds(),{padding:[25,25],maxZoom:10});else layer.bringToFront()}})}renderTrend();}
+function setupGeo(g){geoLayer=L.geoJSON(g,{style:f=>({weight:.7,color:'#fff',fillColor:'#d4c6dc',fillOpacity:.8}),onEachFeature:(f,layer)=>{let code=geoCode(f);codeIndex[code]=layer;layer.on('click',()=>select(code,false));layer.on('mouseover',()=>{let r=getRow(code);layer.bindTooltip(safe(r?.name||code)+' · '+safe(valDisplay(r)),{sticky:true}).openTooltip()})}}).addTo(map);map.fitBounds(geoLayer.getBounds(),{padding:[10,10]});update()}
+try{let [d,c,g]=await Promise.all([fetch(root+'edith_integrated_2024_2026.json').then(x=>{if(!x.ok)throw Error('Datos no disponibles');return x.json()}),fetch(root+'municipality_region_crosswalk.json').then(x=>x.json()),fetch(geo).then(x=>{if(!x.ok)throw Error('Polígonos no disponibles');return x.json()})]);data=d;cross=c;polys=g;setupGeo(polys);$('status').textContent='Datos cargados';}
+catch(e){$('status').className='notice';$('status').textContent='No se pudo cargar toda la cartografía: '+e.message+'. El archivo de datos permanece disponible en el repositorio.';try{data=data||await fetch(root+'edith_integrated_2024_2026.json').then(x=>x.json());update();}catch(e){}}
+$('year').addEventListener('change',()=>{selected=null;update()});$('metric').addEventListener('change',update);$('district').addEventListener('change',update);
+$('search').addEventListener('input',()=>{let v=norm($('search').value);if(v.length<3||!data)return;let row=data.rows.find(r=>Number(r.y)===current()&&norm(r.name).includes(v));if(row)select(row.code,true)});
+})();
+</script>
+</body></html>

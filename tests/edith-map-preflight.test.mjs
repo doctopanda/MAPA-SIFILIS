@@ -144,3 +144,18 @@ test('Históricos 2024–2026 contienen series municipales publicables sin nomin
   }
  }
 });
+
+test('Panorama distrital sólo publica datos distritales directos',()=>{
+ const manifest=parse(mapRoot,'data/history/history_manifest.json');
+ for(const year of manifest.visible_years){
+  const doc=JSON.parse(gunzipSync(readFileSync(join(mapRoot,manifest.files[String(year)]))).toString('utf8'));
+  const district=doc.rows.filter(r=>r.program==='SC'&&r.layer_id==='maternal_residence'&&r.metric_id==='cases'&&
+    (r.cohort_id||'year_total')==='year_total'&&r.geography_type==='health_district');
+  assert.equal(district.length,6,'El histórico '+year+' debe ofrecer los seis totales distritales publicados');
+  assert.deepEqual(district.map(r=>r.geography_id).sort(),['DS01','DS02','DS03','DS04','DS05','DS06']);
+  for(const row of district){
+   if(row.suppressed)assert.equal(row.numerator,null,'Distrito suprimido no permite cálculo desde municipios');
+   else assert.ok(Number.isInteger(row.numerator)&&row.numerator>=0&&(row.numerator===0||row.numerator>=5),'Conteo distrital menor a cinco publicado');
+  }
+ }
+});

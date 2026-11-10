@@ -129,7 +129,7 @@ try {
          if(name==='edith_sc_mapa_residencia_v1'){
            window.__mapRpcCalls++;
            return {data:{schema:'EDITH_SC_MAPA_RLS_V1',
-             rows:[{year:2026,municipality_code:'030',cases:6,suppressed:false},
+             rows:[{year:2026,municipality_code:'030',cases:10,suppressed:false},
                    {year:2026,municipality_code:'001',cases:null,suppressed:true}],
              generated_at:'2026-11-09T12:00:00Z',scope:'ADMINISTRADOR_ESTATAL'},error:null};
          }

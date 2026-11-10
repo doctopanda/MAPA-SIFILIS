@@ -56,7 +56,9 @@ try {
   assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Hermosillo/);
   assert.equal(await page.locator('#municipalPanorama .panorama-bar-row').count(),3,'Serie anual 2024–2026');
   assert.match(await page.locator('#municipalPanoramaContent').innerText(),/SINBA/,'Fuente de nacimientos');
-  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/CONAPO/,'Fuente pendiente identificada');
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/CONAPO/,'Fuente CONAPO identificada');
+  const pop=await page.locator('#municipalPanoramaContent').innerText();
+  assert.match(pop,/1,043,797|1.043.797|1043797/,'CONAPO 2026 Hermosillo verificado');
   assert.match(await page.locator('#municipalPanoramaContent').innerText(),/laboratorio/i,'No confundir clasificación con laboratorio');
   await page.locator('#municipalPanoramaExpand').click();
   assert.equal(await page.locator('#municipalPanorama.expanded').count(),1,'Ampliar panorama');
@@ -82,6 +84,7 @@ try {
   await page.locator('#panoramaDistrict').selectOption('DS05');
   assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Distrito de Salud 05/);
   assert.match(await page.locator('#municipalPanoramaContent').innerText(),/Navojoa/);
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/Población CONAPO/,'CONAPO distrital');
   await page.locator('#territory').selectOption('health_district');
   await page.locator('#search').fill('Hermosillo');
   await page.locator('#search').press('Enter');

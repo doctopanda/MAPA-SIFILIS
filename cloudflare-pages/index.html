@@ -1007,6 +1007,22 @@ async function loadLiveMap(target=edithMapWindow){
    if(rows.some(r=>![2024,2025,2026].includes(r.year)||!/^[0-9]{3}$/.test(r.municipality_code)||(r.suppressed?r.cases!==null:!Number.isSafeInteger(r.cases)||r.cases<5)))throw Error('Agregados no válidos');
    if(request!==mapLiveSeq||state.demo||!state.client||target!==edithMapWindow||target.closed)return;
    target.postMessage({type:'EDITH_MAP_DATA',rows,generated_at:data.generated_at,scope:data.scope},location.origin);
+   // Consulta independiente y opcional: si la nueva RPC aún no se ha instalado,
+   // el mapa mantiene CONAPO, históricos y registros sin mostrar laboratorios inventados.
+   try{
+     const labResult=await state.client.rpc('edith_sc_mapa_laboratorio_v1',{});
+     if(labResult.error)throw labResult.error;
+     const lab=labResult.data;
+     if(!lab||lab.schema!=='EDITH_SC_MAPA_LAB_CLASS_RLS_V1'||!Array.isArray(lab.rows)||lab.rows.length>220)throw Error('Respuesta laboratorial no disponible');
+     const labRows=lab.rows.map(r=>({year:Number(r.year),municipality_code:String(r.municipality_code),lab_confirmed:r.lab_confirmed===null?null:Number(r.lab_confirmed),suppressed:r.suppressed===true}));
+     if(labRows.some(r=>![2024,2025,2026].includes(r.year)||!/^[0-9]{3}$/.test(r.municipality_code)||typeof r.suppressed!=='boolean'||
+          (r.suppressed?r.lab_confirmed!==null:!Number.isSafeInteger(r.lab_confirmed)||(r.lab_confirmed!==0&&r.lab_confirmed<5))))throw Error('Agregados de clasificación laboratorial inválidos');
+     if(request!==mapLiveSeq||state.demo||!state.client||target!==edithMapWindow||target.closed)return;
+     target.postMessage({type:'EDITH_MAP_LAB',rows:labRows,generated_at:lab.generated_at,definition:lab.definition},location.origin);
+   }catch(labError){
+     if(request===mapLiveSeq&&target===edithMapWindow&&!target.closed)
+       target.postMessage({type:'EDITH_MAP_LAB_UNAVAILABLE'},location.origin);
+   }
  }catch(err){
    if(request!==mapLiveSeq||target!==edithMapWindow||target.closed)return;
    target.postMessage({type:'EDITH_MAP_REVOKE'},location.origin);

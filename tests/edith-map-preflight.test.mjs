@@ -159,3 +159,21 @@ test('Panorama distrital sólo publica datos distritales directos',()=>{
   }
  }
 });
+
+test('Históricos regionales sólo utilizan agregados directos de las 10 regiones',()=>{
+ const regions=parse(mapRoot,'data/imss_bienestar_regions.json');
+ const allowed=new Set(regions.regions.map(r=>r.id));
+ assert.equal(allowed.size,10);
+ const manifest=parse(mapRoot,'data/history/history_manifest.json');
+ for(const year of manifest.visible_years){
+  const doc=JSON.parse(gunzipSync(readFileSync(join(mapRoot,manifest.files[String(year)]))).toString('utf8'));
+  const rows=doc.rows.filter(r=>r.program==='SC'&&r.layer_id==='maternal_residence'&&r.metric_id==='cases'&&
+   (r.cohort_id||'year_total')==='year_total'&&r.geography_type==='imss_bienestar_region');
+  assert.equal(rows.length,10,'El año '+year+' debe disponer de diez agregados regionales independientes');
+  assert.deepEqual(new Set(rows.map(r=>r.geography_id)),allowed);
+  for(const row of rows){
+   if(row.suppressed)assert.equal(row.numerator,null,'Región suprimida no debe revelar numerador');
+   else assert.ok(Number.isInteger(row.numerator)&&row.numerator>=0&&(row.numerator===0||row.numerator>=5),'Valor regional 1–4 no publicable');
+  }
+ }
+});

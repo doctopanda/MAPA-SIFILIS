@@ -1047,7 +1047,10 @@ function showDetail(code){
   if(territoryEl.value==='health_district'){
     panoramaScope='health_district';selectedDistrict=x.health_district_id;panoramaEnabled=true;
   }else if(territoryEl.value==='imss_region'){
-    panoramaScope='imss_region';selectedRegion=x.imss_bienestar_region_id;panoramaEnabled=true;
+    // Conservar la elección explícita «Municipal» de la ficha aunque la capa
+    // cartográfica inicial esté coloreada por región.
+    if(panoramaScope==='imss_region')selectedRegion=x.imss_bienestar_region_id;
+    panoramaEnabled=true;
   }else if(territoryEl.value==='municipality'){
     panoramaScope='municipality';panoramaEnabled=true;
   }

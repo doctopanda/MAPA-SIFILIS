@@ -107,6 +107,9 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
 .panorama-stat span{display:block;font-size:9px;line-height:1.35;color:#716676;font-weight:700}
 .panorama-stat b{display:block;font-size:19px;line-height:1.25;margin-top:4px;overflow-wrap:anywhere;color:#5c2857}
 .panorama-stat small{display:block;font-size:9px;color:#806e7a;margin-top:5px}
+.panorama-selector{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:11px 0 4px;align-items:end}
+.panorama-selector label{font-size:9px;line-height:1.3;font-weight:750;color:#766b79}
+.panorama-selector select{margin-top:0;min-height:34px;font-size:11px}
 .panorama-graph{margin:13px 0;border:1px solid #ebe2ec;background:#fff;border-radius:12px;padding:12px}
 .panorama-graph h3{font-size:12px;margin:0 0 10px}
 .panorama-bar-row{display:grid;grid-template-columns:38px minmax(0,1fr) 53px;align-items:center;gap:8px;margin-bottom:9px}
@@ -241,6 +244,7 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
     <div class="panorama-top"><div><div class="eyebrow">Ficha epidemiológica territorial</div><h2 id="municipalPanoramaTitle">Panorama municipal</h2><small id="municipalPanoramaSubtitle"></small></div>
       <div class="panorama-tools"><button type="button" id="municipalPanoramaExpand" title="Ampliar o reducir ficha" aria-label="Ampliar ficha">⤢</button><button type="button" id="municipalPanoramaClose" title="Ocultar ficha" aria-label="Ocultar ficha">×</button></div>
     </div>
+    <div class="panorama-selector"><label for="panoramaScope">Tipo de panorama</label><select id="panoramaScope"><option value="municipality">Municipal</option><option value="health_district">Distrital</option></select><label for="panoramaDistrict">Distrito de Salud</label><select id="panoramaDistrict" aria-label="Seleccionar distrito"><option value="">Selecciona distrito</option></select></div>
     <div id="municipalPanoramaContent"></div>
   </section>
 </main>
@@ -762,10 +766,12 @@ function renderFlows(){
 
 /* Panorama municipal: los históricos y el modo RLS nunca se combinan para
    reconstruir valores suprimidos. Cada año se toma de su propia cohorte. */
-var panoramaEnabled=true,panoramaExpanded=false;
+var panoramaEnabled=true,panoramaExpanded=false,panoramaScope="municipality",selectedDistrict=null;
 var panoramaCard=document.getElementById('municipalPanorama');
 var panoramaContent=document.getElementById('municipalPanoramaContent');
 var panoramaToggle=document.getElementById('municipalPanoramaToggle');
+var panoramaScopeEl=document.getElementById('panoramaScope');
+var panoramaDistrictEl=document.getElementById('panoramaDistrict');
 function panoramaYearRow(code,year){
   if(edithLiveMode){
     var live=(edithLiveRows||[]).filter(function(r){return r.year===year&&r.municipality_code===code});
@@ -809,15 +815,129 @@ function panorama2026Rate(code){
   if(difference<0||(difference>=1&&difference<=4))return null;
   return count/births*1000;
 }
+
+function panoramaDistrictFor(code){
+ var x=rowFor(code);
+ return x&&x.health_district_id||null;
+}
+function panoramaDistrictList(){
+ return (districtCfg&&districtCfg.districts)||[];
+}
+function panoramaDistrictYearRow(id,year){
+ if(!id||!/^DS0[1-6]$/.test(id))return {present:false};
+ // La RPC actual sólo publica municipios; no se reconstruyen distritos
+ // sumando valores 1-4 suprimidos ni recuperando diferencias entre capas.
+ if(edithLiveMode)return {present:false,source:'RLS: sin agregado distrital'};
+ var hist=historySnapshots[String(year)]||historySnapshots[year];
+ if(!hist||!Array.isArray(hist.rows))return {present:false};
+ var rows=hist.rows.filter(function(r){
+   return r.program==='SC'&&r.layer_id==='maternal_residence'&&r.metric_id==='cases'&&
+     (r.cohort_id||'year_total')==='year_total'&&r.geography_type==='health_district'&&
+     String(r.geography_id)===id;
+ });
+ if(rows.length!==1)return {present:false};
+ var row=rows[0];
+ if(row.suppressed===true)return {present:true,suppressed:true,value:null,source:'histórico distrital'};
+ var n=Number(row.numerator);
+ if(row.numerator==null||!Number.isSafeInteger(n)||n<0||(n>0&&n<5))return {present:false};
+ return {present:true,suppressed:false,value:n,source:'histórico distrital'};
+}
+function panoramaDistrictBirths(id){
+ if(!birthsData||!Array.isArray(birthsData.rows)||!id)return null;
+ var district=panoramaDistrictList().find(function(d){return d.id===id});
+ if(!district)return null;
+ // SINBA es una fuente de nacidos vivos agregados por residencia.
+ var sum=0;
+ for(var i=0;i<district.municipalities.length;i++){
+   var row=birthByCode[district.municipalities[i]];
+   if(!row||!Number.isSafeInteger(Number(row.r))||Number(row.r)<0)return null;
+   sum+=Number(row.r);
+ }
+ return sum;
+}
+function panoramaDistrictRate(id){
+ if(edithLiveMode||!incidenceNumerator||!birthsData||!Array.isArray(birthsData.period)||
+   incidenceNumerator.period_start!==birthsData.period[0]||
+   incidenceNumerator.period_end!==birthsData.period[1])return null;
+ var births=panoramaDistrictBirths(id),annual=panoramaDistrictYearRow(id,2026);
+ if(births===null||births<5||!annual.present||annual.suppressed||annual.value===null)return null;
+ var found=(incidenceNumerator.rows||[]).filter(function(r){return r.geography_type==='health_district'&&r.geography_id===id});
+ if(found.length!==1||found[0].suppressed)return null;
+ var n=Number(found[0].numerator);
+ if(!Number.isSafeInteger(n)||n<0||(n>0&&n<5))return null;
+ var difference=annual.value-n;
+ if(difference<0||(difference>=1&&difference<=4))return null;
+ return n/births*1000;
+}
+function renderDistrictPanorama(){
+ var id=selectedDistrict;
+ var district=panoramaDistrictList().find(function(d){return d.id===id});
+ if(!district)return;
+ document.getElementById('municipalPanoramaTitle').textContent='Distrito de Salud '+id.slice(2);
+ document.getElementById('municipalPanoramaSubtitle').textContent='Cabecera '+district.head+' · '+district.municipalities.length+' municipios · Sonora';
+ var years=[2024,2025,2026],series=years.map(function(y){return {year:y,entry:panoramaDistrictYearRow(id,y)}});
+ var known=series.filter(function(x){return x.entry.present&&!x.entry.suppressed&&x.entry.value!==null}).map(function(x){return x.entry.value});
+ var peak=Math.max.apply(null,[1].concat(known));
+ var current=panoramaDistrictYearRow(id,currentYear());
+ var currentText=!current.present?'N/D':current.suppressed?'&lt;5':nfmt(current.value);
+ var births=panoramaDistrictBirths(id);
+ var rate=panoramaDistrictRate(id);
+ var bars=series.map(function(x){
+   var v=!x.entry.present?'N/D':x.entry.suppressed?'&lt;5':nfmt(x.entry.value);
+   var pct=x.entry.present&&!x.entry.suppressed&&x.entry.value!==null?Math.max(0,Math.min(100,x.entry.value/peak*100)):0;
+   return '<div class="panorama-bar-row" data-year="'+x.year+'"><label>'+x.year+'</label>'+
+     '<span class="panorama-bar-bg"><i class="panorama-bar-fill" style="width:'+pct+'%"></i></span>'+
+     '<strong>'+v+'</strong></div>';
+ }).join('');
+ panoramaContent.innerHTML=
+   '<div class="panorama-stats">'+
+   '<div class="panorama-stat"><span>Registros distritales · '+currentYear()+'</span><b>'+currentText+'</b><small>'+(edithLiveMode?'RPC actual: sólo municipal':'Histórico distrital publicado')+'</small></div>'+
+   '<div class="panorama-stat"><span>Población CONAPO '+currentYear()+'</span><b>N/D</b><small>Catálogo anual pendiente</small></div>'+
+   '<div class="panorama-stat"><span>Nacidos vivos residentes · 2026</span><b>'+(births===null?'N/D':nfmt(births))+'</b><small>SINBA · 1 ene–24 sep 2026</small></div>'+
+   '<div class="panorama-stat"><span>Razón exploratoria de registros SC / 1,000 NV</span><b>'+(rate===null?'N/D':nfmt(rate))+'</b><small>'+(rate===null?'Requiere agregados y denominador alineados':'Corte parcial 2026, no incidencia confirmada')+'</small></div></div>'+
+   '<div class="panorama-graph"><h3>Registros distritales por año · 2024–2026</h3>'+bars+
+     '<p class="panorama-note">Se consultan <b>únicamente agregados distritales publicados</b>. Nunca se reconstruye el total sumando celdas municipales menores de 5. N/D significa no disponible, no cero.</p></div>'+
+   '<table class="detail-table"><tr><td>Cabecera</td><td>'+esc(district.head)+'</td></tr>'+
+   '<tr><td>Municipios adscritos</td><td>'+district.municipalities.length+'</td></tr>'+
+   '<tr><td>Confirmados por laboratorio</td><td>N/D · requiere homologar resultados por distrito y año</td></tr>'+
+   '<tr><td>Prevalencia</td><td>No calculada; falta definición apropiada</td></tr>'+
+   '<tr><td>Tasas 2024–2025</td><td>N/D · faltan denominadores alineados</td></tr></table>'+
+   '<p class="panorama-source"><b>Fuentes:</b> históricos agregados EDITH-SC por distrito 2024–2026, SINBA 2026. En modo institucional RLS, la RPC vigente no entrega agregados distritales, por lo que se muestra N/D. Sin sumatorias de celdas suprimidas ni registros nominales.</p>';
+}
+function panoramaSelectDistrict(id){
+ if(!panoramaDistrictList().some(function(d){return d.id===id}))return;
+ panoramaScope='health_district';selectedDistrict=id;panoramaEnabled=true;
+ panoramaScopeEl.value='health_district';panoramaDistrictEl.value=id;
+ renderMunicipalPanorama();
+}
+panoramaScopeEl.addEventListener('change',function(){
+ panoramaScope=this.value==='health_district'?'health_district':'municipality';
+ if(panoramaScope==='health_district'&&!selectedDistrict&&selectedCode)selectedDistrict=panoramaDistrictFor(selectedCode);
+ if(panoramaScope==='health_district'&&!selectedDistrict)selectedDistrict='DS01';
+ if(panoramaScope==='municipality'&&!selectedCode){
+   var d=panoramaDistrictList().find(function(r){return r.id===selectedDistrict});
+   if(d)selectedCode=d.municipalities[0];
+ }
+ panoramaEnabled=true;renderMunicipalPanorama();
+});
+panoramaDistrictEl.addEventListener('change',function(){panoramaSelectDistrict(this.value)});
+
 function renderMunicipalPanorama(){
   var row=selectedCode&&rowFor(selectedCode);
-  var visible=!!(row&&panoramaEnabled);
+  if(panoramaScope==='health_district'&&!selectedDistrict&&row)selectedDistrict=row.health_district_id;
+  var validDistrict=panoramaDistrictList().some(function(d){return d.id===selectedDistrict});
+  var visible=!!(panoramaEnabled&&(panoramaScope==='health_district'?validDistrict:row));
   panoramaCard.hidden=!visible;
-  panoramaToggle.textContent=visible?'◪ Ocultar panorama':'◩ Mostrar panorama';
+  panoramaToggle.textContent=visible?'◪ Ocultar panorama':(panoramaScope==='health_district'?'◩ Panorama distrital':'◩ Panorama municipal');
   panoramaToggle.setAttribute('aria-expanded',String(visible));
-  panoramaToggle.disabled=!row;
-  if(!row)return;
+  panoramaToggle.disabled=!(row||validDistrict);
   if(!visible)return;
+  panoramaScopeEl.value=panoramaScope;
+  panoramaDistrictEl.value=selectedDistrict||'';
+  panoramaDistrictEl.style.display=panoramaScope==='health_district'?'block':'none';
+  panoramaDistrictEl.previousElementSibling.style.display=panoramaScope==='health_district'?'block':'none';
+  panoramaCard.classList.toggle('expanded',panoramaExpanded);
+  if(panoramaScope==='health_district'){renderDistrictPanorama();return}
   document.getElementById('municipalPanoramaTitle').textContent=row.municipality_name;
   var district=(districtCfg&&districtCfg.districts||[]).find(function(d){return d.id===row.health_district_id});
   document.getElementById('municipalPanoramaSubtitle').textContent=
@@ -884,6 +1004,11 @@ function update(){
 function showDetail(code){
   selectedCode=code;var x=rowFor(code);
   if(!x)return;
+  if(territoryEl.value==='health_district'){
+    panoramaScope='health_district';selectedDistrict=x.health_district_id;panoramaEnabled=true;
+  }else if(territoryEl.value==='municipality'){
+    panoramaScope='municipality';panoramaEnabled=true;
+  }
   var key=groupKeyForMunicipality(code),a=aggregates()[key]||null;
   detailTitle.textContent=x.municipality_name;
   var region=groupLabel(x.imss_bienestar_region_id);
@@ -998,6 +1123,8 @@ async function init(){
       loadJson('data/births_flows_2026.json',true)
     ]);
     districtCfg=cfg[0];regionCfg=cfg[1];crosswalk=cfg[2];layerCfg=cfg[3];
+    panoramaDistrictEl.innerHTML='<option value="">Selecciona distrito</option>'+
+      (districtCfg.districts||[]).map(function(d){return '<option value="'+esc(d.id)+'">'+esc(d.name+' · '+d.head)+'</option>'}).join('');
     historyManifest=cfg[4].manifest;historySnapshots=cfg[4].snapshots;
     unitNetworkManifest=cfg[5].manifest;unitNetworks=cfg[5].networks;legacySnapshot=cfg[6];
     incidenceNumerator=cfg[7];birthsData=cfg[8];birthFlows=cfg[9];
@@ -1024,7 +1151,12 @@ programEl.addEventListener('change',function(){
 yearEl.addEventListener('change',function(){
   setSnapshotYear(yearEl.value);layerOptions();configureDataSelectors();structureMode=false;selectedCode=null;update();
 });
-territoryEl.addEventListener('change',function(){structureMode=false;selectedCode=null;update()});
+territoryEl.addEventListener('change',function(){
+  structureMode=false;selectedCode=null;
+  if(territoryEl.value==='health_district'){panoramaScope='health_district';selectedDistrict=selectedDistrict||'DS01'}
+  else if(territoryEl.value==='municipality')panoramaScope='municipality';
+  update();
+});
 layerEl.addEventListener('change',function(){configureDataSelectors();structureMode=false;selectedCode=null;update()});
 cohortEl.addEventListener('change',function(){structureMode=false;selectedCode=null;update()});
 metricEl.addEventListener('change',function(){structureMode=false;selectedCode=null;update()});

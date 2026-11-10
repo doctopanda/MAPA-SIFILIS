@@ -19,7 +19,7 @@ catalogo as materialized (
  where d.source_year=2026 and d.municipality_code~'^[0-9]{3}$'
 ),
 base as materialized (
- select c.source_year::int year, m.municipality_code,
+ select c.source_year::int anio, m.municipality_code,
   upper(trim(coalesce(c.payload->>'CLAS_FINAL',''))) in
    ('CONFIRMADO LESP','CONFIRMADO POR LABORATORIO','CONFIRMADO POR WESTERN BLOT') as lab_criteria
  from public.edith_sc_cases c
@@ -30,12 +30,12 @@ base as materialized (
        or (p.rol='ALIMENTADOR_DISTRITAL' and p.district_id=c.district_id))
 ),
 agregado as (
- select year, municipality_code,count(*)::int total,
+ select anio, municipality_code,count(*)::int total,
  count(*) filter(where lab_criteria)::int lab_confirmed
- from base group by year,municipality_code
+ from base group by anio,municipality_code
 ),
 safe as (
- select year,municipality_code,
+ select anio,municipality_code,
    case when total>=5 and lab_confirmed not between 1 and 4
      and (total-lab_confirmed) not between 1 and 4 then lab_confirmed else null end lab_confirmed,
    case when total<5 or lab_confirmed between 1 and 4
@@ -52,9 +52,9 @@ select jsonb_build_object(
  'scope',(select rol from perfil limit 1),
  'generated_at',current_timestamp,
  'rows',coalesce((select jsonb_agg(jsonb_build_object(
- 'year',year,'municipality_code',municipality_code,
+ 'year',anio,'municipality_code',municipality_code,
  'lab_confirmed',lab_confirmed,'suppressed',suppressed
- ) order by year,municipality_code) from safe),'[]'::jsonb)
+ ) order by anio,municipality_code) from safe),'[]'::jsonb)
 ) where exists(select 1 from perfil);
 $$;
 revoke all on function public.edith_sc_mapa_laboratorio_v1() from public, anon;

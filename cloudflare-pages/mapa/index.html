@@ -270,7 +270,7 @@ var map=L.map('map',{preferCanvas:true,zoomControl:true}).setView([29.1,-110.5],
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
 
 var stateLayer=null,stateBounds=null;
-var edithLiveRows=null,edithLiveMode=false,edithLiveStamp='',edithLiveScope='',edithPriorState=null,edithAutoSelected=false;
+var edithLiveRows=null,edithLabRows=null,edithLiveMode=false,edithLiveStamp='',edithLiveScope='',edithPriorState=null,edithAutoSelected=false;
 var districtCfg=null,regionCfg=null,crosswalk=null,layerCfg=null,snapshot=null,legacySnapshot=null,historyManifest=null,historySnapshots={},unitNetworkManifest=null,unitNetworks={},incidenceNumerator=null,birthsData=null,birthFlows=null,conapoDataset=null,conapoByCode={};
 var byCode={},birthByCode={},selectedLayer=null,selectedCode=null,structureMode=true;
 var flowLayer=L.layerGroup().addTo(map);
@@ -804,6 +804,17 @@ var panoramaToggle=document.getElementById('municipalPanoramaToggle');
 var panoramaScopeEl=document.getElementById('panoramaScope');
 var panoramaDistrictEl=document.getElementById('panoramaDistrict');
 var panoramaRegionEl=document.getElementById('panoramaRegion');
+function panoramaLabYearRow(code,year){
+ if(!edithLiveMode||!edithLabRows)return {present:false};
+ var found=edithLabRows.filter(function(r){return r.year===year&&r.municipality_code===code});
+ return found.length===1?{present:true,suppressed:found[0].suppressed,value:found[0].lab_confirmed}:{present:false};
+}
+function panoramaLabHistory(code){
+ return [2024,2025,2026].map(function(year){
+  var r=panoramaLabYearRow(code,year);
+  return year+': '+(!r.present?'N/D':r.suppressed?'&lt;5':nfmt(r.value));
+ }).join(' · ');
+}
 function panoramaYearRow(code,year){
   if(edithLiveMode){
     var live=(edithLiveRows||[]).filter(function(r){return r.year===year&&r.municipality_code===code});
@@ -1043,14 +1054,14 @@ function renderMunicipalPanorama(){
     '<table class="detail-table">'+
       '<tr><td>Distrito de Salud</td><td>'+esc(row.health_district_id)+' · '+esc(district?district.head:'No identificado')+'</td></tr>'+
       '<tr><td>Región IMSS-Bienestar</td><td>'+esc(row.imss_bienestar_region_name)+' (adscripción municipal provisional)</td></tr>'+
-      '<tr><td>Confirmados por laboratorio</td><td>No disponible: requiere homologación de resultados</td></tr>'+
+      '<tr><td>Clasificación con criterio de laboratorio · 2024–2026</td><td>'+panoramaLabHistory(selectedCode)+'</td></tr>'+
       '<tr><td>Prevalencia</td><td>No calculada: falta definición epidemiológica válida</td></tr>'+
       '<tr><td>Tasas 2024–2025</td><td>No disponibles: faltan denominadores alineados por año</td></tr>'+
     '</table>'+
     '<p class="panorama-source"><b>Fuentes:</b> EDITH-SC, históricos agregados 2024–2026'+
        (edithLiveMode?' o consulta autorizada RLS (sin mezclar sus conteos).':' (corte público).')+
        ' Nacimientos SINBA y numerador alineado, 24 sep 2026. CONAPO, estimación de población municipal a mitad de año (2024–2026). '+
-       'La razón de registros no equivale a incidencia confirmada. Confirmados clínicos no equivalen a confirmados por laboratorio. Sin datos nominales; sin inferencias de celdas pequeñas.</p>';
+       'La razón de registros no equivale a incidencia confirmada. El criterio laboratorial procede de CLAS_FINAL (LESP/laboratorio/Western Blot), no de pruebas independientes validadas; N/D indica RPC no autorizada o no instalada. Sin datos nominales; sin inferencias de celdas pequeñas.</p>';
 }
 panoramaToggle.addEventListener('click',function(){
  if(!selectedCode)return;
@@ -1311,10 +1322,25 @@ window.addEventListener('message',function(event){
   if(msg.type==='EDITH_MAP_REVOKE'){
     // Eliminar todo agregado institucional de la memoria del visor al revocar la sesión.
     if(edithLiveMode)edithToggle();
-    edithLiveRows=null;edithLiveStamp='';edithLiveScope='';
+    edithLiveRows=null;edithLabRows=null;edithLiveStamp='';edithLiveScope='';
     edithPriorState=null;edithAutoSelected=false;
     edithLiveControls();
     document.getElementById('edithLiveNotice').textContent='Consulta institucional desconectada. Sólo permanece visible el corte público.';
+    return;
+  }
+  if(msg.type==='EDITH_MAP_LAB_UNAVAILABLE'){
+    edithLabRows=null;
+    if(edithLiveMode)renderMunicipalPanorama();
+    return;
+  }
+  if(msg.type==='EDITH_MAP_LAB'){
+    if(!Array.isArray(msg.rows)||msg.rows.length>220)return;
+    if(msg.rows.some(function(r){return !r||![2024,2025,2026].includes(r.year)||!/^[0-9]{3}$/.test(r.municipality_code)||
+      typeof r.suppressed!=='boolean'||(r.suppressed?r.lab_confirmed!==null:!Number.isSafeInteger(r.lab_confirmed)||
+       (r.lab_confirmed!==0&&r.lab_confirmed<5))}))return;
+    edithLabRows=msg.rows.map(function(r){return {year:r.year,municipality_code:r.municipality_code,
+      lab_confirmed:r.lab_confirmed,suppressed:r.suppressed}});
+    if(edithLiveMode)renderMunicipalPanorama();
     return;
   }
   if(msg.type!=='EDITH_MAP_DATA'||!Array.isArray(msg.rows)||msg.rows.length>220)return;
@@ -1341,7 +1367,7 @@ if(mapInstitutionalTab){
     if(!window.opener||window.opener.closed){
       if(edithLiveRows){
         if(edithLiveMode)edithToggle();
-        edithLiveRows=null;edithLiveStamp='';edithLiveScope='';
+        edithLiveRows=null;edithLabRows=null;edithLiveStamp='';edithLiveScope='';
         edithPriorState=null;edithAutoSelected=false;
         edithLiveControls();
         document.getElementById('edithLiveNotice').textContent='Sesión de EDITH desconectada. Volviste al corte público.';

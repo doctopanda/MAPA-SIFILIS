@@ -91,6 +91,23 @@ try {
   await page.locator('#municipalPanoramaToggle').click();
   assert.equal(await page.locator('#municipalPanorama').isVisible(),true,'Mostrar panorama distrital');
   log('Panorama distrital '+size.width+'px, seis distritos, años, filtro y privacidad');
+  await page.locator('#panoramaScope').selectOption('imss_region');
+  assert.equal(await page.locator('#panoramaRegion option').count(),11,'10 regiones y opción inicial');
+  await page.locator('#panoramaRegion').selectOption('IB06');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Región Hermosillo/);
+  assert.match(await page.locator('#municipalPanoramaContent').innerText(),/provisional/i);
+  assert.equal(await page.locator('#municipalPanorama .panorama-bar-row').count(),3,'Serie regional histórica');
+  await page.locator('#panoramaRegion').selectOption('IB10');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Región Huatabampo/);
+  await page.locator('#territory').selectOption('imss_region');
+  await page.locator('#search').fill('Hermosillo');
+  await page.locator('#search').press('Enter');
+  assert.match(await page.locator('#municipalPanoramaTitle').innerText(),/Región Hermosillo/);
+  await page.locator('#municipalPanoramaClose').click();
+  assert.equal(await page.locator('#municipalPanorama').isHidden(),true);
+  await page.locator('#municipalPanoramaToggle').click();
+  assert.equal(await page.locator('#municipalPanorama').isVisible(),true);
+  log('Panorama IMSS-Bienestar '+size.width+'px, 10 regiones, serie histórica y cautela territorial');
   await page.close();
  }
  const page=await browser.newPage({viewport:{width:1280,height:850}});

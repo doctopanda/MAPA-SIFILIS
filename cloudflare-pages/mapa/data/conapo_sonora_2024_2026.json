@@ -1,0 +1,1682 @@
+{
+  "schema": "EDITH_CONAPO_SONORA_MUNICIPAL_MIDYEAR_V1",
+  "source": "CONAPO 2024: reconstrucción y proyecciones población municipal 1990–2040; reproducción derivada con sexos y totales",
+  "source_primary": "https://www.gob.mx/conapo/documentos/reconstruccion-y-proyecciones-de-la-poblacion-de-los-municipios-de-mexico-1990-2040",
+  "source_derivative": "https://github.com/lapanquecita/poblacion-estimada/tree/main/poblacion_municipal",
+  "source_blobs": {
+    "total": "729afbf21a5e93f6e1e621b8afce57fe87acabc6",
+    "male": "0480a347200ce5b85c7acf92d753de4f68c2b96e",
+    "female": "d227f9e3f45add6f30734ca347c55107cc4359b2"
+  },
+  "scope": "Sonora 26",
+  "years": [
+    2024,
+    2025,
+    2026
+  ],
+  "date_basis": "Población a mitad de año, estimación/proyección",
+  "geographies": 72,
+  "notes": [
+    "Datos públicos de proyección, no padrón censal ni conteos de nacimientos",
+    "Sexos hombres y mujeres suman el total cada año",
+    "Región IMSS-Bienestar provisional; no usar para tasas regionales mientras falte homologar"
+  ],
+  "rows": [
+    {
+      "code": "001",
+      "name": "Aconchi",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 2600,
+          "male": 1383,
+          "female": 1217
+        },
+        "2025": {
+          "total": 2603,
+          "male": 1388,
+          "female": 1215
+        },
+        "2026": {
+          "total": 2603,
+          "male": 1388,
+          "female": 1215
+        }
+      }
+    },
+    {
+      "code": "002",
+      "name": "Agua Prieta",
+      "district": "DS03",
+      "region": "IB03",
+      "values": {
+        "2024": {
+          "total": 98528,
+          "male": 50186,
+          "female": 48342
+        },
+        "2025": {
+          "total": 99702,
+          "male": 50838,
+          "female": 48864
+        },
+        "2026": {
+          "total": 100844,
+          "male": 51469,
+          "female": 49375
+        }
+      }
+    },
+    {
+      "code": "003",
+      "name": "Álamos",
+      "district": "DS05",
+      "region": "IB09",
+      "values": {
+        "2024": {
+          "total": 25132,
+          "male": 13283,
+          "female": 11849
+        },
+        "2025": {
+          "total": 25078,
+          "male": 13277,
+          "female": 11801
+        },
+        "2026": {
+          "total": 25010,
+          "male": 13261,
+          "female": 11749
+        }
+      }
+    },
+    {
+      "code": "004",
+      "name": "Altar",
+      "district": "DS02",
+      "region": "IB02",
+      "values": {
+        "2024": {
+          "total": 9714,
+          "male": 4926,
+          "female": 4788
+        },
+        "2025": {
+          "total": 9727,
+          "male": 4940,
+          "female": 4787
+        },
+        "2026": {
+          "total": 9741,
+          "male": 4954,
+          "female": 4787
+        }
+      }
+    },
+    {
+      "code": "005",
+      "name": "Arivechi",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 1225,
+          "male": 630,
+          "female": 595
+        },
+        "2025": {
+          "total": 1233,
+          "male": 637,
+          "female": 596
+        },
+        "2026": {
+          "total": 1239,
+          "male": 641,
+          "female": 598
+        }
+      }
+    },
+    {
+      "code": "006",
+      "name": "Arizpe",
+      "district": "DS03",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 2976,
+          "male": 1550,
+          "female": 1426
+        },
+        "2025": {
+          "total": 3013,
+          "male": 1571,
+          "female": 1442
+        },
+        "2026": {
+          "total": 3052,
+          "male": 1597,
+          "female": 1455
+        }
+      }
+    },
+    {
+      "code": "007",
+      "name": "Átil",
+      "district": "DS02",
+      "region": "IB02",
+      "values": {
+        "2024": {
+          "total": 689,
+          "male": 358,
+          "female": 331
+        },
+        "2025": {
+          "total": 703,
+          "male": 363,
+          "female": 340
+        },
+        "2026": {
+          "total": 706,
+          "male": 365,
+          "female": 341
+        }
+      }
+    },
+    {
+      "code": "008",
+      "name": "Bacadéhuachi",
+      "district": "DS01",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 927,
+          "male": 491,
+          "female": 436
+        },
+        "2025": {
+          "total": 911,
+          "male": 483,
+          "female": 428
+        },
+        "2026": {
+          "total": 892,
+          "male": 475,
+          "female": 417
+        }
+      }
+    },
+    {
+      "code": "009",
+      "name": "Bacanora",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 754,
+          "male": 381,
+          "female": 373
+        },
+        "2025": {
+          "total": 758,
+          "male": 383,
+          "female": 375
+        },
+        "2026": {
+          "total": 755,
+          "male": 382,
+          "female": 373
+        }
+      }
+    },
+    {
+      "code": "010",
+      "name": "Bacerac",
+      "district": "DS03",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 1199,
+          "male": 621,
+          "female": 578
+        },
+        "2025": {
+          "total": 1197,
+          "male": 620,
+          "female": 577
+        },
+        "2026": {
+          "total": 1183,
+          "male": 614,
+          "female": 569
+        }
+      }
+    },
+    {
+      "code": "011",
+      "name": "Bacoachi",
+      "district": "DS03",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 1476,
+          "male": 740,
+          "female": 736
+        },
+        "2025": {
+          "total": 1472,
+          "male": 741,
+          "female": 731
+        },
+        "2026": {
+          "total": 1466,
+          "male": 738,
+          "female": 728
+        }
+      }
+    },
+    {
+      "code": "012",
+      "name": "Bácum",
+      "district": "DS04",
+      "region": "IB08",
+      "values": {
+        "2024": {
+          "total": 23961,
+          "male": 12269,
+          "female": 11692
+        },
+        "2025": {
+          "total": 24071,
+          "male": 12341,
+          "female": 11730
+        },
+        "2026": {
+          "total": 24167,
+          "male": 12404,
+          "female": 11763
+        }
+      }
+    },
+    {
+      "code": "013",
+      "name": "Banámichi",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 2093,
+          "male": 1061,
+          "female": 1032
+        },
+        "2025": {
+          "total": 2150,
+          "male": 1092,
+          "female": 1058
+        },
+        "2026": {
+          "total": 2210,
+          "male": 1125,
+          "female": 1085
+        }
+      }
+    },
+    {
+      "code": "014",
+      "name": "Baviácora",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 3187,
+          "male": 1680,
+          "female": 1507
+        },
+        "2025": {
+          "total": 3174,
+          "male": 1674,
+          "female": 1500
+        },
+        "2026": {
+          "total": 3155,
+          "male": 1666,
+          "female": 1489
+        }
+      }
+    },
+    {
+      "code": "015",
+      "name": "Bavispe",
+      "district": "DS03",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 1169,
+          "male": 623,
+          "female": 546
+        },
+        "2025": {
+          "total": 1167,
+          "male": 623,
+          "female": 544
+        },
+        "2026": {
+          "total": 1160,
+          "male": 622,
+          "female": 538
+        }
+      }
+    },
+    {
+      "code": "016",
+      "name": "Benjamín Hill",
+      "district": "DS03",
+      "region": "IB03",
+      "values": {
+        "2024": {
+          "total": 4937,
+          "male": 2473,
+          "female": 2464
+        },
+        "2025": {
+          "total": 4906,
+          "male": 2459,
+          "female": 2447
+        },
+        "2026": {
+          "total": 4876,
+          "male": 2442,
+          "female": 2434
+        }
+      }
+    },
+    {
+      "code": "017",
+      "name": "Caborca",
+      "district": "DS02",
+      "region": "IB02",
+      "values": {
+        "2024": {
+          "total": 95137,
+          "male": 48481,
+          "female": 46656
+        },
+        "2025": {
+          "total": 96250,
+          "male": 49101,
+          "female": 47149
+        },
+        "2026": {
+          "total": 97322,
+          "male": 49694,
+          "female": 47628
+        }
+      }
+    },
+    {
+      "code": "018",
+      "name": "Cajeme",
+      "district": "DS04",
+      "region": "IB08",
+      "values": {
+        "2024": {
+          "total": 451214,
+          "male": 222805,
+          "female": 228409
+        },
+        "2025": {
+          "total": 453062,
+          "male": 223885,
+          "female": 229177
+        },
+        "2026": {
+          "total": 454674,
+          "male": 224816,
+          "female": 229858
+        }
+      }
+    },
+    {
+      "code": "019",
+      "name": "Cananea",
+      "district": "DS03",
+      "region": "IB03",
+      "values": {
+        "2024": {
+          "total": 43337,
+          "male": 21737,
+          "female": 21600
+        },
+        "2025": {
+          "total": 44128,
+          "male": 22152,
+          "female": 21976
+        },
+        "2026": {
+          "total": 44912,
+          "male": 22563,
+          "female": 22349
+        }
+      }
+    },
+    {
+      "code": "020",
+      "name": "Carbó",
+      "district": "DS01",
+      "region": "IB06",
+      "values": {
+        "2024": {
+          "total": 5196,
+          "male": 2726,
+          "female": 2470
+        },
+        "2025": {
+          "total": 5236,
+          "male": 2748,
+          "female": 2488
+        },
+        "2026": {
+          "total": 5280,
+          "male": 2773,
+          "female": 2507
+        }
+      }
+    },
+    {
+      "code": "021",
+      "name": "La Colorada",
+      "district": "DS01",
+      "region": "IB06",
+      "values": {
+        "2024": {
+          "total": 1801,
+          "male": 1012,
+          "female": 789
+        },
+        "2025": {
+          "total": 1786,
+          "male": 1002,
+          "female": 784
+        },
+        "2026": {
+          "total": 1770,
+          "male": 996,
+          "female": 774
+        }
+      }
+    },
+    {
+      "code": "022",
+      "name": "Cucurpe",
+      "district": "DS03",
+      "region": "IB03",
+      "values": {
+        "2024": {
+          "total": 876,
+          "male": 490,
+          "female": 386
+        },
+        "2025": {
+          "total": 874,
+          "male": 490,
+          "female": 384
+        },
+        "2026": {
+          "total": 877,
+          "male": 491,
+          "female": 386
+        }
+      }
+    },
+    {
+      "code": "023",
+      "name": "Cumpas",
+      "district": "DS01",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 5800,
+          "male": 2969,
+          "female": 2831
+        },
+        "2025": {
+          "total": 5769,
+          "male": 2958,
+          "female": 2811
+        },
+        "2026": {
+          "total": 5743,
+          "male": 2949,
+          "female": 2794
+        }
+      }
+    },
+    {
+      "code": "024",
+      "name": "Divisaderos",
+      "district": "DS01",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 811,
+          "male": 426,
+          "female": 385
+        },
+        "2025": {
+          "total": 818,
+          "male": 431,
+          "female": 387
+        },
+        "2026": {
+          "total": 831,
+          "male": 438,
+          "female": 393
+        }
+      }
+    },
+    {
+      "code": "025",
+      "name": "Empalme",
+      "district": "DS04",
+      "region": "IB07",
+      "values": {
+        "2024": {
+          "total": 52079,
+          "male": 26326,
+          "female": 25753
+        },
+        "2025": {
+          "total": 52096,
+          "male": 26367,
+          "female": 25729
+        },
+        "2026": {
+          "total": 52092,
+          "male": 26394,
+          "female": 25698
+        }
+      }
+    },
+    {
+      "code": "026",
+      "name": "Etchojoa",
+      "district": "DS05",
+      "region": "IB10",
+      "values": {
+        "2024": {
+          "total": 62470,
+          "male": 32008,
+          "female": 30462
+        },
+        "2025": {
+          "total": 62543,
+          "male": 32087,
+          "female": 30456
+        },
+        "2026": {
+          "total": 62577,
+          "male": 32142,
+          "female": 30435
+        }
+      }
+    },
+    {
+      "code": "027",
+      "name": "Fronteras",
+      "district": "DS03",
+      "region": "IB03",
+      "values": {
+        "2024": {
+          "total": 9672,
+          "male": 5004,
+          "female": 4668
+        },
+        "2025": {
+          "total": 9788,
+          "male": 5073,
+          "female": 4715
+        },
+        "2026": {
+          "total": 9899,
+          "male": 5139,
+          "female": 4760
+        }
+      }
+    },
+    {
+      "code": "028",
+      "name": "Granados",
+      "district": "DS01",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 1024,
+          "male": 523,
+          "female": 501
+        },
+        "2025": {
+          "total": 1015,
+          "male": 520,
+          "female": 495
+        },
+        "2026": {
+          "total": 1013,
+          "male": 518,
+          "female": 495
+        }
+      }
+    },
+    {
+      "code": "029",
+      "name": "Guaymas",
+      "district": "DS04",
+      "region": "IB07",
+      "values": {
+        "2024": {
+          "total": 160709,
+          "male": 80574,
+          "female": 80135
+        },
+        "2025": {
+          "total": 161039,
+          "male": 80822,
+          "female": 80217
+        },
+        "2026": {
+          "total": 161283,
+          "male": 81015,
+          "female": 80268
+        }
+      }
+    },
+    {
+      "code": "030",
+      "name": "Hermosillo",
+      "district": "DS01",
+      "region": "IB06",
+      "values": {
+        "2024": {
+          "total": 1013689,
+          "male": 506825,
+          "female": 506864
+        },
+        "2025": {
+          "total": 1028894,
+          "male": 514826,
+          "female": 514068
+        },
+        "2026": {
+          "total": 1043797,
+          "male": 522617,
+          "female": 521180
+        }
+      }
+    },
+    {
+      "code": "031",
+      "name": "Huachinera",
+      "district": "DS03",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 1185,
+          "male": 614,
+          "female": 571
+        },
+        "2025": {
+          "total": 1187,
+          "male": 615,
+          "female": 572
+        },
+        "2026": {
+          "total": 1180,
+          "male": 613,
+          "female": 567
+        }
+      }
+    },
+    {
+      "code": "032",
+      "name": "Huásabas",
+      "district": "DS01",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 880,
+          "male": 465,
+          "female": 415
+        },
+        "2025": {
+          "total": 872,
+          "male": 463,
+          "female": 409
+        },
+        "2026": {
+          "total": 869,
+          "male": 459,
+          "female": 410
+        }
+      }
+    },
+    {
+      "code": "033",
+      "name": "Huatabampo",
+      "district": "DS05",
+      "region": "IB10",
+      "values": {
+        "2024": {
+          "total": 78468,
+          "male": 40157,
+          "female": 38311
+        },
+        "2025": {
+          "total": 78401,
+          "male": 40171,
+          "female": 38230
+        },
+        "2026": {
+          "total": 78290,
+          "male": 40160,
+          "female": 38130
+        }
+      }
+    },
+    {
+      "code": "034",
+      "name": "Huépac",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 990,
+          "male": 520,
+          "female": 470
+        },
+        "2025": {
+          "total": 997,
+          "male": 522,
+          "female": 475
+        },
+        "2026": {
+          "total": 1001,
+          "male": 525,
+          "female": 476
+        }
+      }
+    },
+    {
+      "code": "035",
+      "name": "Ímuris",
+      "district": "DS03",
+      "region": "IB03",
+      "values": {
+        "2024": {
+          "total": 12682,
+          "male": 6492,
+          "female": 6190
+        },
+        "2025": {
+          "total": 12679,
+          "male": 6497,
+          "female": 6182
+        },
+        "2026": {
+          "total": 12657,
+          "male": 6493,
+          "female": 6164
+        }
+      }
+    },
+    {
+      "code": "036",
+      "name": "Magdalena",
+      "district": "DS03",
+      "region": "IB03",
+      "values": {
+        "2024": {
+          "total": 35265,
+          "male": 17628,
+          "female": 17637
+        },
+        "2025": {
+          "total": 35668,
+          "male": 17847,
+          "female": 17821
+        },
+        "2026": {
+          "total": 36054,
+          "male": 18054,
+          "female": 18000
+        }
+      }
+    },
+    {
+      "code": "037",
+      "name": "Mazatán",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 1030,
+          "male": 550,
+          "female": 480
+        },
+        "2025": {
+          "total": 1004,
+          "male": 540,
+          "female": 464
+        },
+        "2026": {
+          "total": 984,
+          "male": 528,
+          "female": 456
+        }
+      }
+    },
+    {
+      "code": "038",
+      "name": "Moctezuma",
+      "district": "DS01",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 5525,
+          "male": 2778,
+          "female": 2747
+        },
+        "2025": {
+          "total": 5590,
+          "male": 2812,
+          "female": 2778
+        },
+        "2026": {
+          "total": 5654,
+          "male": 2847,
+          "female": 2807
+        }
+      }
+    },
+    {
+      "code": "039",
+      "name": "Naco",
+      "district": "DS03",
+      "region": "IB03",
+      "values": {
+        "2024": {
+          "total": 5832,
+          "male": 2974,
+          "female": 2858
+        },
+        "2025": {
+          "total": 5822,
+          "male": 2974,
+          "female": 2848
+        },
+        "2026": {
+          "total": 5815,
+          "male": 2972,
+          "female": 2843
+        }
+      }
+    },
+    {
+      "code": "040",
+      "name": "Nácori Chico",
+      "district": "DS01",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 1488,
+          "male": 812,
+          "female": 676
+        },
+        "2025": {
+          "total": 1480,
+          "male": 808,
+          "female": 672
+        },
+        "2026": {
+          "total": 1459,
+          "male": 798,
+          "female": 661
+        }
+      }
+    },
+    {
+      "code": "041",
+      "name": "Nacozari de García",
+      "district": "DS01",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 15309,
+          "male": 7818,
+          "female": 7491
+        },
+        "2025": {
+          "total": 15474,
+          "male": 7910,
+          "female": 7564
+        },
+        "2026": {
+          "total": 15634,
+          "male": 7998,
+          "female": 7636
+        }
+      }
+    },
+    {
+      "code": "042",
+      "name": "Navojoa",
+      "district": "DS05",
+      "region": "IB09",
+      "values": {
+        "2024": {
+          "total": 169869,
+          "male": 84544,
+          "female": 85325
+        },
+        "2025": {
+          "total": 170577,
+          "male": 84984,
+          "female": 85593
+        },
+        "2026": {
+          "total": 171196,
+          "male": 85366,
+          "female": 85830
+        }
+      }
+    },
+    {
+      "code": "043",
+      "name": "Nogales",
+      "district": "DS03",
+      "region": "IB03",
+      "values": {
+        "2024": {
+          "total": 287440,
+          "male": 144903,
+          "female": 142537
+        },
+        "2025": {
+          "total": 291698,
+          "male": 147195,
+          "female": 144503
+        },
+        "2026": {
+          "total": 295890,
+          "male": 149433,
+          "female": 146457
+        }
+      }
+    },
+    {
+      "code": "044",
+      "name": "Ónavas",
+      "district": "DS01",
+      "region": "IB07",
+      "values": {
+        "2024": {
+          "total": 355,
+          "male": 197,
+          "female": 158
+        },
+        "2025": {
+          "total": 349,
+          "male": 197,
+          "female": 152
+        },
+        "2026": {
+          "total": 350,
+          "male": 196,
+          "female": 154
+        }
+      }
+    },
+    {
+      "code": "045",
+      "name": "Opodepe",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 2366,
+          "male": 1271,
+          "female": 1095
+        },
+        "2025": {
+          "total": 2350,
+          "male": 1264,
+          "female": 1086
+        },
+        "2026": {
+          "total": 2326,
+          "male": 1253,
+          "female": 1073
+        }
+      }
+    },
+    {
+      "code": "046",
+      "name": "Oquitoa",
+      "district": "DS02",
+      "region": "IB02",
+      "values": {
+        "2024": {
+          "total": 649,
+          "male": 319,
+          "female": 330
+        },
+        "2025": {
+          "total": 689,
+          "male": 340,
+          "female": 349
+        },
+        "2026": {
+          "total": 727,
+          "male": 358,
+          "female": 369
+        }
+      }
+    },
+    {
+      "code": "047",
+      "name": "Pitiquito",
+      "district": "DS02",
+      "region": "IB02",
+      "values": {
+        "2024": {
+          "total": 9170,
+          "male": 4810,
+          "female": 4360
+        },
+        "2025": {
+          "total": 9154,
+          "male": 4806,
+          "female": 4348
+        },
+        "2026": {
+          "total": 9131,
+          "male": 4801,
+          "female": 4330
+        }
+      }
+    },
+    {
+      "code": "048",
+      "name": "Puerto Peñasco",
+      "district": "DS06",
+      "region": "IB01",
+      "values": {
+        "2024": {
+          "total": 65112,
+          "male": 33435,
+          "female": 31677
+        },
+        "2025": {
+          "total": 65454,
+          "male": 33657,
+          "female": 31797
+        },
+        "2026": {
+          "total": 65765,
+          "male": 33858,
+          "female": 31907
+        }
+      }
+    },
+    {
+      "code": "049",
+      "name": "Quiriego",
+      "district": "DS04",
+      "region": "IB08",
+      "values": {
+        "2024": {
+          "total": 3426,
+          "male": 1881,
+          "female": 1545
+        },
+        "2025": {
+          "total": 3498,
+          "male": 1923,
+          "female": 1575
+        },
+        "2026": {
+          "total": 3567,
+          "male": 1964,
+          "female": 1603
+        }
+      }
+    },
+    {
+      "code": "050",
+      "name": "Rayón",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 1593,
+          "male": 860,
+          "female": 733
+        },
+        "2025": {
+          "total": 1610,
+          "male": 873,
+          "female": 737
+        },
+        "2026": {
+          "total": 1620,
+          "male": 880,
+          "female": 740
+        }
+      }
+    },
+    {
+      "code": "051",
+      "name": "Rosario",
+      "district": "DS04",
+      "region": "IB08",
+      "values": {
+        "2024": {
+          "total": 4809,
+          "male": 2544,
+          "female": 2265
+        },
+        "2025": {
+          "total": 4794,
+          "male": 2538,
+          "female": 2256
+        },
+        "2026": {
+          "total": 4769,
+          "male": 2531,
+          "female": 2238
+        }
+      }
+    },
+    {
+      "code": "052",
+      "name": "Sahuaripa",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 5110,
+          "male": 2683,
+          "female": 2427
+        },
+        "2025": {
+          "total": 5058,
+          "male": 2663,
+          "female": 2395
+        },
+        "2026": {
+          "total": 5006,
+          "male": 2637,
+          "female": 2369
+        }
+      }
+    },
+    {
+      "code": "053",
+      "name": "San Felipe de Jesús",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 363,
+          "male": 187,
+          "female": 176
+        },
+        "2025": {
+          "total": 361,
+          "male": 187,
+          "female": 174
+        },
+        "2026": {
+          "total": 362,
+          "male": 188,
+          "female": 174
+        }
+      }
+    },
+    {
+      "code": "054",
+      "name": "San Javier",
+      "district": "DS01",
+      "region": "IB07",
+      "values": {
+        "2024": {
+          "total": 539,
+          "male": 290,
+          "female": 249
+        },
+        "2025": {
+          "total": 537,
+          "male": 289,
+          "female": 248
+        },
+        "2026": {
+          "total": 537,
+          "male": 291,
+          "female": 246
+        }
+      }
+    },
+    {
+      "code": "055",
+      "name": "San Luis Río Colorado",
+      "district": "DS06",
+      "region": "IB01",
+      "values": {
+        "2024": {
+          "total": 211025,
+          "male": 107239,
+          "female": 103786
+        },
+        "2025": {
+          "total": 213148,
+          "male": 108452,
+          "female": 104696
+        },
+        "2026": {
+          "total": 215195,
+          "male": 109619,
+          "female": 105576
+        }
+      }
+    },
+    {
+      "code": "056",
+      "name": "San Miguel de Horcasitas",
+      "district": "DS01",
+      "region": "IB06",
+      "values": {
+        "2024": {
+          "total": 12123,
+          "male": 6379,
+          "female": 5744
+        },
+        "2025": {
+          "total": 12418,
+          "male": 6543,
+          "female": 5875
+        },
+        "2026": {
+          "total": 12718,
+          "male": 6709,
+          "female": 6009
+        }
+      }
+    },
+    {
+      "code": "057",
+      "name": "San Pedro de la Cueva",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 1487,
+          "male": 813,
+          "female": 674
+        },
+        "2025": {
+          "total": 1482,
+          "male": 812,
+          "female": 670
+        },
+        "2026": {
+          "total": 1487,
+          "male": 815,
+          "female": 672
+        }
+      }
+    },
+    {
+      "code": "058",
+      "name": "Santa Ana",
+      "district": "DS03",
+      "region": "IB03",
+      "values": {
+        "2024": {
+          "total": 16523,
+          "male": 8322,
+          "female": 8201
+        },
+        "2025": {
+          "total": 16541,
+          "male": 8341,
+          "female": 8200
+        },
+        "2026": {
+          "total": 16554,
+          "male": 8356,
+          "female": 8198
+        }
+      }
+    },
+    {
+      "code": "059",
+      "name": "Santa Cruz",
+      "district": "DS03",
+      "region": "IB03",
+      "values": {
+        "2024": {
+          "total": 1957,
+          "male": 1052,
+          "female": 905
+        },
+        "2025": {
+          "total": 1974,
+          "male": 1063,
+          "female": 911
+        },
+        "2026": {
+          "total": 2003,
+          "male": 1079,
+          "female": 924
+        }
+      }
+    },
+    {
+      "code": "060",
+      "name": "Sáric",
+      "district": "DS02",
+      "region": "IB02",
+      "values": {
+        "2024": {
+          "total": 2667,
+          "male": 1445,
+          "female": 1222
+        },
+        "2025": {
+          "total": 2820,
+          "male": 1530,
+          "female": 1290
+        },
+        "2026": {
+          "total": 2984,
+          "male": 1619,
+          "female": 1365
+        }
+      }
+    },
+    {
+      "code": "061",
+      "name": "Soyopa",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 1363,
+          "male": 760,
+          "female": 603
+        },
+        "2025": {
+          "total": 1364,
+          "male": 759,
+          "female": 605
+        },
+        "2026": {
+          "total": 1355,
+          "male": 761,
+          "female": 594
+        }
+      }
+    },
+    {
+      "code": "062",
+      "name": "Suaqui Grande",
+      "district": "DS01",
+      "region": "IB07",
+      "values": {
+        "2024": {
+          "total": 1126,
+          "male": 614,
+          "female": 512
+        },
+        "2025": {
+          "total": 1128,
+          "male": 615,
+          "female": 513
+        },
+        "2026": {
+          "total": 1122,
+          "male": 610,
+          "female": 512
+        }
+      }
+    },
+    {
+      "code": "063",
+      "name": "Tepache",
+      "district": "DS01",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 1173,
+          "male": 608,
+          "female": 565
+        },
+        "2025": {
+          "total": 1164,
+          "male": 604,
+          "female": 560
+        },
+        "2026": {
+          "total": 1156,
+          "male": 601,
+          "female": 555
+        }
+      }
+    },
+    {
+      "code": "064",
+      "name": "Trincheras",
+      "district": "DS03",
+      "region": "IB02",
+      "values": {
+        "2024": {
+          "total": 1317,
+          "male": 729,
+          "female": 588
+        },
+        "2025": {
+          "total": 1295,
+          "male": 718,
+          "female": 577
+        },
+        "2026": {
+          "total": 1274,
+          "male": 710,
+          "female": 564
+        }
+      }
+    },
+    {
+      "code": "065",
+      "name": "Tubutama",
+      "district": "DS02",
+      "region": "IB02",
+      "values": {
+        "2024": {
+          "total": 1815,
+          "male": 960,
+          "female": 855
+        },
+        "2025": {
+          "total": 1898,
+          "male": 1005,
+          "female": 893
+        },
+        "2026": {
+          "total": 1982,
+          "male": 1052,
+          "female": 930
+        }
+      }
+    },
+    {
+      "code": "066",
+      "name": "Ures",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 8682,
+          "male": 4533,
+          "female": 4149
+        },
+        "2025": {
+          "total": 8677,
+          "male": 4538,
+          "female": 4139
+        },
+        "2026": {
+          "total": 8677,
+          "male": 4545,
+          "female": 4132
+        }
+      }
+    },
+    {
+      "code": "067",
+      "name": "Villa Hidalgo",
+      "district": "DS01",
+      "region": "IB04",
+      "values": {
+        "2024": {
+          "total": 1394,
+          "male": 727,
+          "female": 667
+        },
+        "2025": {
+          "total": 1382,
+          "male": 724,
+          "female": 658
+        },
+        "2026": {
+          "total": 1373,
+          "male": 716,
+          "female": 657
+        }
+      }
+    },
+    {
+      "code": "068",
+      "name": "Villa Pesqueira",
+      "district": "DS01",
+      "region": "IB05",
+      "values": {
+        "2024": {
+          "total": 979,
+          "male": 546,
+          "female": 433
+        },
+        "2025": {
+          "total": 955,
+          "male": 530,
+          "female": 425
+        },
+        "2026": {
+          "total": 935,
+          "male": 522,
+          "female": 413
+        }
+      }
+    },
+    {
+      "code": "069",
+      "name": "Yécora",
+      "district": "DS04",
+      "region": "IB08",
+      "values": {
+        "2024": {
+          "total": 4756,
+          "male": 2447,
+          "female": 2309
+        },
+        "2025": {
+          "total": 4743,
+          "male": 2445,
+          "female": 2298
+        },
+        "2026": {
+          "total": 4733,
+          "male": 2441,
+          "female": 2292
+        }
+      }
+    },
+    {
+      "code": "070",
+      "name": "General Plutarco Elías Calles",
+      "district": "DS06",
+      "region": "IB01",
+      "values": {
+        "2024": {
+          "total": 12977,
+          "male": 6726,
+          "female": 6251
+        },
+        "2025": {
+          "total": 12807,
+          "male": 6643,
+          "female": 6164
+        },
+        "2026": {
+          "total": 12631,
+          "male": 6560,
+          "female": 6071
+        }
+      }
+    },
+    {
+      "code": "071",
+      "name": "Benito Juárez",
+      "district": "DS05",
+      "region": "IB10",
+      "values": {
+        "2024": {
+          "total": 21949,
+          "male": 11108,
+          "female": 10841
+        },
+        "2025": {
+          "total": 21933,
+          "male": 11112,
+          "female": 10821
+        },
+        "2026": {
+          "total": 21902,
+          "male": 11108,
+          "female": 10794
+        }
+      }
+    },
+    {
+      "code": "072",
+      "name": "San Ignacio Río Muerto",
+      "district": "DS04",
+      "region": "IB08",
+      "values": {
+        "2024": {
+          "total": 14554,
+          "male": 7570,
+          "female": 6984
+        },
+        "2025": {
+          "total": 14567,
+          "male": 7585,
+          "female": 6982
+        },
+        "2026": {
+          "total": 14571,
+          "male": 7599,
+          "female": 6972
+        }
+      }
+    }
+  ]
+}

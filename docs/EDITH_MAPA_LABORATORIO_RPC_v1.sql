@@ -1,5 +1,5 @@
 -- MAPA-SÍFILIS: contrato institucional de clasificación final con criterio de laboratorio.
--- PREPARADO EN FEATURE BRANCH. NO EJECUTAR AUTOMÁTICAMENTE SOBRE PRODUCCIÓN.
+-- IMPLEMENTADA EN SUPABASE EDITH (2026-11-09); comprobar QA por rol antes de liberar UI a main.
 -- No equivale a positividad aislada de VDRL, ni sustituye dictaminación clínica.
 -- Conserva RLS de edith_sc_cases (SECURITY INVOKER) y autorización por perfil.
 create or replace function public.edith_sc_mapa_laboratorio_v1()
@@ -60,9 +60,9 @@ $$;
 revoke all on function public.edith_sc_mapa_laboratorio_v1() from public, anon;
 grant execute on function public.edith_sc_mapa_laboratorio_v1() to authenticated;
 
--- DESPUÉS DE IMPLEMENTAR CON APROBACIÓN:
--- 1. Validar RLS por rol y que una sesión sin perfil autorizado devuelve NULL.
--- 2. Verificar que el catálogo de 72 municipios concilia con los casos por año.
--- 3. Probar suppress de 1-4 y complementos de 1-4.
--- 4. Comparar agregados clasificados con reporte original por año.
+-- ESTADO DE VALIDACIÓN POSTIMPLEMENTACIÓN:
+-- 1. APROBADO: SEC INVOKER, anon sin EXECUTE, authenticated con EXECUTE; sin auth.uid devuelve NULL.
+-- 2. PARCIAL: catálogo 72 municipios; laboratorio 2024 32 en total y 31 homologables a municipio; 2025 13/13; 2026 11/11.
+-- 3. PENDIENTE: QA con sesiones reales para supresión primaria 1–4 y secundaria de complementos 1–4.
+-- 4. PARCIAL: total de clasificaciones CLAS_FINAL confirmado por lab 32/13/11; homologar definiciones por año.
 -- 5. Validar respuesta en rol distrital, administrador estatal, maestro y pendiente.

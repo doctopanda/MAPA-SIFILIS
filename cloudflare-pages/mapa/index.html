@@ -318,7 +318,7 @@ function validateConapo(doc){
  if(!doc||doc.schema!=='EDITH_CONAPO_SONORA_MUNICIPAL_MIDYEAR_V1'||!Array.isArray(doc.rows)||doc.rows.length!==72)throw Error('Fuente CONAPO no homologada');
  var lookup={};
  doc.rows.forEach(function(r){
-   if(!/^\\d{3}$/.test(r.code)||lookup[r.code]||!byCode[r.code])throw Error('Código CONAPO desconocido o repetido');
+   if(!/^[0-9]{3}$/.test(r.code)||lookup[r.code]||!byCode[r.code])throw Error('Código CONAPO desconocido o repetido');
    [2024,2025,2026].forEach(function(y){
      var v=r.values&&r.values[y];
      if(!v||!Number.isSafeInteger(v.total)||!Number.isSafeInteger(v.male)||!Number.isSafeInteger(v.female)||

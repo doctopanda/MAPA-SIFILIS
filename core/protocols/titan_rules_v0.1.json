@@ -1,0 +1,263 @@
+{
+  "version": "0.1-draft",
+  "review_date": "2026-11-25",
+  "activation": "DISABLED_PENDING_INSTITUTIONAL_REVIEW",
+  "synthetic_only": true,
+  "sources": {
+    "DGE": "https://epidemiologia.salud.gob.mx/gobmx/salud/documentos/manuales/31_Manual_SIFILIS.pdf",
+    "NOM017": "https://dof.gob.mx/nota_detalle_popup.php?codigo=5288225",
+    "NOM039": "https://sidof.segob.gob.mx/notas/docFuente/5485035",
+    "NOM010": "https://sidof.segob.gob.mx/notas/docFuente/5690938",
+    "OMS2024": "https://www.who.int/publications/i/item/9789240090767/",
+    "OPS2024": "https://www.who.int/publications/i/item/PAHO-CDE-HT-24-0014",
+    "CDC_SA": "https://www.cdc.gov/std/treatment-guidelines/p-and-s-syphilis.htm",
+    "CDC_LATENT": "https://www.cdc.gov/std/treatment-guidelines/latent-syphilis.htm",
+    "CDC_PRENATAL": "https://www.cdc.gov/std/treatment-guidelines/syphilis-pregnancy.htm",
+    "CDC_SC": "https://www.cdc.gov/std/treatment-guidelines/congenital-syphilis.htm",
+    "INFANCIA": "https://platiica.economia.gob.mx/normalizacion/nom-031-ssa2-1999/"
+  },
+  "rules": [
+    {
+      "id": "SC-NOT-24H",
+      "program": "SC",
+      "anchor": "detected_at",
+      "completion": "official_notified_at",
+      "offset": {
+        "unit": "hours",
+        "value": 24
+      },
+      "source": "DGE",
+      "locator": "tabla 4",
+      "type": "normative",
+      "scope": "probable case",
+      "requires": [
+        "validated_detection_timestamp"
+      ],
+      "owner": "EPIDEMIOLOGIA"
+    },
+    {
+      "id": "SC-LAB-15D",
+      "program": "SC",
+      "anchor": "detected_local_date",
+      "completion": "lab_final_classified_local_date",
+      "offset": {
+        "unit": "calendar_days",
+        "value": 15
+      },
+      "source": "DGE",
+      "locator": "tabla 4",
+      "type": "normative",
+      "scope": "probable case; laboratory route",
+      "owner": "EPIDEMIOLOGIA"
+    },
+    {
+      "id": "SC-DICT-31D",
+      "program": "SC",
+      "anchor": "detected_local_date",
+      "completion": "committee_classified_local_date",
+      "offset": {
+        "unit": "calendar_days",
+        "value": 31
+      },
+      "source": "DGE",
+      "locator": "tabla 4",
+      "type": "normative",
+      "scope": "probable case; no serological specimen / diagnostic test unavailable",
+      "owner": "EPIDEMIOLOGIA"
+    },
+    {
+      "id": "SA-SUIVE",
+      "program": "SA",
+      "anchor": "reporting_epi_week",
+      "completion": "weekly_report_ack",
+      "offset": null,
+      "source": "NOM017",
+      "locator": "apéndice A",
+      "type": "normative",
+      "scope": "reportable acquired syphilis",
+      "owner": "EPIDEMIOLOGIA",
+      "note": "Local calendar cutoff needs validation; do not infer seven days from detection"
+    },
+    {
+      "id": "SA-PRIMARY-SECONDARY-FU",
+      "program": "SA",
+      "anchor": "treatment_completed_local_date",
+      "completion": "quantitative_serology_reviewed",
+      "offsets": {
+        "unit": "calendar_months",
+        "values": [
+          3,
+          6,
+          12
+        ]
+      },
+      "source": "NOM039",
+      "locator": "7.4.5.1",
+      "type": "normative",
+      "scope": "primary or secondary",
+      "owner": "TRATANTE"
+    },
+    {
+      "id": "SA-HIV-FU",
+      "program": "SA",
+      "anchor": "treatment_completed_local_date",
+      "completion": "quantitative_serology_reviewed",
+      "offsets": {
+        "unit": "calendar_months",
+        "values": [
+          3,
+          6,
+          9,
+          12,
+          24
+        ]
+      },
+      "source": "NOM039",
+      "locator": "7.4.5.1",
+      "type": "normative",
+      "scope": "HIV coinfection; additional LCR provisions require specialist/normative review",
+      "owner": "TRATANTE"
+    },
+    {
+      "id": "SA-LATENT-FU",
+      "program": "SA",
+      "anchor": "treatment_completed_local_date",
+      "completion": "quantitative_serology_reviewed",
+      "offsets": {
+        "unit": "calendar_months",
+        "values": [
+          6,
+          12,
+          24
+        ]
+      },
+      "source": "CDC_LATENT",
+      "type": "international_reference",
+      "scope": "latent; clinician-approved plan",
+      "owner": "TRATANTE"
+    },
+    {
+      "id": "PREN-SCREEN-INITIAL",
+      "program": "PRENATAL",
+      "anchor": "pregnancy_start_estimated",
+      "completion": "screening_offer_and_outcome",
+      "offset": {
+        "unit": "gestational_weeks",
+        "value": 12
+      },
+      "source": "NOM010",
+      "locator": "6.3.4.2",
+      "type": "normative",
+      "scope": "all pregnancies; offer at first capture if later",
+      "owner": "PRENATAL"
+    },
+    {
+      "id": "PREN-SCREEN-PREDELIVERY",
+      "program": "PRENATAL",
+      "anchor": "delivery",
+      "completion": "second_screening_offer_and_outcome",
+      "offset": null,
+      "source": "NOM010",
+      "locator": "6.3.4.2",
+      "type": "normative",
+      "scope": "before delivery; due date not invented",
+      "owner": "PRENATAL"
+    },
+    {
+      "id": "PREN-POS-REF",
+      "program": "PRENATAL",
+      "anchor": "positive_result_known_at",
+      "completion": "specialist_referral_documented",
+      "offset": null,
+      "source": "NOM010",
+      "locator": "6.3.4.4",
+      "type": "normative",
+      "scope": "positive pregnancy test; immediate referral",
+      "owner": "PRENATAL"
+    },
+    {
+      "id": "PREN-TRIMESTER-FU",
+      "program": "PRENATAL",
+      "anchor": "gestational_stage",
+      "completion": "quantitative_serology_reviewed",
+      "offset": null,
+      "source": "NOM039",
+      "locator": "7.4.5.5",
+      "type": "normative",
+      "scope": "maternal syphilis; each trimester; reconcile with treatment-timing guidance",
+      "owner": "TRATANTE"
+    },
+    {
+      "id": "PREN-POSTPARTUM-FU",
+      "program": "PRENATAL",
+      "anchor": "delivery_local_date",
+      "completion": "quantitative_serology_reviewed",
+      "offsets": {
+        "unit": "calendar_months",
+        "values": [
+          3,
+          6,
+          12
+        ]
+      },
+      "source": "NOM039",
+      "locator": "7.4.5.5",
+      "type": "normative",
+      "scope": "maternal syphilis",
+      "owner": "TRATANTE"
+    },
+    {
+      "id": "SC-CHILD-FU",
+      "program": "SC",
+      "anchor": "birth_local_date",
+      "completion": "child_followup_documented",
+      "offsets": {
+        "unit": "calendar_months",
+        "values": [
+          2,
+          4,
+          6,
+          12
+        ]
+      },
+      "source": "NOM039",
+      "locator": "7.4.5.7",
+      "type": "normative",
+      "scope": "child born to mother with syphilis",
+      "owner": "PEDIATRIA"
+    },
+    {
+      "id": "SC-RN-NEG-RETEST",
+      "program": "SC",
+      "anchor": "birth_local_date",
+      "completion": "quantitative_serology_reviewed",
+      "offset": {
+        "unit": "calendar_months",
+        "value": 3
+      },
+      "source": "CDC_SC",
+      "type": "international_reference",
+      "scope": "negative neonatal nontreponemal test and maternal seroreactivity at delivery",
+      "owner": "PEDIATRIA"
+    },
+    {
+      "id": "SC-HANDOFF",
+      "program": "INFANCIA",
+      "anchor": "discharge_plan_approved",
+      "completion": "receiving_unit_acknowledged",
+      "offset": null,
+      "source": "INFANCIA",
+      "type": "local_proposal",
+      "scope": "handoff with open specialist follow-up preserved",
+      "owner": "INFANCIA"
+    }
+  ],
+  "semantics": {
+    "missing_anchor": "NO_CALCULABLE",
+    "missing_completion": "PENDING_IF_ANCHOR_VALID",
+    "calendar_days": "local civil date; no conversion to fixed hours",
+    "calendar_months": "calendar arithmetic; end-of-month policy requires approval",
+    "no_automatic_diagnosis_or_treatment": true,
+    "operational_reminders_not_normative": true
+  }
+}

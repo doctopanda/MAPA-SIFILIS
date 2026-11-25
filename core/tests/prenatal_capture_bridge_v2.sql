@@ -1,0 +1,34 @@
+begin;
+do $$
+declare a jsonb;k uuid:='00000000-0000-4000-8000-000000000101';f text:='PN-TEST-EMB-001'; e text:='PN-TEST-EVT-003';bad boolean;
+begin
+ a:=edith_core.prenatal_dating_v1('2026-01-01',true,null,null,'FUM','2026-02-15');if (a->>'weeks')::int<>6 or (a->>'days')::int<>3 or a->>'estimated_due_date'<>'2026-10-08' then raise exception 'FUM';end if;
+ if edith_core.prenatal_dating_v1('2026-01-01',false,null,null,'FUM','2026-02-15')->>'status'<>'FUM_NO_VALIDADA' then raise exception 'FUM reliability';end if;
+ if edith_core.prenatal_dating_v1(null,null,'2026-02-15',45,'USG_VALIDADO','2026-02-15')->>'estimated_due_date'<>'2026-10-08' then raise exception 'USG';end if;
+ if edith_core.prenatal_dating_v1(null,null,'2026-02-15',null,'USG_VALIDADO','2026-02-15')->>'status'<>'USG_NO_VALIDADO' then raise exception 'missing scan age';end if;
+ if edith_core.prenatal_dating_v1('2026-03-01',true,null,null,'FUM','2026-02-15')->>'status'<>'CRONOLOGIA_INVALIDA' then raise exception 'negative GA';end if;
+ if edith_core.prenatal_dating_v1('2025-01-01',true,null,null,'FUM','2026-02-15')->>'status'<>'REVISION_CLINICA' then raise exception 'out of range';end if;
+ if edith_core.prenatal_dating_v1('2026-01-01',true,'2026-02-15',49,null,'2026-02-15')->>'status'<>'METODO_PENDIENTE' then raise exception 'no automatic dating';end if;
+ if edith_core.prenatal_age_v1('2000-11-26','2026-11-25')<>25 then raise exception 'age birthday';end if;
+ if edith_core.prenatal_age_v1('2027-01-01','2026-11-25') is not null then raise exception 'future birth';end if;
+ a:=edith_core.prenatal_save_patch_v1(f,f,0,'{"gineco.partos":1}',k);if a->>'status'<>'SAVED' then raise exception 'patch';end if;
+ if (select data->>'gineco.gestas' from edith_core.prenatal_pregnancy_v1 where folio=f)<>'2' then raise exception 'preserve previous';end if;
+ if edith_core.prenatal_save_patch_v1(f,f,0,'{"gineco.partos":1}',k)->>'status'<>'REPLAY' then raise exception 'replay';end if;
+ if edith_core.prenatal_save_patch_v1(f,f,0,'{"gineco.partos":2}',k)->>'status'<>'REQUEST_CONFLICT' then raise exception 'request conflict';end if;
+ if edith_core.prenatal_save_patch_v1(f,f,0,'{"gineco.partos":2}','00000000-0000-4000-8000-000000000102')->>'status'<>'VERSION_CONFLICT' then raise exception 'stale version';end if;
+ if edith_core.prenatal_save_patch_v1('PN-TEST-EMB-002',e,0,'{}','00000000-0000-4000-8000-000000000103')->>'status'<>'UNKNOWN_TARGET' then raise exception 'cross pregnancy';end if;
+ if edith_core.prenatal_save_patch_v1(f,f,1,'{}','00000000-0000-4000-8000-000000000104')->>'status'<>'NO_CHANGE' then raise exception 'empty patch';end if;
+ bad:=false;begin perform edith_core.prenatal_save_patch_v1(f,f,1,'{"citas.peso_kg":60}','00000000-0000-4000-8000-000000000105');exception when check_violation then bad:=true;end;if not bad then raise exception 'invalid patch';end if;
+ if (select revision from edith_core.prenatal_pregnancy_v1 where folio=f)<>1 then raise exception 'rollback version';end if;
+ if (select count(*) from edith_core.prenatal_capture_audit_v1)<>1 then raise exception 'audit';end if;
+ if (select status from edith_core.prenatal_bridge_queue_v1() where event_key=e)<>'PENDIENTE_REVISION' then raise exception 'unreviewed';end if;
+ insert into edith_core.prenatal_review_v1 values(e,f,'REFERENCIA_INDICADA','SYN-EVID-101','2026-11-25T10:00-07',0);
+ if (select status from edith_core.prenatal_bridge_queue_v1() where event_key=e)<>'REFERENCIA_INDICADA' then raise exception 'review';end if;
+ a:=edith_core.prenatal_save_patch_v1(f,e,0,'{"detecciones.resultado_deteccion":null}','00000000-0000-4000-8000-000000000106');if a->>'status'<>'SAVED' then raise exception 'detection patch';end if;
+ if (select status from edith_core.prenatal_bridge_queue_v1() where event_key=e)<>'REVALIDAR_CAMBIO' then raise exception 'stale review';end if;
+ if (select evidence_ref from edith_core.prenatal_bridge_queue_v1() where event_key=e) is not null then raise exception 'stale evidence';end if;
+ bad:=false;begin insert into edith_core.prenatal_review_v1 values('PN-TEST-EVT-001',f,'REFERENCIA_INDICADA','SYN-EVID-102','2026-11-25T10:00-07',0);exception when check_violation then bad:=true;end;if not bad then raise exception 'non detection';end if;
+ if has_function_privilege('authenticated','edith_core.prenatal_save_patch_v1(text,text,bigint,jsonb,uuid)','EXECUTE') or has_table_privilege('anon','edith_core.prenatal_capture_audit_v1','SELECT') then raise exception 'permissions';end if;
+end $$;
+select 26 as checks_passed,'PASS' as result;
+rollback;

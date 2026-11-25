@@ -1,0 +1,36 @@
+begin;
+do $$
+declare a timestamptz:='2026-11-25T12:00:00-07'; bad boolean; n int;
+begin
+ if edith_core.titan_due_date_v1('2024-01-31','calendar_months',1)<>date '2024-02-29' then raise exception 'leap month'; end if;
+ if edith_core.titan_due_date_v1('2025-01-31','calendar_months',1)<>date '2025-02-28' then raise exception 'month end'; end if;
+ if edith_core.titan_due_date_v1('2026-11-12','calendar_days',15)<>date '2026-11-27' then raise exception '15 days'; end if;
+ if edith_core.titan_due_date_v1('2026-11-12','calendar_days',31)<>date '2026-12-13' then raise exception '31 days'; end if;
+ if edith_core.titan_due_date_v1('2026-08-01','gestational_weeks',12)<>date '2026-10-24' then raise exception '12 weeks'; end if;
+ if edith_core.titan_clock_v1(true,'hours',24,null,'2026-11-24T12:00-07',null,null,a)->>'status'<>'PROXIMA' then raise exception 'exact deadline'; end if;
+ if edith_core.titan_clock_v1(true,'hours',24,null,'2026-11-24T11:59-07',null,null,a)->>'status'<>'VENCIDA' then raise exception 'one minute late'; end if;
+ if edith_core.titan_clock_v1(true,'hours',24,'2026-11-24',null,null,null,a)->>'status'<>'NO_CALCULABLE' then raise exception 'do not infer hour'; end if;
+ if edith_core.titan_clock_v1(true,'calendar_days',15,'2026-11-10',null,null,null,'2026-11-26T06:59Z')->>'status'<>'PROXIMA' then raise exception 'local midnight'; end if;
+ if edith_core.titan_clock_v1(true,'calendar_days',15,'2026-11-10',null,null,null,'2026-11-26T07:00Z')->>'status'<>'VENCIDA' then raise exception 'local new day'; end if;
+ if edith_core.titan_clock_v1(false,'calendar_days',31,null,null,null,null,a)->>'status'<>'NO_APLICA' then raise exception 'not applicable'; end if;
+ if edith_core.titan_clock_v1(null,'calendar_days',31,null,null,null,null,a)->>'status'<>'APLICABILIDAD_PENDIENTE' then raise exception 'unknown eligibility'; end if;
+ if edith_core.titan_clock_v1(true,null,null,null,null,null,null,a)->>'status'<>'REVISION_MANUAL' then raise exception 'manual rule'; end if;
+ if edith_core.titan_clock_v1(true,'calendar_days',15,'2026-11-10',null,'2026-11-09',null,a)->>'status'<>'CRONOLOGIA_INVALIDA' then raise exception 'reverse chronology'; end if;
+ if edith_core.titan_clock_v1(true,'calendar_days',15,'2026-11-10',null,'2026-11-26',null,a)->>'status'<>'CRONOLOGIA_INVALIDA' then raise exception 'future completion'; end if;
+ if (select count(*) from edith_core.titan_queue_v1(a))<>11 then raise exception 'queue'; end if;
+ if (select result->>'timeliness' from edith_core.titan_queue_v1(a) where task_id='TITAN-TASK-001')<>'OPORTUNA' then raise exception 'on time'; end if;
+ if (select result->>'timeliness' from edith_core.titan_queue_v1(a) where task_id='TITAN-TASK-009')<>'TARDIA' then raise exception 'late documented'; end if;
+ if (select count(*) from edith_core.titan_episode_v1 where phase='BORRADOR')<>3 then raise exception 'partial capture';end if;
+ if (select count(*) from edith_core.titan_link_v1 where parent_folio='TITAN-TEST-PN-001' and relation='EMBARAZO_PRODUCTO' and reviewed)<>2 then raise exception 'multiple birth'; end if;
+ bad:=false; begin insert into edith_core.titan_link_v1 values('TITAN-TEST-SC-001','TITAN-TEST-SA-001','SA_EMBARAZO',true);exception when check_violation then bad:=true;end; if not bad then raise exception 'reverse link';end if;
+ bad:=false; begin insert into edith_core.titan_handoff_v1 values('TITAN-TEST-SC-003','TITAN-TEST-IN-001',a,null,null,true);exception when check_violation then bad:=true;end; if not bad then raise exception 'unreviewed handoff';end if;
+ bad:=false; begin update edith_core.titan_handoff_v1 set first_visit_at=a where to_folio='TITAN-TEST-IN-001';exception when check_violation then bad:=true;end; if not bad then raise exception 'visit without receipt';end if;
+ if (select count(*) from edith_core.titan_handoff_v1 where received_at is not null and first_visit_at is null and specialist_followup_open)<>1 then raise exception 'receipt not visit';end if;
+ bad:=false; begin update edith_core.titan_task_v1 set complete_at=a where task_id='TITAN-TASK-002';exception when check_violation then bad:=true;end; if not bad then raise exception 'completion no evidence';end if;
+ if has_schema_privilege('authenticated','edith_core','USAGE') then raise exception 'schema exposed';end if;
+ if has_table_privilege('authenticated','edith_core.titan_episode_v1','SELECT') then raise exception 'episode exposed';end if;
+ if has_table_privilege('anon','edith_core.titan_task_v1','SELECT') then raise exception 'task exposed';end if;
+ if has_function_privilege('authenticated','edith_core.titan_queue_v1(timestamptz)','EXECUTE') then raise exception 'queue exposed';end if;
+end $$;
+select 29 as checks_passed,'PASS' as result;
+rollback;

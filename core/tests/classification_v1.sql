@@ -1,0 +1,4 @@
+with fixtures(raw_label,expected) as (values
+ ('CONFIRMADO','CONFIRMADO'),(' confirmado por laboratorio ','CONFIRMADO'),('CONF LESP','CONFIRMADO'),('CONF   LESP','CONFIRMADO'),('DESCARTADO','DESCARTADO'),('NEG ZONA GRIS','DESCARTADO'),('ZONA GRIS','ZONA GRIS'),('PENDIENTE ZONA GRIS','ZONA GRIS'),('PENDIENTE','SIN CLASIFICAR'),('','SIN CLASIFICAR'),(null,'SIN CLASIFICAR'),('OTRO','SIN CLASIFICAR')),
+ checks as (select raw_label,expected,edith_core.classify_v1(raw_label) actual from fixtures)
+ select count(*) tests,count(*) filter(where expected=actual) passed,count(*) filter(where expected<>actual) failed,has_schema_privilege('anon','edith_core','USAGE') anon_schema,has_schema_privilege('authenticated','edith_core','USAGE') authenticated_schema,has_function_privilege('authenticated','edith_core.classify_v1(text)','EXECUTE') authenticated_execute from checks;

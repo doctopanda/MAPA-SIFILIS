@@ -1,0 +1,31 @@
+name: EDITH CORE synthetic regression
+on:
+  push:
+    branches: [feature/edith-core-v2]
+    paths: ['core/**', '.github/workflows/edith-core-tests.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  core:
+    if: github.ref == 'refs/heads/feature/edith-core-v2'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: edith_core_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: local-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d edith_core_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGUSER: postgres
+      PGPASSWORD: local-ci-only
+      PGPORT: 5432
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run synthetic checks
+        run: bash core/tests/run_disposable.sh

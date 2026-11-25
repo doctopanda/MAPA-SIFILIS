@@ -6,7 +6,7 @@ unset DATABASE_URL PGSERVICE PGSERVICEFILE PGOPTIONS
 cd "$(dirname "$0")/../.."
 psql -X -At -v ON_ERROR_STOP=1 -c "select current_database()" | grep -qx edith_core_ci
 psql -X -v ON_ERROR_STOP=1 -c "create role anon nologin; create role authenticated nologin;"
-for f in classification_v1 quality_flow_v1 synthetic_snapshot_v1 synthetic_workflow_v1 titan_clock_bridge_v1 prenatal_card_draft_v1 prenatal_capture_bridge_v2 prenatal_catalog_adapter_v1 titan_treatment_plan_lab_v1; do
+for f in classification_v1 quality_flow_v1 synthetic_snapshot_v1 synthetic_workflow_v1 titan_clock_bridge_v1 prenatal_card_draft_v1 prenatal_capture_bridge_v2 prenatal_catalog_adapter_v1 titan_treatment_plan_lab_v1 gesta_guardian_model_v1; do
  psql -X -v ON_ERROR_STOP=1 -f "core/sql/$f.sql"
 done
 psql -X -At -v ON_ERROR_STOP=1 -f core/tests/classification_v1.sql | grep -qx '12|12|0|f|f|f'
@@ -20,4 +20,5 @@ psql -X -At -v ON_ERROR_STOP=1 -f core/tests/prenatal_card_draft_v1.sql | grep -
 psql -X -At -v ON_ERROR_STOP=1 -f core/tests/prenatal_capture_bridge_v2.sql | grep -qx '26|PASS'
 psql -X -At -v ON_ERROR_STOP=1 -f core/tests/prenatal_catalog_adapter_v1.sql | grep -qx '9|PASS'
 psql -X -At -v ON_ERROR_STOP=1 -f core/tests/titan_treatment_plan_lab_v1.sql | grep -qx '12|PASS'
-echo "EDITH CORE + TITAN + PRENATAL: 160 checks passed"
+psql -X -At -v ON_ERROR_STOP=1 -f core/tests/gesta_guardian_model_v1.sql | grep -qx '22|PASS'
+echo "EDITH CORE + TITAN + PRENATAL + GESTA: 182 checks passed"

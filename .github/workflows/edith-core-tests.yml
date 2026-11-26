@@ -29,3 +29,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run synthetic checks
         run: bash core/tests/run_disposable.sh
+
+      - name: Run SKYNET v0.6 API contract
+        run: node core/tests/skynet_stable_v06.mjs

@@ -1,0 +1,22 @@
+begin;
+do $$ declare a uuid; b uuid; preg uuid; begin
+select id into a from gesta_bank.profile_demo where fixture='AURA-DEMO-001';
+select id into b from gesta_bank.profile_demo where fixture='AURA-DEMO-002';
+select id into preg from gesta_bank.pregnancy_demo where profile_id=a;
+if a is null or b is null or preg is null then raise exception 'fixtures'; end if;
+if (select theme from gesta_bank.profile_demo where id=a) is distinct from 'Aura' then raise exception 'default';end if;
+if gesta_bank.set_theme_demo(a,0,'Lavanda') is distinct from 'SAVED' then raise exception 'save';end if;
+if (select theme from gesta_bank.profile_demo where id=a) is distinct from 'Lavanda' then raise exception 'recover';end if;
+if gesta_bank.set_theme_demo(a,0,'Coral') is distinct from 'CONFLICT' then raise exception 'stale';end if;
+if gesta_bank.set_theme_demo(a,1,'Lavanda') is distinct from 'UNCHANGED' then raise exception 'noop';end if;
+if gesta_bank.set_theme_demo(a,1,'unknown') is distinct from 'INVALID' then raise exception 'invalid';end if;
+if (select theme from gesta_bank.profile_demo where id=b) is distinct from 'Aura' then raise exception 'isolation';end if;
+if (select count(*) from gesta_bank.preference_audit_demo where profile_id=a)<>1 then raise exception 'audit';end if;
+if (select weight_kg from gesta_bank.diary_demo where pregnancy_id=preg) is distinct from 68.2 then raise exception 'diary';end if;
+if (select weight_kg from gesta_bank.visit_demo where pregnancy_id=preg) is distinct from 68.9 then raise exception 'clinical';end if;
+if (select headache from gesta_bank.diary_demo where pregnancy_id=preg) is distinct from false then raise exception 'false';end if;
+if exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='gesta_bank' and c.relkind='r' and (not c.relrowsecurity or has_table_privilege('anon',c.oid,'SELECT') or has_table_privilege('authenticated',c.oid,'SELECT'))) then raise exception 'RLS/grants';end if;
+if has_function_privilege('authenticated','gesta_bank.set_theme_demo(uuid,bigint,text)','EXECUTE') or has_function_privilege('anon','gesta_bank.set_theme_demo(uuid,bigint,text)','EXECUTE') then raise exception 'rpc';end if;
+end $$;
+select 13 as checks,'PASS' as result;
+rollback;

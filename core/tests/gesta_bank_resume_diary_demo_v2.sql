@@ -1,0 +1,26 @@
+begin;
+do $$ declare a uuid;b uuid;p uuid;q uuid;r uuid:=gen_random_uuid();v jsonb;begin
+select id into a from gesta_bank.profile_demo where fixture='AURA-DEMO-001';
+select id into b from gesta_bank.profile_demo where fixture='AURA-DEMO-002';
+select id into p from gesta_bank.pregnancy_demo where profile_id=a;
+select id into q from gesta_bank.pregnancy_demo where profile_id=b;
+if a is null or b is null or p is null or q is null then raise exception 'fixtures';end if;
+if gesta_bank.resume_demo(a,q) is not null then raise exception 'cross episode';end if;
+if gesta_bank.save_diary_demo(b,p,'2026-12-01',0,r,68,'Tranquila',0,false) is distinct from 'DENIED' then raise exception 'wrong owner';end if;
+if gesta_bank.save_diary_demo(a,p,'2026-12-01',0,r,68,'Tranquila',0,false) is distinct from 'SAVED' then raise exception 'save';end if;
+if gesta_bank.save_diary_demo(a,p,'2026-12-01',0,r,68,'Tranquila',0,false) is distinct from 'REPLAY' then raise exception 'retry';end if;
+if gesta_bank.save_diary_demo(a,p,'2026-12-01',0,r,69,'Tranquila',0,false) is distinct from 'REQUEST_CONFLICT' then raise exception 'request reuse';end if;
+if gesta_bank.save_diary_demo(a,p,'2026-12-01',0,gen_random_uuid(),69,'Tranquila',0,false) is distinct from 'CONFLICT' then raise exception 'stale';end if;
+if gesta_bank.save_diary_demo(a,p,'2026-12-01',1,gen_random_uuid(),69,'Cansada',null,false) is distinct from 'SAVED' then raise exception 'edit';end if;
+if (select count(*) from gesta_bank.diary_revision_demo d join gesta_bank.diary_demo e on e.id=d.diary_id where e.pregnancy_id=p and e.observed_on='2026-12-01')<>2 then raise exception 'audit';end if;
+if (select headache from gesta_bank.diary_demo where pregnancy_id=p and observed_on='2026-12-01') is distinct from false then raise exception 'false';end if;
+if (select water_glasses from gesta_bank.diary_demo where pregnancy_id=p and observed_on='2026-12-01') is not null then raise exception 'null';end if;
+if gesta_bank.save_diary_demo(a,p,'2026-12-02',0,gen_random_uuid(),null,null,null,null) is distinct from 'INVALID' then raise exception 'empty';end if;
+v:=gesta_bank.resume_demo(a,p);
+if v->>'theme' is distinct from 'Aura' or jsonb_array_length(v->'diary') is distinct from 2 or jsonb_array_length(v->'clinical') is distinct from 1 then raise exception 'resume';end if;
+if (v->'clinical'->0->>'weight_kg')::numeric is distinct from 68.9 then raise exception 'source';end if;
+if exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='gesta_bank' and c.relkind='r' and (not c.relrowsecurity or has_table_privilege('authenticated',c.oid,'SELECT') or has_table_privilege('anon',c.oid,'SELECT'))) then raise exception 'grants';end if;
+if has_function_privilege('authenticated','gesta_bank.resume_demo(uuid,uuid)','execute') or has_function_privilege('anon','gesta_bank.save_diary_demo(uuid,uuid,date,bigint,uuid,numeric,text,integer,boolean)','execute') then raise exception 'rpc';end if;
+end $$;
+select 16 as checks,'PASS' as result;
+rollback;
